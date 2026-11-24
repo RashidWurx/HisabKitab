@@ -31,12 +31,15 @@ class MoneyText extends StatelessWidget {
             : (paisa < 0 ? colors.negative : colors.positive));
     return Text(
       Money.format(paisa),
-      style: (style ?? const TextStyle()).copyWith(color: color),
+      style: (style ?? const TextStyle()).copyWith(
+        color: color,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
     );
   }
 }
 
-/// Outlined card used across the app (matches the mockups).
+/// Card used across the app: soft shadow in light mode, thin border always.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
@@ -44,21 +47,44 @@ class AppCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.onTap,
     this.color,
+    this.radius = 20,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final Color? color;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: color,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(padding: padding, child: child),
+    final scheme = Theme.of(context).colorScheme;
+    final light = scheme.brightness == Brightness.light;
+    final r = BorderRadius.circular(radius);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color ?? scheme.surfaceContainerLow,
+        borderRadius: r,
+        border: Border.all(color: scheme.outlineVariant),
+        boxShadow: light
+            ? const [
+                BoxShadow(
+                  color: Color(0x0D112E4E),
+                  blurRadius: 14,
+                  offset: Offset(0, 4),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: r,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: r,
+          child: Padding(padding: padding, child: child),
+        ),
       ),
     );
   }
@@ -73,15 +99,17 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 24, 0, 10),
+      padding: const EdgeInsets.fromLTRB(2, 28, 0, 12),
       child: Row(
         children: [
           Expanded(
             child: Text(
               text,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.2,
+                fontSize: 19,
+              ),
             ),
           ),
           ?trailing,
@@ -91,7 +119,7 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
-/// Square outlined icon, as used for accounts, sources and categories.
+/// Rounded tinted icon tile used for accounts, sources and categories.
 class IconBox extends StatelessWidget {
   const IconBox({
     super.key,
@@ -109,24 +137,93 @@ class IconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final c = color ?? scheme.onSurface;
+    final dark = scheme.brightness == Brightness.dark;
+    final c = color ?? scheme.primary;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: filled ? c : scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(size * 0.28),
-        border: Border.all(color: scheme.outlineVariant),
+        color: filled ? c : c.withValues(alpha: dark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(size * 0.32),
       ),
       child: Icon(
         iconFor(iconKey),
-        size: size * 0.52,
-        color: filled ? scheme.surface : c,
+        size: size * 0.5,
+        color: filled ? Colors.white : (dark ? Color.lerp(c, Colors.white, 0.35) : c),
       ),
     );
   }
 }
 
+/// Circle with a person's initials.
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {super.key, this.size = 44, this.color});
+
+  final String name;
+  final double size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final c = color ?? scheme.primary;
+    final parts = name.trim().split(RegExp(r'\s+'));
+    final initials = parts.isEmpty || parts.first.isEmpty
+        ? '?'
+        : (parts.length == 1
+              ? parts.first.substring(0, 1)
+              : parts.first.substring(0, 1) + parts.last.substring(0, 1))
+              .toUpperCase();
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: c.withValues(alpha: 0.14),
+      ),
+      child: Text(
+        initials,
+        style: TextStyle(
+          color: c,
+          fontWeight: FontWeight.w800,
+          fontSize: size * 0.36,
+        ),
+      ),
+    );
+  }
+}
+
+/// Thin rounded progress bar (value 0..1).
+class SoftProgress extends StatelessWidget {
+  const SoftProgress({
+    super.key,
+    required this.value,
+    required this.color,
+    this.height = 8,
+  });
+
+  final double value;
+  final Color color;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final track = Theme.of(context).colorScheme.surfaceContainerHigh;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(height),
+      child: Stack(
+        children: [
+          Container(height: height, color: track),
+          FractionallySizedBox(
+            widthFactor: value.clamp(0.0, 1.0),
+            child: Container(height: height, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+}
 /// Friendly empty state with an optional action button.
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -411,6 +508,100 @@ Future<bool> confirmDialog(
     ),
   );
   return result ?? false;
+}
+
+/// Small text-entry dialog. The controller lives inside the dialog's own
+/// State, so it is disposed only after the dialog has fully closed.
+/// Returns the entered text, or null if cancelled.
+Future<String?> showTextDialog(
+  BuildContext context, {
+  required String title,
+  String initial = '',
+  String? hint,
+  String confirmLabel = 'Save',
+  bool amount = false,
+  bool multiline = false,
+  TextCapitalization capitalization = TextCapitalization.sentences,
+}) {
+  return showDialog<String>(
+    context: context,
+    builder: (_) => _TextDialog(
+      title: title,
+      initial: initial,
+      hint: hint,
+      confirmLabel: confirmLabel,
+      amount: amount,
+      multiline: multiline,
+      capitalization: capitalization,
+    ),
+  );
+}
+
+class _TextDialog extends StatefulWidget {
+  const _TextDialog({
+    required this.title,
+    required this.initial,
+    required this.hint,
+    required this.confirmLabel,
+    required this.amount,
+    required this.multiline,
+    required this.capitalization,
+  });
+
+  final String title;
+  final String initial;
+  final String? hint;
+  final String confirmLabel;
+  final bool amount;
+  final bool multiline;
+  final TextCapitalization capitalization;
+
+  @override
+  State<_TextDialog> createState() => _TextDialogState();
+}
+
+class _TextDialogState extends State<_TextDialog> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        minLines: 1,
+        maxLines: widget.multiline ? 4 : 1,
+        textCapitalization: widget.capitalization,
+        keyboardType: widget.amount
+            ? const TextInputType.numberWithOptions(decimal: true)
+            : null,
+        inputFormatters: widget.amount ? amountFormatters : null,
+        decoration: InputDecoration(
+          hintText: widget.hint,
+          prefixText: widget.amount ? 'Rs ' : null,
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: Text(widget.confirmLabel),
+        ),
+      ],
+    );
+  }
 }
 
 /// Allows only digits and one decimal point with up to 2 decimals.

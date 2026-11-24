@@ -318,35 +318,13 @@ Future<String?> _askText(
   String title, {
   String initial = '',
   String? hint,
-}) async {
-  final controller = TextEditingController(text: initial);
-  final result = await showDialog<String>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: TextField(
-        controller: controller,
-        autofocus: true,
-        minLines: 1,
-        maxLines: 4,
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(hintText: hint),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, controller.text),
-          child: const Text('Save'),
-        ),
-      ],
-    ),
-  );
-  controller.dispose();
-  return result;
-}
+}) => showTextDialog(
+  context,
+  title: title,
+  initial: initial,
+  hint: hint,
+  multiline: true,
+);
 
 /// History, newest on top, with the date and time of each entry.
 class _Timeline extends ConsumerWidget {
@@ -531,33 +509,12 @@ class _Timeline extends ConsumerWidget {
   }
 
   Future<int?> _askAmount(BuildContext context, int current) async {
-    final controller = TextEditingController(
-      text: Money.format(current).replaceFirst('Rs ', '').replaceAll(',', ''),
+    final text = await showTextDialog(
+      context,
+      title: 'Edit payment amount',
+      initial: Money.format(current).replaceFirst('Rs ', '').replaceAll(',', ''),
+      amount: true,
     );
-    final result = await showDialog<int>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit payment amount'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: amountFormatters,
-          decoration: const InputDecoration(prefixText: 'Rs '),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, parseAmount(controller.text)),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return result;
+    return text == null ? null : parseAmount(text);
   }
 }

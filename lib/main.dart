@@ -51,6 +51,8 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
     return MaterialApp.router(
       title: 'Hisaab',
       debugShowCheckedModeBanner: false,
+      // Switching light/dark is instant: no cross-fade across the whole tree.
+      themeAnimationDuration: Duration.zero,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: switch (mode) {

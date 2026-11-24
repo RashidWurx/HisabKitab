@@ -110,33 +110,14 @@ class SettingsPage extends ConsumerWidget {
       destructive: true,
     );
     if (!first || !context.mounted) return;
-    final controller = TextEditingController();
-    final second = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Are you absolutely sure?'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Type DELETE to confirm'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(
-              ctx,
-              controller.text.trim().toUpperCase() == 'DELETE',
-            ),
-            child: const Text('Delete everything'),
-          ),
-        ],
-      ),
+    final typed = await showTextDialog(
+      context,
+      title: 'Are you absolutely sure?',
+      hint: 'Type DELETE to confirm',
+      confirmLabel: 'Delete everything',
+      capitalization: TextCapitalization.characters,
     );
-    controller.dispose();
-    if (second != true) return;
+    if (typed == null || typed.trim().toUpperCase() != 'DELETE') return;
     await ref.read(settingsRepositoryProvider).deleteAllData();
     // Onboarding flag is gone, so the router sends the user back to setup.
   }

@@ -39,7 +39,12 @@ GoRoute _full(String path, Widget Function(GoRouterState s) builder) =>
 final routerProvider = Provider<GoRouter>((ref) {
   // Tells the router to re-run `redirect` when settings (onboarding) change.
   final refresh = ValueNotifier<int>(0);
-  ref.listen(settingsProvider, (_, _) => refresh.value++);
+  // Only the onboarding flag matters here; theme/other settings must not
+  // make the router re-run (that would rebuild screens needlessly).
+  ref.listen(
+    settingsProvider.select((s) => s.hasValue ? s.requireValue.onboardingDone : null),
+    (_, _) => refresh.value++,
+  );
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(

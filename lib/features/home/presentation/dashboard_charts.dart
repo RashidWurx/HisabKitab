@@ -47,6 +47,7 @@ class SpendingDonut extends StatelessWidget {
         SizedBox(
           height: 190,
           child: PieChart(
+            duration: Duration.zero,
             PieChartData(
               sectionsSpace: 2,
               centerSpaceRadius: 54,
@@ -139,6 +140,7 @@ class IncomeExpenseBars extends StatelessWidget {
         SizedBox(
           height: 200,
           child: BarChart(
+            duration: Duration.zero,
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
               gridData: FlGridData(

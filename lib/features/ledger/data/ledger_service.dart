@@ -154,6 +154,20 @@ SELECT account_id, source_id, SUM(amt) AS bal FROM (
     return (total: total, savings: savings);
   }
 
+  /// Net cash movement of a day's transactions: money in minus money out.
+  /// Transfers are neutral.
+  static int dayNet(Iterable<Transaction> transactions) {
+    var net = 0;
+    for (final t in transactions) {
+      if (moneyInTypes.contains(t.type)) {
+        net += t.amount;
+      } else if (moneyOutTypes.contains(t.type)) {
+        net -= t.amount;
+      }
+    }
+    return net;
+  }
+
   Stream<Map<String, int>> watchAccountBalances() =>
       watchSourceBalances().map(accountTotals);
 

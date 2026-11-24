@@ -2,8 +2,8 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/database/app_database.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/widgets.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/money.dart';
 import '../domain/due_models.dart';
 
@@ -46,17 +46,17 @@ class DueStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        border: Border.all(color: c),
+        color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(statusIcon(status), size: 16, color: c),
+          Icon(statusIcon(status), size: 15, color: c),
           const SizedBox(width: 4),
           Text(
             statusLabel(status),
-            style: TextStyle(color: c, fontWeight: FontWeight.w700, fontSize: 13),
+            style: TextStyle(color: c, fontWeight: FontWeight.w800, fontSize: 12),
           ),
         ],
       ),
@@ -92,113 +92,192 @@ class DueTile extends StatelessWidget {
     final d = view.due;
     final scheme = Theme.of(context).colorScheme;
     final colors = context.appColors;
-    final who = people[d.personId]?.name;
-    final sub = who ?? sources[d.sourceId]?.name ?? 'Expected cash in';
+    final person = people[d.personId];
+    final source = sources[d.sourceId];
+    final sub = person?.name ?? source?.name ?? 'Expected cash in';
     final overdue = view.status == DueStatus.overdue;
-    final amountColor = view.status == DueStatus.settled ||
-            view.status == DueStatus.cancelled
+    final closed =
+        view.status == DueStatus.settled || view.status == DueStatus.cancelled;
+    final amountColor = closed
         ? scheme.onSurfaceVariant
         : overdue
         ? colors.negative
         : (view.isReceivable ? colors.positive : colors.negative);
+    final accent = statusColor(context, view.status);
+    final progress = view.total == 0 ? 0.0 : view.paid / view.total;
+
     return AppCard(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.zero,
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 5, color: accent),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      d.title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                    Row(
+                      children: [
+                        person != null
+                            ? InitialsAvatar(person.name, size: 42)
+                            : IconBox(
+                                iconKey: source?.iconKey ?? 'work',
+                                color: source == null
+                                    ? null
+                                    : Color(source.colorValue),
+                                size: 42,
+                              ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                d.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              Text(
+                                sub,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        DueStatusChip(view.status),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                view.status == DueStatus.settled
+                                    ? 'Settled'
+                                    : 'Remaining',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                              Text(
+                                Money.format(
+                                  view.status == DueStatus.settled
+                                      ? view.total
+                                      : view.remaining,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 21,
+                                  fontWeight: FontWeight.w800,
+                                  color: amountColor,
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'of ${Money.format(view.total)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: scheme.onSurfaceVariant,
+                              ),
+                            ),
+                            Text(
+                              'Due ${formatDateShort(d.currentDueDate)}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (view.paid > 0 && !closed) ...[
+                      const SizedBox(height: 10),
+                      SoftProgress(value: progress, color: colors.partial, height: 6),
+                    ],
+                    if ((view.lateDays > 0 &&
+                            view.status != DueStatus.cancelled) ||
+                        view.extensionCount > 0 ||
+                        onQuickReceive != null) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                if (view.lateDays > 0 &&
+                                    view.status != DueStatus.cancelled)
+                                  _badge(
+                                    'Late by ${view.lateDays} days',
+                                    colors.negative,
+                                  ),
+                                if (view.extensionCount > 0)
+                                  _badge(
+                                    'Extended ${view.extensionCount}×',
+                                    colors.partial,
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (onQuickReceive != null)
+                            FilledButton.tonal(
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size(0, 36),
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                textStyle: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              onPressed: onQuickReceive,
+                              child: const Text('Received'),
+                            ),
+                        ],
                       ),
-                    ),
-                    Text(
-                      sub,
-                      style: TextStyle(color: scheme.onSurfaceVariant),
-                    ),
+                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              DueStatusChip(view.status),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: Money.format(
-                    view.status == DueStatus.settled ? view.total : view.remaining,
-                  ),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: amountColor,
-                  ),
-                ),
-                TextSpan(
-                  text: view.status == DueStatus.settled
-                      ? ' settled'
-                      : ' remaining of ${Money.format(view.total)}',
-                  style: const TextStyle(fontSize: 14),
-                ),
-              ],
             ),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text('Due: ${formatDateShort(d.currentDueDate)}'),
-                    if (view.lateDays > 0 && view.status != DueStatus.cancelled)
-                      _badge(context, 'Late by ${view.lateDays} days', colors.negative),
-                    if (view.extensionCount > 0)
-                      _badge(context, 'Extended ${view.extensionCount}×', colors.partial),
-                  ],
-                ),
-              ),
-              if (onQuickReceive != null)
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 38),
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                  ),
-                  onPressed: onQuickReceive,
-                  child: const Text('Received'),
-                )
-              else
-                const Icon(Icons.chevron_right),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _badge(BuildContext context, String text, Color color) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+  Widget _badge(String text, Color color) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
     decoration: BoxDecoration(
       color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(8),
     ),
     child: Text(
       text,
-      style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700),
+      style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w800),
     ),
   );
 }

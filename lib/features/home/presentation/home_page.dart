@@ -15,6 +15,10 @@ import '../data/dashboard_service.dart';
 import 'dashboard_charts.dart';
 import 'home_providers.dart';
 
+// Light tints that stay readable on the navy hero card.
+const _heroGreen = Color(0xFF7DE3A0);
+const _heroRed = Color(0xFFFF9A92);
+
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -44,136 +48,57 @@ class HomePage extends ConsumerWidget {
 
     final visibleAccounts = accounts.where((a) => !a.isArchived).toList();
     final accountById = {for (final a in accounts) a.id: a};
-
     final remaining = (totals?.moneyIn ?? 0) - (totals?.moneyOut ?? 0);
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 16,
+        titleSpacing: 20,
+        toolbarHeight: 64,
         title: const Text(
           'Hisaab',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 26),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 28,
+            letterSpacing: -0.6,
+          ),
         ),
-        actions: [
-          const _PeriodSwitcher(),
-          const SizedBox(width: 8),
-        ],
+        actions: const [_PeriodSwitcher(), SizedBox(width: 12)],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 128),
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              _rangeLabel(range),
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
+          // ---- Hero ----
+          _Hero(
+            total: headline.total,
+            savings: headline.savings,
+            income: totals?.moneyIn ?? 0,
+            expense: totals?.moneyOut ?? 0,
+            remaining: remaining,
+            rangeLabel: _rangeLabel(range),
           ),
-          // Total balance
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppTheme.navyHero,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Total balance',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    Money.format(headline.total),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 44,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Includes ${Money.format(headline.savings)} in savings',
-                  style: const TextStyle(color: Colors.white, fontSize: 15),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Income / Expense / Remaining
-          AppCard(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _stat(
-                      context,
-                      'Income',
-                      MoneyText(totals?.moneyIn ?? 0, style: _statStyle),
-                    ),
-                  ),
-                  const VerticalDivider(width: 1),
-                  Expanded(
-                    child: _stat(
-                      context,
-                      'Expense',
-                      MoneyText(
-                        totals?.moneyOut ?? 0,
-                        forceColor: (totals?.moneyOut ?? 0) == 0
-                            ? null
-                            : colors.negative,
-                        style: _statStyle,
-                      ),
-                    ),
-                  ),
-                  const VerticalDivider(width: 1),
-                  Expanded(
-                    child: _stat(
-                      context,
-                      'Remaining',
-                      MoneyText(remaining, style: _statStyle),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          // To receive / To pay
+          const SizedBox(height: 16),
+          // ---- Quick actions ----
+          const _QuickActions(),
+          const SizedBox(height: 16),
+          // ---- Dues ----
           Row(
             children: [
               Expanded(
-                child: _dueTile(
-                  context,
-                  icon: Icons.arrow_downward,
+                child: _DueTile(
+                  icon: Icons.south_west_rounded,
                   label: 'To receive',
                   amount: dues.toReceive,
                   color: colors.positive,
                   route: '/dues',
-                  extra: dues.overdueCount > 0
-                      ? Text(
-                          '${dues.overdueCount} overdue',
-                          style: TextStyle(
-                            color: colors.negative,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        )
+                  badge: dues.overdueCount > 0
+                      ? '${dues.overdueCount} overdue'
                       : null,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _dueTile(
-                  context,
-                  icon: Icons.arrow_upward,
+                child: _DueTile(
+                  icon: Icons.north_east_rounded,
                   label: 'To pay',
                   amount: dues.toPay,
                   color: colors.negative,
@@ -182,16 +107,7 @@ class HomePage extends ConsumerWidget {
               ),
             ],
           ),
-          // Money by source
-          const SectionTitle('Money by source'),
-          _moneyBySource(
-            context,
-            sources: sources,
-            rows: sourceRows,
-            left: sourceTotals,
-            accountById: accountById,
-          ),
-          // Accounts
+          // ---- Accounts ----
           SectionTitle(
             'Accounts',
             trailing: TextButton(
@@ -211,113 +127,74 @@ class HomePage extends ConsumerWidget {
               ),
             )
           else
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  for (var i = 0; i < visibleAccounts.length; i++) ...[
-                    if (i > 0) const Divider(),
-                    _accountRow(
-                      context,
-                      visibleAccounts[i],
-                      accountBalances[visibleAccounts[i].id] ?? 0,
-                      accountRows[visibleAccounts[i].id],
-                    ),
-                  ],
-                ],
+            SizedBox(
+              height: 148,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                itemCount: visibleAccounts.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, i) {
+                  final a = visibleAccounts[i];
+                  return _AccountCard(
+                    account: a,
+                    balance: accountBalances[a.id] ?? 0,
+                    row: accountRows[a.id],
+                  );
+                },
               ),
             ),
-          // Upcoming
-          const SectionTitle('Upcoming (next 7 days)'),
+          // ---- Money by source ----
+          const SectionTitle('Money by source'),
+          _moneyBySource(
+            context,
+            sources: sources,
+            rows: sourceRows,
+            left: sourceTotals,
+            accountById: accountById,
+          ),
+          // ---- Upcoming ----
+          const SectionTitle('Upcoming · next 7 days'),
           if (upcoming.isEmpty)
-            const AppCard(child: Text('Nothing due in the next 7 days.'))
+            const AppCard(
+              child: Row(
+                children: [
+                  Icon(Icons.event_available_outlined),
+                  SizedBox(width: 12),
+                  Expanded(child: Text('Nothing due in the next 7 days.')),
+                ],
+              ),
+            )
           else
-            Card(
-              clipBehavior: Clip.antiAlias,
+            AppCard(
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Column(
                 children: [
                   for (var i = 0; i < upcoming.length; i++) ...[
-                    if (i > 0) const Divider(),
-                    _upcomingRow(context, upcoming[i]),
+                    if (i > 0) const Divider(indent: 76),
+                    _UpcomingRow(item: upcoming[i]),
                   ],
                 ],
               ),
             ),
-          // Charts
+          // ---- Charts ----
           const SectionTitle('Spending by category'),
-          AppCard(child: SpendingDonut(spend: spend, categories: cats)),
-          const SectionTitle('Income vs expense'),
-          AppCard(
-            child: monthly == null
-                ? const SizedBox(height: 120)
-                : IncomeExpenseBars(
-                    ranges: monthly.ranges,
-                    totals: monthly.totals,
-                    incomeColor: colors.positive,
-                    expenseColor: colors.negative,
-                  ),
+          RepaintBoundary(
+            child: AppCard(child: SpendingDonut(spend: spend, categories: cats)),
           ),
-        ],
-      ),
-    );
-  }
-
-  static const _statStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800);
-
-  TextStyle _subStyle(BuildContext context) => TextStyle(
-    fontSize: 13,
-    color: Theme.of(context).colorScheme.onSurfaceVariant,
-  );
-
-  Widget _stat(BuildContext context, String label, Widget value) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 14)),
-        const SizedBox(height: 4),
-        FittedBox(fit: BoxFit.scaleDown, child: value),
-      ],
-    ),
-  );
-
-  Widget _dueTile(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required int amount,
-    required Color color,
-    required String route,
-    Widget? extra,
-  }) {
-    return AppCard(
-      padding: const EdgeInsets.all(14),
-      onTap: () => context.go(route),
-      child: Row(
-        children: [
-          Icon(icon, size: 26),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(fontSize: 14)),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    Money.format(amount),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: amount == 0 ? null : color,
+          const SectionTitle('Income vs expense'),
+          RepaintBoundary(
+            child: AppCard(
+              child: monthly == null
+                  ? const SizedBox(height: 120)
+                  : IncomeExpenseBars(
+                      ranges: monthly.ranges,
+                      totals: monthly.totals,
+                      incomeColor: colors.positive,
+                      expenseColor: colors.negative,
                     ),
-                  ),
-                ),
-                ?extra,
-              ],
             ),
           ),
-          const Icon(Icons.chevron_right),
         ],
       ),
     );
@@ -347,7 +224,9 @@ class HomePage extends ConsumerWidget {
         child: Row(
           children: [
             const Expanded(
-              child: Text('Add an income source to see where your money comes from.'),
+              child: Text(
+                'Add an income source to see where your money comes from.',
+              ),
             ),
             TextButton(
               onPressed: () => context.push('/sources/new'),
@@ -357,228 +236,674 @@ class HomePage extends ConsumerWidget {
         ),
       );
     }
-    final colors = context.appColors;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (var i = 0; i < shown.length; i++) ...[
-            if (i > 0) const Divider(),
-            Builder(
-              builder: (_) {
-                final s = shown[i];
-                final r = rows[s.id];
-                final leftNow = left[s.id] ?? 0;
-                final expected = r?.expected ?? 0;
-                final into = accountById[r?.expectedAccountId]?.name;
-                return InkWell(
-                  onTap: () => context.push('/sources/${s.id}'),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      children: [
-                        IconBox(
-                          iconKey: s.iconKey,
-                          color: Color(s.colorValue),
-                          size: 42,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                s.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                'Received ${Money.format(r?.received ?? 0)}',
-                                style: _subStyle(context),
-                              ),
-                              Text(
-                                'Spent ${Money.format(r?.spent ?? 0)}',
-                                style: _subStyle(context),
-                              ),
-                              if (expected > 0)
-                                Text(
-                                  'Expecting ${Money.format(expected)}${into == null ? '' : ' into $into'}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: colors.pending,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Text('Left', style: TextStyle(fontSize: 12)),
-                            MoneyText(
-                              leftNow,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+    return Column(
+      children: [
+        for (final s in shown)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _SourceCard(
+              source: s,
+              row: rows[s.id],
+              left: left[s.id] ?? 0,
+              expectedInto: accountById[rows[s.id]?.expectedAccountId]?.name,
             ),
-          ],
-        ],
-      ),
+          ),
+      ],
     );
   }
 
-  Widget _accountRow(
-    BuildContext context,
-    Account a,
-    int balance,
-    AccountDashRow? row,
-  ) {
-    final scheme = Theme.of(context).colorScheme;
-    final colors = context.appColors;
-    final expected = row?.expected ?? 0;
-    return InkWell(
-      onTap: () => context.push('/accounts/${a.id}'),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
+  String _rangeLabel(DateRange r) {
+    if (r.start == null || r.end == null) return 'All time';
+    final f = DateFormat('d MMM');
+    final last = r.end!.subtract(const Duration(days: 1));
+    return '${f.format(r.start!)} – ${f.format(last)}';
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+class _Hero extends StatelessWidget {
+  const _Hero({
+    required this.total,
+    required this.savings,
+    required this.income,
+    required this.expense,
+    required this.remaining,
+    required this.rangeLabel,
+  });
+
+  final int total;
+  final int savings;
+  final int income;
+  final int expense;
+  final int remaining;
+  final String rangeLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1D4068), AppTheme.navy],
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33112E4E),
+              blurRadius: 24,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconBox(iconKey: a.iconKey, color: Color(a.colorValue), size: 42),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    a.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Total balance',
+                    style: TextStyle(
+                      color: Color(0xCCFFFFFF),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Wrap(
-                    spacing: 14,
-                    children: [
-                      Text.rich(
-                        TextSpan(
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                          children: [
-                            const TextSpan(text: 'In '),
-                            TextSpan(
-                              text: Money.format(row?.moneyIn ?? 0),
-                              style: TextStyle(
-                                color: (row?.moneyIn ?? 0) == 0
-                                    ? null
-                                    : colors.positive,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                          children: [
-                            const TextSpan(text: 'Out '),
-                            TextSpan(
-                              text: Money.format(row?.moneyOut ?? 0),
-                              style: TextStyle(
-                                color: (row?.moneyOut ?? 0) == 0
-                                    ? null
-                                    : colors.negative,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1FFFFFFF),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  if (expected > 0)
-                    Text(
-                      'Expecting ${Money.format(expected)}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: colors.pending,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                ],
+                  child: Text(
+                    rangeLabel,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                Money.format(total),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 42,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -1,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-            MoneyText(
-              balance,
-              neutral: balance >= 0,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+            const SizedBox(height: 4),
+            Text(
+              'Includes ${Money.format(savings)} in savings',
+              style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _HeroStat(
+                    icon: Icons.south_west_rounded,
+                    label: 'Income',
+                    value: Money.format(income),
+                    color: income == 0 ? Colors.white : _heroGreen,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _HeroStat(
+                    icon: Icons.north_east_rounded,
+                    label: 'Expense',
+                    value: Money.format(expense),
+                    color: expense == 0 ? Colors.white : _heroRed,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _HeroStat(
+                    icon: Icons.savings_outlined,
+                    label: 'Remaining',
+                    value: Money.format(remaining),
+                    color: remaining == 0
+                        ? Colors.white
+                        : (remaining > 0 ? _heroGreen : _heroRed),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _upcomingRow(BuildContext context, UpcomingItem item) {
-    final colors = context.appColors;
-    final icon = switch (item.kind) {
-      UpcomingKind.due => Icons.event_outlined,
-      UpcomingKind.subscription => Icons.autorenew,
-      UpcomingKind.reminder => Icons.notifications_none,
-    };
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
+class _HeroStat extends StatelessWidget {
+  const _HeroStat({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0x1AFFFFFF),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 52,
-            child: Text(DateFormat('d MMM').format(item.date)),
+          Row(
+            children: [
+              Icon(icon, size: 14, color: const Color(0xB3FFFFFF)),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 12),
+              ),
+            ],
           ),
-          Expanded(
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
             child: Text(
-              item.title,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
-          if (item.amount != null)
-            Text(
-              Money.format(item.isMoneyIn ? item.amount! : -item.amount!),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions();
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <(IconData, String, String)>[
+      (Icons.remove_rounded, 'Expense', '/transaction/new/expense'),
+      (Icons.add_rounded, 'Income', '/transaction/new/income'),
+      (Icons.swap_horiz_rounded, 'Transfer', '/transaction/new/transfer'),
+      (Icons.volunteer_activism_outlined, 'Lend', '/dues/new/lent'),
+    ];
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final it in items)
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: () => context.push(it.$3),
+            child: SizedBox(
+              width: 76,
+              child: Column(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(it.$1, color: scheme.primary, size: 26),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    it.$2,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _DueTile extends StatelessWidget {
+  const _DueTile({
+    required this.icon,
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.route,
+    this.badge,
+  });
+
+  final IconData icon;
+  final String label;
+  final int amount;
+  final Color color;
+  final String route;
+  final String? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return AppCard(
+      padding: const EdgeInsets.all(14),
+      onTap: () => context.go(route),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.13),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 18, color: color),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 20),
+            ],
+          ),
+          const SizedBox(height: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              Money.format(amount),
               style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: item.isMoneyIn ? colors.positive : colors.negative,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: amount == 0 ? null : color,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+          if (badge != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                badge!,
+                style: TextStyle(
+                  color: colors.negative,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
               ),
             ),
         ],
       ),
     );
   }
+}
 
-  String _rangeLabel(DateRange r) {
-    if (r.start == null || r.end == null) return 'All time';
-    final f = DateFormat('d MMM y');
-    final last = r.end!.subtract(const Duration(days: 1));
-    return '${f.format(r.start!)} – ${f.format(last)}';
+class _AccountCard extends StatelessWidget {
+  const _AccountCard({
+    required this.account,
+    required this.balance,
+    required this.row,
+  });
+
+  final Account account;
+  final int balance;
+  final AccountDashRow? row;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final colors = context.appColors;
+    final tint = Color(account.colorValue);
+    final dark = scheme.brightness == Brightness.dark;
+    return SizedBox(
+      width: 232,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: scheme.outlineVariant),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              tint.withValues(alpha: dark ? 0.30 : 0.16),
+              scheme.surfaceContainerLow,
+            ],
+          ),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(22),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => context.push('/accounts/${account.id}'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IconBox(
+                        iconKey: account.iconKey,
+                        color: tint,
+                        size: 36,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          account.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: MoneyText(
+                      balance,
+                      neutral: balance >= 0,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.south_west_rounded, size: 13, color: colors.positive),
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          Money.format(row?.moneyIn ?? 0),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(Icons.north_east_rounded, size: 13, color: colors.negative),
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          Money.format(row?.moneyOut ?? 0),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-/// "This month ▾" menu with presets and a custom range.
+class _SourceCard extends StatelessWidget {
+  const _SourceCard({
+    required this.source,
+    required this.row,
+    required this.left,
+    required this.expectedInto,
+  });
+
+  final IncomeSource source;
+  final SourceDashRow? row;
+  final int left;
+  final String? expectedInto;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final scheme = Theme.of(context).colorScheme;
+    final received = row?.received ?? 0;
+    final spent = row?.spent ?? 0;
+    final expected = row?.expected ?? 0;
+    final tint = Color(source.colorValue);
+    final ratio = received > 0 ? spent / received : (spent > 0 ? 1.0 : 0.0);
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      onTap: () => context.push('/sources/${source.id}'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconBox(iconKey: source.iconKey, color: tint, size: 42),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      source.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      'Left now',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              MoneyText(
+                left,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SoftProgress(
+            value: ratio,
+            color: ratio > 1 ? colors.negative : tint,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    style: const TextStyle(fontSize: 13),
+                    children: [
+                      TextSpan(
+                        text: 'Received ',
+                        style: TextStyle(color: scheme.onSurfaceVariant),
+                      ),
+                      TextSpan(
+                        text: Money.format(received),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: received == 0 ? null : colors.positive,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  style: const TextStyle(fontSize: 13),
+                  children: [
+                    TextSpan(
+                      text: 'Spent ',
+                      style: TextStyle(color: scheme.onSurfaceVariant),
+                    ),
+                    TextSpan(
+                      text: Money.format(spent),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: spent == 0 ? null : colors.negative,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (expected > 0) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: colors.pending.withValues(alpha: 0.13),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.schedule, size: 15, color: colors.pending),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Expecting ${Money.format(expected)}${expectedInto == null ? '' : ' into $expectedInto'}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: colors.pending,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _UpcomingRow extends StatelessWidget {
+  const _UpcomingRow({required this.item});
+
+  final UpcomingItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final scheme = Theme.of(context).colorScheme;
+    final label = switch (item.kind) {
+      UpcomingKind.due => item.isMoneyIn ? 'Expected' : 'To pay',
+      UpcomingKind.subscription => 'Subscription',
+      UpcomingKind.reminder => 'Reminder',
+    };
+    final color = item.isMoneyIn ? colors.positive : colors.negative;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            decoration: BoxDecoration(
+              color: scheme.primary.withValues(alpha: 0.09),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  DateFormat('d').format(item.date),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  DateFormat('MMM').format(item.date).toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (item.amount != null)
+            Text(
+              Money.format(item.isMoneyIn ? item.amount! : -item.amount!),
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: color,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Period pill ("This month ▾") with presets and a custom range.
 class _PeriodSwitcher extends ConsumerWidget {
   const _PeriodSwitcher();
 
@@ -586,6 +911,7 @@ class _PeriodSwitcher extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selection = ref.watch(periodSelectionProvider);
     final notifier = ref.read(periodSelectionProvider.notifier);
+    final scheme = Theme.of(context).colorScheme;
     final label = selection.kind == null
         ? 'Custom range'
         : periodLabels[selection.kind]!;
@@ -605,17 +931,26 @@ class _PeriodSwitcher extends ConsumerWidget {
       itemBuilder: (_) => [
         for (final p in PeriodKind.values)
           PopupMenuItem<Object>(value: p, child: Text(periodLabels[p]!)),
-        const PopupMenuItem<Object>(value: 'custom', child: Text('Custom range…')),
+        const PopupMenuItem<Object>(
+          value: 'custom',
+          child: Text('Custom range…'),
+        ),
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
             ),
-            const Icon(Icons.keyboard_arrow_down),
+            const Icon(Icons.keyboard_arrow_down, size: 20),
           ],
         ),
       ),

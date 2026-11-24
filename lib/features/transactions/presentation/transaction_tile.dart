@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/enums.dart';
-import '../../../core/ui/icon_registry.dart';
 import '../../../core/ui/widgets.dart';
 import '../domain/transaction_models.dart';
 
@@ -24,6 +23,7 @@ class TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = transaction;
+    final scheme = Theme.of(context).colorScheme;
     final account = accounts[t.accountId];
     final category = categories[t.categoryId];
     final toAccount = accounts[t.toAccountId];
@@ -35,25 +35,32 @@ class TransactionTile extends StatelessWidget {
       case TransactionType.transfer:
         title = 'Transfer';
         subtitle = '${account?.name ?? '?'} → ${toAccount?.name ?? '?'}';
-        iconKey = 'swap';
+        iconKey = 'bank';
+        color = const Color(0xFF2A4E76);
       case TransactionType.lendOut:
         title = 'Lent';
         subtitle = account?.name ?? '';
         iconKey = 'people';
+        color = const Color(0xFF9C27B0);
       case TransactionType.borrowIn:
         title = 'Borrowed';
         subtitle = account?.name ?? '';
         iconKey = 'people';
+        color = const Color(0xFF9C27B0);
       case TransactionType.repayIn:
         title = 'Repayment received';
         subtitle = account?.name ?? '';
         iconKey = 'people';
+        color = const Color(0xFF9C27B0);
       case TransactionType.repayOut:
         title = 'Repayment paid';
         subtitle = account?.name ?? '';
         iconKey = 'people';
+        color = const Color(0xFF9C27B0);
       default:
-        title = category?.name ?? (t.type == TransactionType.income ? 'Income' : 'Expense');
+        title =
+            category?.name ??
+            (t.type == TransactionType.income ? 'Income' : 'Expense');
         subtitle = account?.name ?? '';
         iconKey = category?.iconKey ?? 'category';
         color = category == null ? null : Color(category.colorValue);
@@ -68,47 +75,53 @@ class TransactionTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
             t.type == TransactionType.transfer
-                ? const SizedBox(
-                    width: 32,
-                    child: Icon(Icons.swap_horiz, size: 28),
+                ? Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: color!.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(Icons.swap_horiz_rounded, color: color),
                   )
-                : SizedBox(
-                    width: 32,
-                    child: Icon(iconFor(iconKey), size: 28, color: color),
-                  ),
-            const SizedBox(width: 12),
+                : IconBox(iconKey: iconKey, color: color),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 13,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             MoneyText(
               signed,
               neutral: t.type == TransactionType.transfer,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
-            const Icon(Icons.chevron_right),
           ],
         ),
       ),

@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../transactions/presentation/quick_add_sheet.dart';
 
 /// Bottom navigation: Home, Activity, Dues, Subscriptions, More.
-/// The centre "+" (quick add) shows on Home and Activity.
+/// The centre "+" (quick add) shows on Home, Activity and Dues.
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.shell});
 
@@ -12,7 +12,7 @@ class AppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showFab = shell.currentIndex <= 1;
+    final showFab = shell.currentIndex <= 2;
     return Scaffold(
       body: shell,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

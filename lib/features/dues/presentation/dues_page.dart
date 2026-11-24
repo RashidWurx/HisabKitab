@@ -92,8 +92,8 @@ class _DuesPageState extends ConsumerState<DuesPage> {
     final total = inTab
         .where((v) => v.isOpen)
         .fold<int>(0, (s, v) => s + v.remaining);
+    final overdueCount = inTab.where((v) => v.status == DueStatus.overdue).length;
     final shown = sortDues(inTab.where((v) => _filter.contains(v.status)));
-    final colors = context.appColors;
 
     return Scaffold(
       appBar: AppBar(
@@ -159,28 +159,69 @@ class _DuesPageState extends ConsumerState<DuesPage> {
             ],
           ),
           const SizedBox(height: 12),
-          AppCard(
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1D4068), AppTheme.navy],
+              ),
+            ),
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    receivable ? 'To receive' : 'To pay',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        receivable ? 'Total to receive' : 'Total to pay',
+                        style: const TextStyle(
+                          color: Color(0xCCFFFFFF),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          Money.format(total),
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.8,
+                            color: total == 0
+                                ? Colors.white
+                                : (receivable
+                                      ? const Color(0xFF7DE3A0)
+                                      : const Color(0xFFFF9A92)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (overdueCount > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0x26FF9A92),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      '$overdueCount overdue',
+                      style: const TextStyle(
+                        color: Color(0xFFFF9A92),
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                ),
-                Text(
-                  Money.format(total),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: total == 0
-                        ? null
-                        : (receivable ? colors.positive : colors.negative),
-                  ),
-                ),
               ],
             ),
           ),

@@ -88,7 +88,9 @@ abstract final class AppTheme {
   static const stroke = Color(0xFFE6E0D8);
   static const ink = Color(0xFF0B1F3A);
 
-  static ThemeData light() => _build(
+  static ThemeData? _light;
+  static ThemeData? _dark;
+  static ThemeData light() => _light ??= _build(
     AppColors.light,
     const ColorScheme.light(
       primary: navy,
@@ -108,7 +110,7 @@ abstract final class AppTheme {
     ),
   );
 
-  static ThemeData dark() => _build(
+  static ThemeData dark() => _dark ??= _build(
     AppColors.dark,
     const ColorScheme.dark(
       primary: Color(0xFF8FB0D6),
@@ -130,7 +132,7 @@ abstract final class AppTheme {
 
   static ThemeData _build(AppColors colors, ColorScheme scheme) {
     final isLight = scheme.brightness == Brightness.light;
-    final radius = BorderRadius.circular(14);
+    final radius = BorderRadius.circular(20);
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
@@ -161,18 +163,23 @@ abstract final class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, space: 1),
+      // Lighter ripple than the default sparkle: smoother on low-end phones.
+      splashFactory: InkRipple.splashFactory,
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: scheme.surfaceContainerLowest,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: scheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: scheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: scheme.primary, width: 1.5),
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: scheme.primary, width: 1.6),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -208,7 +215,10 @@ abstract final class AppTheme {
         height: 68,
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: Colors.transparent,
+        indicatorColor: scheme.primary.withValues(alpha: isLight ? 0.10 : 0.22),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (s) => TextStyle(
             fontSize: 11,

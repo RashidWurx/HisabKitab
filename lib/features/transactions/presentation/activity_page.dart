@@ -8,6 +8,7 @@ import '../../../core/database/enums.dart';
 import '../../../core/providers.dart';
 import '../../../core/ui/pickers.dart';
 import '../../../core/ui/widgets.dart';
+import '../../ledger/data/ledger_service.dart';
 import '../data/transaction_repository.dart';
 import 'transaction_tile.dart';
 
@@ -164,81 +165,14 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
     Map<String, Account> accounts,
     Map<String, Category> categories,
   ) {
-    final children = <Widget>[];
+    // Flat list (day headers + transactions) so only visible rows are built.
+    final items = <Object>[];
     DateTime? currentDay;
     var group = <Transaction>[];
-
     void flush() {
       if (currentDay == null) return;
-      children.add(
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-          child: Text(
-            _dayHeader(currentDay),
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
-        ),
-      );
-      children.add(
-        Card(
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              for (var i = 0; i < group.length; i++) ...[
-                if (i > 0) const Divider(),
-                Dismissible(
-                  key: ValueKey(group[i].id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Theme.of(context).colorScheme.error,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: const Icon(Icons.delete_outline, color: Colors.white),
-                  ),
-                  confirmDismiss: (_) async {
-                    if (group[i].dueId != null) {
-                      showMessage(
-                        context,
-                        'This belongs to a due. Open the due to change or delete it.',
-                      );
-                      return false;
-                    }
-                    return true;
-                  },
-                  onDismissed: (_) => _delete(group[i]),
-                  child: TransactionTile(
-                    transaction: group[i],
-                    accounts: accounts,
-                    categories: categories,
-                    onTap: () {
-                      final t = group[i];
-                      if (t.dueId != null) {
-                        context.push('/dues/${t.dueId}');
-                        return;
-                      }
-                      const editable = {
-                        TransactionType.expense,
-                        TransactionType.income,
-                        TransactionType.transfer,
-                      };
-                      if (editable.contains(t.type)) {
-                        context.push('/transaction/${t.id}/edit');
-                      } else {
-                        showMessage(
-                          context,
-                          'Lend, borrow and repayments are managed from Dues.',
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
+      items.add((currentDay, LedgerService.dayNet(group)));
+      items.addAll(group);
       group = [];
     }
 
@@ -249,12 +183,100 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
       group.add(t);
     }
     flush();
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
-      children: children,
+
+    const editable = {
+      TransactionType.expense,
+      TransactionType.income,
+      TransactionType.transfer,
+    };
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 128),
+      itemCount: items.length,
+      itemBuilder: (context, i) {
+        final item = items[i];
+        if (item is (DateTime, int)) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(2, 18, 2, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _dayHeader(item.$1),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+                if (item.$2 != 0)
+                  MoneyText(
+                    item.$2,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }
+        final t = item as Transaction;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Dismissible(
+              key: ValueKey(t.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: Theme.of(context).colorScheme.error,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                child: const Icon(Icons.delete_outline, color: Colors.white),
+              ),
+              confirmDismiss: (_) async {
+                if (t.dueId != null) {
+                  showMessage(
+                    context,
+                    'This belongs to a due. Open the due to change or delete it.',
+                  );
+                  return false;
+                }
+                return true;
+              },
+              onDismissed: (_) => _delete(t),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: TransactionTile(
+                  transaction: t,
+                  accounts: accounts,
+                  categories: categories,
+                  onTap: () {
+                    if (t.dueId != null) {
+                      context.push('/dues/${t.dueId}');
+                    } else if (editable.contains(t.type)) {
+                      context.push('/transaction/${t.id}/edit');
+                    } else {
+                      showMessage(
+                        context,
+                        'Lend, borrow and repayments are managed from Dues.',
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
-
   Future<void> _openFilters() async {
     final result = await showModalBottomSheet<TransactionFilter>(
       context: context,
