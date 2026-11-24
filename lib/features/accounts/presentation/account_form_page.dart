@@ -219,7 +219,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
           const SizedBox(height: 16),
           TextField(
             controller: _opening,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true), inputFormatters: amountFormatters,
             decoration: const InputDecoration(
               labelText: 'Current balance',
               prefixText: 'Rs ',
@@ -249,7 +249,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
               controller: _goal,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
-              ),
+              ), inputFormatters: amountFormatters,
               decoration: const InputDecoration(
                 labelText: 'Savings goal (optional)',
                 prefixText: 'Rs ',
@@ -350,7 +350,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
                     controller: row.controller,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
-                    ),
+                    ), inputFormatters: amountFormatters,
                     decoration: const InputDecoration(
                       prefixText: 'Rs ',
                       isDense: true,

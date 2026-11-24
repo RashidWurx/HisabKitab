@@ -236,7 +236,7 @@ class _SplitSheetState extends ConsumerState<_SplitSheet> {
                           textAlign: TextAlign.end,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
-                          ),
+                          ), inputFormatters: amountFormatters,
                           decoration: const InputDecoration(
                             prefixText: 'Rs ',
                             isDense: true,

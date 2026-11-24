@@ -1,10 +1,10 @@
-﻿# Feature Map
+# Feature Map
 
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Setup: project, git, docs, theme, router, Drift schema, seeds | Done |
 | 2 | Money basics: accounts, sources, categories, expense/income/transfer, allocations (auto-pick, split), Activity + filters, account/source details, onboarding | Done |
-| 3 | Dashboard: Home cards, Money by source, period switcher, month start day, charts | Not started |
+| 3 | Dashboard: Home cards, Money by source, period switcher, month start day, charts | Done |
 | 4 | Dues and people: expected/lent/borrowed, partial payments, statuses, extend date, history, track record, person page, payday dues | Not started |
 | 5 | Subscriptions, savings, custom reminders | Not started |
 | 6 | Notifications: ReminderScheduler, per-type settings, overrides, deep links | Not started |
@@ -30,3 +30,5 @@
 - `lib/features/transactions/`: repository, domain (models, allocation logic), forms, split sheet, activity
 - `lib/features/accounts|sources|categories/`: data + presentation
 - `lib/features/settings|onboarding|more|home|shell/`
+
+- `lib/features/home/`: dashboard service, Home page, charts, period state

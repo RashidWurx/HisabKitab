@@ -27,3 +27,10 @@
 22. **Phase 4 items** (Lend, Borrow, Expected cash in) are disabled in quick add. Notification permission is requested in Phase 6, not onboarding.
 23. **Settings** live in `app_settings` (`ask_source_each_expense`, `onboarding_done`, `month_start_day`, `theme_mode`). The router redirects to onboarding until `onboarding_done`.
 24. **Git on Windows**: commit messages with here-strings must be sent from PowerShell (not Bash), otherwise a stray `@` ends up in the message.
+
+## 2026-11-25: Phase 3
+25. **Home "Left" per source** is the source's current total across accounts (not period received - spent), so it always matches Source details and the account split. Received/Spent are for the selected period.
+26. **Dues maths lives in SQL** (`DashboardService`): remaining = total - written off - payments, where payments are `income`/`repay_in`/`repay_out` linked to the due. The `lend_out`/`borrow_in` that creates a due is not a payment. Cancelled dues are excluded. Overdue = current due date before today and remaining > 0.
+27. **Upcoming (7 days)** includes overdue dues, active subscriptions and active custom reminders; lent/expected are green, borrowed/subscriptions/reminders are red.
+28. **Charts** use fl_chart; the donut keeps the 5 biggest categories and folds the rest into "Other categories". Bars are the last 6 month-periods (respecting the month start day).
+29. **Amount inputs** are filtered to `digits[.dd]` so commas and stray characters cannot be typed.

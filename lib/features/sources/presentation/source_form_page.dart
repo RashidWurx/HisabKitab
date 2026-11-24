@@ -238,7 +238,7 @@ class _SourceFormPageState extends ConsumerState<SourceFormPage> {
               controller: _expected,
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
-              ),
+              ), inputFormatters: amountFormatters,
               decoration: const InputDecoration(
                 labelText: 'Expected amount (optional)',
                 prefixText: 'Rs ',

@@ -194,7 +194,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             TextField(
               controller: _accBalance,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true), inputFormatters: amountFormatters,
               decoration: const InputDecoration(
                 labelText: 'Current balance',
                 prefixText: 'Rs ',

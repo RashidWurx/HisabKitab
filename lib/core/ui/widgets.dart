@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/app_theme.dart';
@@ -244,6 +245,7 @@ class AmountField extends StatelessWidget {
           autofocus: autofocus,
           onChanged: onChanged,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: amountFormatters,
           style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
           decoration: InputDecoration(
             prefixText: 'Rs ',
@@ -410,6 +412,11 @@ Future<bool> confirmDialog(
   );
   return result ?? false;
 }
+
+/// Allows only digits and one decimal point with up to 2 decimals.
+final List<TextInputFormatter> amountFormatters = [
+  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+];
 
 /// Parsed amount helper for text controllers. Null when empty/invalid.
 int? parseAmount(String text) => Money.parse(text);

@@ -1,27 +1,26 @@
-﻿# Project State
+# Project State
 
 _Last updated: 2026-11-25_
 
 ## Current phase
-**Phase 2: Money basics** is complete and waiting for review. Verified on a TECNO KJ7 (Android 14): onboarding, Home, quick add, add expense, Activity, account details.
+**Phase 3: Dashboard** is complete and waiting for review. Verified on a TECNO KJ7: Home cards, money by source, accounts, upcoming, donut and income-vs-expense charts.
 
 ## Done
-- Phase 1 (setup, theme from `designs/UI Screens/`, router, Drift schema v1, seeds).
-- **Ledger layer** (`features/ledger`, `features/transactions/data|domain`): `LedgerService` (per-account-per-source balances in one SQL query, independent transactions-only balance check, period totals, spending by category, source stats), `TransactionRepository` (validation + save/delete/undo in one DB transaction), auto-pick and split logic, 18 ledger tests.
-- Repositories for accounts, sources, categories, settings with delete rules (blocked + archive or move).
-- Screens: onboarding (3 skippable steps), Home (basic total + accounts), Activity (search, filters, swipe delete with undo, edit), quick add sheet, add/edit expense/income/transfer, split-by-source sheet, accounts/sources/categories managers (add, edit, reorder, archive, delete), account details, source details, More, Settings (ask-source toggle, month start day, theme, run setup again, delete all data).
-- 30 tests, `flutter analyze` clean.
+- Phases 1 and 2 (setup, theme, schema, ledger, accounts/sources/categories, forms, Activity, details, onboarding).
+- **Dashboard** (`features/home`): `DashboardService` (due summary, per-source and per-account period rows, upcoming 7 days, 6-month totals), Home with total balance + savings, Income/Expense/Remaining, To receive / To pay (overdue count), Money by source, Accounts (in/out/expected), Upcoming, spending donut, income-vs-expense bars.
+- Period switcher: This month, Last month, This year, Custom range, All time; the month start day setting (1-28) drives "month" everywhere (including the 6-month chart).
+- Amount fields now only accept digits and up to 2 decimals.
+- 38 tests, `flutter analyze` clean.
 
-## Not in Phase 2 (by design)
-- Lend, Borrow, Expected cash in tiles are shown disabled in quick add (Phase 4). Open dues / expected deposits on detail screens come with Dues.
-- Source details: month-by-month history is not built yet (Phase 3/9).
-- Notification permission request moved to Phase 6.
-- People, Savings, Custom reminders, Backup rows in More are placeholders.
+## Notes
+- To receive / To pay, Expecting and Upcoming dues read the `dues` table already, so they light up by themselves when Phase 4 creates dues. Until then they show Rs 0 / "Nothing due".
+- Source rows on Home show Received and Spent for the chosen period, and "Left" = the source's money across all accounts right now (same as Source details).
 
 ## Next
-Phase 3: Dashboard (Home cards, Money by source, period switcher with custom range, month start day wiring, charts).
+Phase 4: Dues and people (expected cash in, lent, borrowed, Mark received with partial payments, statuses, extend date, history timeline, track record, person page, payday dues).
 
 ## Open items
-- iOS parts will be tested later on a Mac.
-- Google Cloud / Xcode setup steps go in the README in Phase 8.
-- Two Phase 1 commit messages start with a stray `@ ` (shell quoting slip); history was not rewritten.
+- Custom date range and the period menu were tested in code (unit tests) but not tapped through on the phone.
+- Month-by-month history on Source details is still not built.
+- iOS parts will be tested later on a Mac. Google Cloud / Xcode steps go in the README in Phase 8.
+- Two Phase 1 commit messages start with a stray `@ `; history not rewritten.

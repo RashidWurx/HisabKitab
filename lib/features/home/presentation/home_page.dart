@@ -117,11 +117,7 @@ class HomePage extends ConsumerWidget {
                     child: _stat(
                       context,
                       'Income',
-                      MoneyText(
-                        totals?.moneyIn ?? 0,
-                        neutral: true,
-                        style: _statStyle,
-                      ),
+                      MoneyText(totals?.moneyIn ?? 0, style: _statStyle),
                     ),
                   ),
                   const VerticalDivider(width: 1),
@@ -131,7 +127,9 @@ class HomePage extends ConsumerWidget {
                       'Expense',
                       MoneyText(
                         totals?.moneyOut ?? 0,
-                        neutral: true,
+                        forceColor: (totals?.moneyOut ?? 0) == 0
+                            ? null
+                            : colors.negative,
                         style: _statStyle,
                       ),
                     ),
@@ -264,6 +262,11 @@ class HomePage extends ConsumerWidget {
 
   static const _statStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800);
 
+  TextStyle _subStyle(BuildContext context) => TextStyle(
+    fontSize: 13,
+    color: Theme.of(context).colorScheme.onSurfaceVariant,
+  );
+
   Widget _stat(BuildContext context, String label, Widget value) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 8),
     child: Column(
@@ -389,13 +392,12 @@ class HomePage extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                'Received ${Money.format(r?.received ?? 0)}  ·  Spent ${Money.format(r?.spent ?? 0)}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
+                                'Received ${Money.format(r?.received ?? 0)}',
+                                style: _subStyle(context),
+                              ),
+                              Text(
+                                'Spent ${Money.format(r?.spent ?? 0)}',
+                                style: _subStyle(context),
                               ),
                               if (expected > 0)
                                 Text(
@@ -462,33 +464,48 @@ class HomePage extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  Text.rich(
-                    TextSpan(
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: scheme.onSurfaceVariant,
+                  Wrap(
+                    spacing: 14,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                          children: [
+                            const TextSpan(text: 'In '),
+                            TextSpan(
+                              text: Money.format(row?.moneyIn ?? 0),
+                              style: TextStyle(
+                                color: (row?.moneyIn ?? 0) == 0
+                                    ? null
+                                    : colors.positive,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      children: [
-                        const TextSpan(text: 'In '),
+                      Text.rich(
                         TextSpan(
-                          text: Money.format(row?.moneyIn ?? 0),
                           style: TextStyle(
-                            color: (row?.moneyIn ?? 0) == 0
-                                ? null
-                                : colors.positive,
+                            fontSize: 13,
+                            color: scheme.onSurfaceVariant,
                           ),
+                          children: [
+                            const TextSpan(text: 'Out '),
+                            TextSpan(
+                              text: Money.format(row?.moneyOut ?? 0),
+                              style: TextStyle(
+                                color: (row?.moneyOut ?? 0) == 0
+                                    ? null
+                                    : colors.negative,
+                              ),
+                            ),
+                          ],
                         ),
-                        const TextSpan(text: '  ·  Out '),
-                        TextSpan(
-                          text: Money.format(row?.moneyOut ?? 0),
-                          style: TextStyle(
-                            color: (row?.moneyOut ?? 0) == 0
-                                ? null
-                                : colors.negative,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   if (expected > 0)
                     Text(
