@@ -166,7 +166,9 @@ class InitialsAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final c = color ?? scheme.primary;
+    final dark = scheme.brightness == Brightness.dark;
+    final base = color ?? scheme.primary;
+    final c = dark ? Color.lerp(base, Colors.white, 0.45)! : base;
     final parts = name.trim().split(RegExp(r'\s+'));
     final initials = parts.isEmpty || parts.first.isEmpty
         ? '?'
@@ -422,7 +424,15 @@ class PickerField extends StatelessWidget {
               children: [
                 if (leading != null) ...[leading!, const SizedBox(width: 12)]
                 else if (iconKey != null) ...[
-                  Icon(iconFor(iconKey!), color: iconColor, size: 22),
+                  Icon(
+                    iconFor(iconKey!),
+                    color: iconColor == null
+                        ? null
+                        : (scheme.brightness == Brightness.dark
+                              ? Color.lerp(iconColor, Colors.white, 0.5)
+                              : iconColor),
+                    size: 22,
+                  ),
                   const SizedBox(width: 12),
                 ],
                 Expanded(

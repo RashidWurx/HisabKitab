@@ -389,7 +389,7 @@ class _DueFormPageState extends ConsumerState<DueFormPage> {
           SegmentedButton<bool>(
             showSelectedIcon: false,
             segments: const [
-              ButtonSegment(value: false, label: Text('1 day before & on date')),
+              ButtonSegment(value: false, label: Text('Default')),
               ButtonSegment(value: true, label: Text('Custom')),
             ],
             selected: {_customReminder},

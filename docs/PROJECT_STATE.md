@@ -3,7 +3,7 @@
 _Last updated: 2026-11-25_
 
 ## Current phase
-**Phase 5: Subscriptions, savings, custom reminders** is built and committed. Phases 4 and 5 (and the UI redesign + performance pass) are **not yet verified on the phone** because the PC cannot see the device (adb lists nothing). A release APK builds fine: `build/app/outputs/flutter-apk/app-release.apk`.
+**Phase 5: Subscriptions, savings, custom reminders** is built and committed. Phases 4 and 5 and the redesign were verified on the TECNO KJ7 (release build, wireless debugging): Home, Dues (create, partial payment, timeline), subscriptions (add, pay), Activity, light/dark switch (completes in under half a second). The v1 to v2 migration ran on real data without loss.
 
 ## Done
 - Phases 1-4 (setup, ledger, money screens, dashboard, dues and people).

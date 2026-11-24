@@ -36,6 +36,7 @@ class RemindersPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Custom reminders')),
       floatingActionButton: FloatingActionButton.extended(
+        shape: const StadiumBorder(),
         heroTag: 'add-reminder',
         onPressed: () => context.push('/reminders/new'),
         icon: const Icon(Icons.add),

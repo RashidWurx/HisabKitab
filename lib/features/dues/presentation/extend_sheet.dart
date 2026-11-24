@@ -168,7 +168,7 @@ class _ExtendSheetState extends ConsumerState<_ExtendSheet> {
               segments: const [
                 ButtonSegment(
                   value: false,
-                  label: Text('1 day before & on date'),
+                  label: Text('Default'),
                 ),
                 ButtonSegment(value: true, label: Text('Custom')),
               ],

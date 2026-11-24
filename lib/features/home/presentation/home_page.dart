@@ -740,11 +740,13 @@ class _SourceCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          SoftProgress(
-            value: ratio,
-            color: ratio > 1 ? colors.negative : tint,
-          ),
-          const SizedBox(height: 8),
+          if (!source.isBuiltIn) ...[
+            SoftProgress(
+              value: ratio,
+              color: ratio > 1 ? colors.negative : tint,
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             children: [
               Expanded(

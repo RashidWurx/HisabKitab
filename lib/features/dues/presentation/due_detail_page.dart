@@ -68,7 +68,30 @@ class DueDetailPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
+      bottomNavigationBar: view.isOpen
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => showPaymentSheet(context, ref, view),
+                        child: Text(receiving ? 'Mark received' : 'Mark paid'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () => showExtendSheet(context, ref, view),
+                        child: const Text('Extend date'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null,      body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
           Row(
@@ -178,26 +201,6 @@ class DueDetailPage extends ConsumerWidget {
           ),
           const SectionTitle('Activity'),
           _Timeline(events: events, accounts: accounts, view: view),
-          if (view.isOpen) ...[
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => showPaymentSheet(context, ref, view),
-                    child: Text(receiving ? 'Mark received' : 'Mark paid'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => showExtendSheet(context, ref, view),
-                    child: const Text('Extend date'),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );

@@ -53,6 +53,7 @@ class SubscriptionsPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        shape: const StadiumBorder(),
         heroTag: 'add-subscription',
         onPressed: () => context.push('/subscriptions/new'),
         icon: const Icon(Icons.add),
