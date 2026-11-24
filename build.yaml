@@ -1,0 +1,9 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          databases:
+            default: lib/core/database/app_database.dart
+          # Used by `dart run drift_dev schema dump` and migration tests.
+          schema_dir: drift_schemas/
