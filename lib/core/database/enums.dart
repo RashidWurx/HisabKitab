@@ -31,6 +31,8 @@ enum DueEventType {
   amountEdited,
   cancelled,
   settled,
+  paymentEdited,
+  paymentDeleted,
 }
 
 enum BillingUnit { day, week, month, year }
