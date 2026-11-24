@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/providers.dart';
+import '../../home/presentation/home_providers.dart';
 import '../../../core/ui/detail_widgets.dart';
 import '../../../core/ui/icon_registry.dart';
 import '../../../core/ui/widgets.dart';
@@ -53,6 +54,8 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
     final recent =
         ref.watch(transactionsProvider(TransactionFilter(accountId: id))).value ??
         const [];
+    final expectedIn =
+        ref.watch(accountRowsProvider(range)).value?[id]?.expected ?? 0;
     final linked = sources.where((s) => s.linkedAccountId == id).toList();
     final srcById = {for (final s in sources) s.id: s};
     final acctMap = {for (final a in accounts) a.id: a};
@@ -206,6 +209,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
+                InfoRow('Expected to arrive', Money.format(expectedIn)),
                 InfoRow(
                   'Margin',
                   stats?.marginPercent == null

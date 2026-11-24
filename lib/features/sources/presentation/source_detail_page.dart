@@ -9,6 +9,9 @@ import '../../../core/ui/detail_widgets.dart';
 import '../../../core/ui/widgets.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
+import '../../dues/domain/due_models.dart';
+import '../../dues/presentation/due_widgets.dart';
+import '../../people/presentation/people_pages.dart';
 import 'source_form_page.dart';
 import 'sources_page.dart';
 
@@ -55,6 +58,13 @@ class _SourceDetailPageState extends ConsumerState<SourceDetailPage> {
     final spend =
         ref.watch(spendingByCategoryProvider((range, null, id))).value ??
         const [];
+    final allDues = ref.watch(dueViewsProvider).value ?? const <DueView>[];
+    final sourceDues = allDues.where((v) => v.due.sourceId == id).toList();
+    final openDues = sortDues(sourceDues.where((v) => v.isOpen));
+    final peopleById = {
+      for (final p in ref.watch(peopleProvider).value ?? const <PeopleData>[])
+        p.id: p,
+    };
     final linkedName = accounts[source.linkedAccountId]?.name;
     final schedule = source.payScheduleType == null
         ? 'None'
@@ -219,6 +229,21 @@ class _SourceDetailPageState extends ConsumerState<SourceDetailPage> {
                 ],
               ),
             ),
+          if (openDues.isNotEmpty) ...[
+            const SectionTitle('Open dues'),
+            for (final v in openDues)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: DueTile(
+                  view: v,
+                  people: peopleById,
+                  sources: {source.id: source},
+                  onTap: () => context.push('/dues/${v.due.id}'),
+                ),
+              ),
+          ],
+          const SectionTitle('Payment track record'),
+          TrackRecordCard(record: trackRecordFor(sourceDues)),
           const SectionTitle('Spending by category'),
           CategoryBars(spend: spend, categories: cats),
           if (!source.isBuiltIn) ...[

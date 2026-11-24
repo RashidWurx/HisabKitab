@@ -5,7 +5,7 @@
 | 1 | Setup: project, git, docs, theme, router, Drift schema, seeds | Done |
 | 2 | Money basics: accounts, sources, categories, expense/income/transfer, allocations (auto-pick, split), Activity + filters, account/source details, onboarding | Done |
 | 3 | Dashboard: Home cards, Money by source, period switcher, month start day, charts | Done |
-| 4 | Dues and people: expected/lent/borrowed, partial payments, statuses, extend date, history, track record, person page, payday dues | Not started |
+| 4 | Dues and people: expected/lent/borrowed, partial payments, statuses, extend date, history, track record, person page, payday dues | Built, awaiting phone test |
 | 5 | Subscriptions, savings, custom reminders | Not started |
 | 6 | Notifications: ReminderScheduler, per-type settings, overrides, deep links | Not started |
 | 7 | App lock (PIN, biometrics) | Not started |

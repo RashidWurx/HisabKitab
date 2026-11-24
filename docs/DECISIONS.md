@@ -34,3 +34,10 @@
 27. **Upcoming (7 days)** includes overdue dues, active subscriptions and active custom reminders; lent/expected are green, borrowed/subscriptions/reminders are red.
 28. **Charts** use fl_chart; the donut keeps the 5 biggest categories and folds the rest into "Other categories". Bars are the last 6 month-periods (respecting the month start day).
 29. **Amount inputs** are filtered to `digits[.dd]` so commas and stray characters cannot be typed.
+## 2026-11-25: Phase 4 and polish
+30. **Due reminders**: `reminderAt = null` means "use the defaults (1 day before and on the due date)"; a non-null value is a per-item override. Extending a date resets the override unless a custom one is chosen.
+31. **Deleting a payment** keeps its history entry but cuts the link to the deleted transaction (`due_events.transaction_id` set to null). Deleting a due removes its history and linked transactions (balances change; the UI confirms).
+32. **Dues created from Activity**: transactions linked to a due open the due on tap and cannot be swiped away in Activity.
+33. **Paydays**: `PaydayService` runs on start, on app resume and when sources change; one due per source per period (`periodKey`); needs an expected amount and a linked account.
+34. **Performance rules**: cache `ThemeData`, `themeAnimationDuration: Duration.zero`, `InkRipple`, router listens only to the onboarding flag, lazy lists for long data, `RepaintBoundary` on charts, chart animations off. Judge smoothness on a release build, not debug.
+35. **Dialogs with text fields** must use `showTextDialog` (the controller lives in the dialog's State). Never dispose a controller right after `await showDialog`.
