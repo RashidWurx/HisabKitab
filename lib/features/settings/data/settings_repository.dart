@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/seed.dart';
+import '../../notifications/domain/notification_models.dart';
 
 /// Keys stored in the `app_settings` table.
 abstract final class SettingKeys {
@@ -9,6 +10,8 @@ abstract final class SettingKeys {
   static const onboardingDone = 'onboarding_done';
   static const monthStartDay = 'month_start_day';
   static const themeMode = 'theme_mode'; // system | light | dark
+  static const backupAnchor = 'notif.backup.anchor'; // epoch millis
+  static const notificationsAsked = 'notif.permission_asked';
 }
 
 /// Typed view over the settings table.
@@ -16,6 +19,11 @@ class AppSettingsData {
   const AppSettingsData(this._values);
 
   final Map<String, String> _values;
+
+  /// Raw stored value for [key] (null when never set).
+  String? raw(String key) => _values[key];
+
+  NotificationPrefs get notificationPrefs => NotificationPrefs.fromRaw(raw);
 
   bool get askSourceEachExpense =>
       (_values[SettingKeys.askSourceEachExpense] ?? '1') == '1';

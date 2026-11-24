@@ -19,6 +19,7 @@ import '../../features/savings/presentation/savings_page.dart';
 import '../../features/subscriptions/presentation/subscription_detail_page.dart';
 import '../../features/subscriptions/presentation/subscription_form_page.dart';
 import '../../features/subscriptions/presentation/subscriptions_page.dart';
+import '../../features/notifications/presentation/notification_settings_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
 import '../../features/sources/presentation/source_detail_page.dart';
@@ -181,6 +182,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       _full('/settings', (_) => const SettingsPage()),
       _full(
+        '/settings/notifications',
+        (_) => const NotificationSettingsPage(),
+      ),
+      _full(
         '/subscriptions/new',
         (s) => SubscriptionFormPage(initialName: s.uri.queryParameters['name']),
       ),
@@ -212,7 +217,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       _full(
         '/dues/:id',
-        (s) => DueDetailPage(dueId: s.pathParameters['id']!),
+        (s) => DueDetailPage(
+          dueId: s.pathParameters['id']!,
+          action: s.uri.queryParameters['action'],
+        ),
       ),
       _full(
         '/dues/:id/edit',

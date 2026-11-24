@@ -6,6 +6,7 @@ import '../../../core/database/enums.dart';
 import '../../../core/providers.dart';
 import '../../../core/ui/widgets.dart';
 import '../../accounts/data/account_repository.dart';
+import '../../notifications/data/notification_coordinator.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../sources/data/source_repository.dart';
 import '../../transactions/data/transaction_repository.dart';
@@ -50,6 +51,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     await ref
         .read(settingsRepositoryProvider)
         .setBool(SettingKeys.onboardingDone, true);
+    // Last step: ask for notification permission (Android 13+ / iOS).
+    try {
+      await ref.read(reminderSchedulerProvider).requestPermission();
+      await ref.read(notificationCoordinatorProvider).reschedule();
+    } catch (_) {
+      // Never block setup on notifications.
+    }
     if (mounted) context.go('/home');
   }
 

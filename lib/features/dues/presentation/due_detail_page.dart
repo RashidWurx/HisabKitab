@@ -15,14 +15,35 @@ import 'due_widgets.dart';
 import 'extend_sheet.dart';
 import 'payment_sheet.dart';
 
-class DueDetailPage extends ConsumerWidget {
-  const DueDetailPage({super.key, required this.dueId});
+class DueDetailPage extends ConsumerStatefulWidget {
+  const DueDetailPage({super.key, required this.dueId, this.action});
 
   final String dueId;
 
+  /// 
+  /// "receive" or "extend": opens that sheet (from a notification button).
+  final String? action;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DueDetailPage> createState() => _DueDetailPageState();
+}
+
+class _DueDetailPageState extends ConsumerState<DueDetailPage> {
+  bool _actionHandled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final dueId = widget.dueId;
     final view = ref.watch(dueViewProvider(dueId)).value;
+    if (view != null && !_actionHandled && widget.action != null) {
+      _actionHandled = true;
+      final action = widget.action;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !view.isOpen) return;
+        if (action == 'receive') showPaymentSheet(context, ref, view);
+        if (action == 'extend') showExtendSheet(context, ref, view);
+      });
+    }
     if (view == null) {
       return Scaffold(appBar: AppBar(), body: const SizedBox.shrink());
     }

@@ -34,6 +34,16 @@ class SettingsPage extends ConsumerWidget {
                   repo.setBool(SettingKeys.askSourceEachExpense, v),
             ),
           ),
+          const SectionTitle('Reminders'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('Notifications'),
+              subtitle: const Text('Paydays, dues, subscriptions, backup'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/notifications'),
+            ),
+          ),
           const SectionTitle('Months'),
           AppCard(
             child: Row(

@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'core/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/notifications/data/notification_coordinator.dart';
 
 void main() {
   runApp(const ProviderScope(child: HisaabApp()));
@@ -23,6 +24,10 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _ensurePaydays();
+    // Notifications need the first frame (router, permissions dialog host).
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => ref.read(notificationCoordinatorProvider).start(),
+    );
   }
 
   @override
@@ -33,7 +38,10 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _ensurePaydays();
+    if (state == AppLifecycleState.resumed) {
+      _ensurePaydays();
+      ref.read(notificationCoordinatorProvider).requestReschedule();
+    }
   }
 
   /// Rolling payday dues: on start, on resume and when sources change.
@@ -46,6 +54,8 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
   Widget build(BuildContext context) {
     // Sources can change schedule, amount, account or status.
     ref.listen(sourcesProvider, (_, _) => _ensurePaydays());
+    // Re-plan notifications after any data change (debounced).
+    listenForReschedule(ref);
     final mode = ref.watch(
       settingsProvider.select((s) => s.value?.themeMode ?? 'system'),
     );
