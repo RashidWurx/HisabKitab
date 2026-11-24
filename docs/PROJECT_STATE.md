@@ -20,11 +20,17 @@ _Last updated: 2026-11-25_
 ## Phase 7 (app lock): built and verified
 - On the TECNO KJ7: PIN setup and confirm, FLAG_SECURE active (screenshots go blank), PIN check from the settings sheet, turning the lock off. Lock screen behaviour (wrong PIN, lockout, re-lock on resume, timeouts) is covered by widget tests; fingerprint prompt not exercised.
 
+## Phase 8 (backup and restore): built, tests pass, not yet phone-tested
+- Backup zip = `hisaab.sqlite` (VACUUM INTO) + `manifest.json`. Local export (share sheet) and import (file picker) need no setup. Restore checks the file first (newer schema, damaged, not a backup), keeps a rollback copy, swaps the DB and reschedules reminders.
+- Backup & restore screen at `/backup` (More > Backup & restore; the "backup" reminder opens it). Cloud: Google Drive appdata folder (needs `--dart-define=GOOGLE_SERVER_CLIENT_ID`) and iCloud via Swift plugin; latest 10 kept. Setup steps are in README.
+- 125 tests, `flutter analyze` clean.
+- Not verified: export/import/restore on the phone, Google Drive (needs Cloud setup), iCloud (needs a Mac).
+
 ## Next
-1. Reconnect the phone and test phases 4-5 on a RELEASE build (also check dark/light switching speed).
-2. Phase 6: Notifications (ReminderScheduler, per-type settings, overrides, tap to open the right screen).
+1. Phase 9: polish and tests (empty states, app icon, source month history, forms/More/Settings redesign).
+2. Phone test of backup export/import.
 
 ## Open items
-- Notification fields on subscriptions/dues are stored but nothing fires yet (Phase 6).
 - Month-by-month history on Source details still not built.
-- iOS parts tested later on a Mac. Google Cloud / Xcode steps go in the README in Phase 8.
+- Scheduled notifications do not arrive in the background on the TECNO/HiOS phone until background activity/autostart is allowed. Reboot survival untested.
+- iOS parts (iCloud, Face ID, notifications) tested later on a Mac.

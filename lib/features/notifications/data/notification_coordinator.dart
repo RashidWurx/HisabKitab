@@ -32,7 +32,7 @@ String routeForPayload(String payload, String? action) {
     case 'reminder':
       return '/reminders/$id/edit';
     case 'backup':
-      return '/more';
+      return '/backup';
     case 'test':
       return '/settings/notifications';
     default:

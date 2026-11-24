@@ -8,7 +8,6 @@ class MorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void soon() => showMessage(context, 'Coming in a later phase.');
     final items = <(IconData, String, VoidCallback)>[
       (Icons.account_balance_wallet_outlined, 'Accounts', () => context.push('/accounts')),
       (Icons.toll_outlined, 'Income sources', () => context.push('/sources')),
@@ -17,7 +16,7 @@ class MorePage extends StatelessWidget {
       (Icons.track_changes, 'Savings', () => context.push('/savings')),
       (Icons.notifications_none, 'Custom reminders', () => context.push('/reminders')),
       (Icons.settings_outlined, 'Settings', () => context.push('/settings')),
-      (Icons.cloud_upload_outlined, 'Backup & restore', soon),
+      (Icons.cloud_upload_outlined, 'Backup & restore', () => context.push('/backup')),
     ];
     return Scaffold(
       appBar: AppBar(title: const Text('Hisaab')),

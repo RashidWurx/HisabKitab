@@ -8,7 +8,7 @@ void main() {
     expect(routeForPayload('due:abc', 'extend'), '/dues/abc?action=extend');
     expect(routeForPayload('sub:s1', null), '/subscriptions/s1');
     expect(routeForPayload('reminder:r1', null), '/reminders/r1/edit');
-    expect(routeForPayload('backup', null), '/more');
+    expect(routeForPayload('backup', null), '/backup');
     expect(routeForPayload('test', null), '/settings/notifications');
     expect(routeForPayload('weird', null), '/home');
   });
