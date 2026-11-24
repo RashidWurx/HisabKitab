@@ -100,6 +100,66 @@ class NotificationPrefs {
   }
 }
 
+/// How reminders sound (Android). Settings keys: `notif.sound_uri`,
+/// `notif.sound_title`, `notif.alarm_stream`, `notif.keep_ringing`.
+class SoundPrefs {
+  const SoundPrefs({
+    this.uri,
+    this.title,
+    this.alarmStream = true,
+    this.keepRinging = true,
+  });
+
+  /// `content://` ringtone chosen with the system picker; null = default.
+  final String? uri;
+  final String? title;
+
+  /// Play on the alarm volume (louder, ignores silent mode) instead of the
+  /// notification volume.
+  final bool alarmStream;
+
+  /// Repeat the sound until the user opens or dismisses the notification.
+  final bool keepRinging;
+
+  static const defaults = SoundPrefs();
+
+  static const uriKey = 'notif.sound_uri';
+  static const titleKey = 'notif.sound_title';
+  static const alarmKey = 'notif.alarm_stream';
+  static const ringingKey = 'notif.keep_ringing';
+
+  factory SoundPrefs.fromRaw(String? Function(String key) get) {
+    final uri = get(uriKey);
+    return SoundPrefs(
+      uri: (uri == null || uri.isEmpty) ? null : uri,
+      title: get(titleKey),
+      alarmStream: (get(alarmKey) ?? '1') == '1',
+      keepRinging: (get(ringingKey) ?? '1') == '1',
+    );
+  }
+
+  /// Android fixes a channel's sound when it is created, so the channel id
+  /// encodes the sound and volume choice. A new choice means a new channel.
+  String get channelId {
+    var h = 0;
+    for (final c in (uri ?? 'default').codeUnits) {
+      h = (h * 31 + c) & 0x7fffffff;
+    }
+    return 'hisaab_r_${alarmStream ? 'a' : 'n'}_${h.toRadixString(36)}';
+  }
+}
+
+/// Stable 31-bit id for a scheduled notification, so a new alarm never
+/// overwrites a different notification that is still in the shade.
+int notificationIdFor(String key) {
+  var h = 0x811c9dc5;
+  for (final c in key.codeUnits) {
+    h ^= c;
+    h = (h * 0x01000193) & 0xffffffff;
+  }
+  return h & 0x7fffffff;
+}
+
 /// One notification the app wants the phone to show.
 class PlannedReminder {
   const PlannedReminder({
@@ -121,6 +181,10 @@ class PlannedReminder {
 
   /// Due and payday notifications get "Received" / "Extend" buttons.
   final bool dueActions;
+
+  /// Identity of this notification: what it is about and when it fires.
+  /// Stable across re-plans, so ids and the inbox rows stay the same.
+  String get key => '${type.name}|$payload@${at.millisecondsSinceEpoch}';
 }
 
 /// iOS allows 64 pending notifications; we schedule the nearest 60 on

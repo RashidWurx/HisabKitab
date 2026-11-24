@@ -24,6 +24,7 @@ class AppSettingsData {
   String? raw(String key) => _values[key];
 
   NotificationPrefs get notificationPrefs => NotificationPrefs.fromRaw(raw);
+  SoundPrefs get soundPrefs => SoundPrefs.fromRaw(raw);
 
   bool get askSourceEachExpense =>
       (_values[SettingKeys.askSourceEachExpense] ?? '1') == '1';

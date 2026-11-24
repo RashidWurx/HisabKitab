@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
@@ -13,8 +14,11 @@ import '../domain/notification_models.dart';
 /// [action] is `receive` / `extend` for the due buttons, otherwise null.
 typedef NotificationTapHandler = void Function(String payload, String? action);
 
-const _channelId = 'hisaab_reminders';
 const _channelName = 'Reminders';
+const _channelDescription = 'Paydays, dues, subscriptions and your own reminders';
+const _navy = Color(0xFF10263D);
+/// FLAG_INSISTENT: repeat the sound until the notification is opened or cleared.
+const _flagInsistent = 4;
 
 /// Talks to the phone. Schedules the planned reminders: cancel all, then
 /// schedule the nearest 60 (iOS keeps only 64 pending; Android uses the same
@@ -46,7 +50,7 @@ class ReminderScheduler {
     }
     await _plugin.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('ic_stat_hisaab'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -58,19 +62,87 @@ class ReminderScheduler {
         if (payload != null) onTap(payload, response.actionId);
       },
     );
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(
-          const AndroidNotificationChannel(
-            _channelId,
-            _channelName,
-            description: 'Paydays, dues, subscriptions and your own reminders',
-            importance: Importance.high,
-          ),
-        );
+    await ensureChannel(_sound);
     _ready = true;
+  }
+
+  AndroidFlutterLocalNotificationsPlugin? get _android =>
+      _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
+
+  SoundPrefs _sound = SoundPrefs.defaults;
+  SoundPrefs get sound => _sound;
+
+  /// Creates the channel for [sound] and removes channels left over from an
+  /// earlier sound choice (Android cannot change a channel's sound later).
+  Future<void> ensureChannel(SoundPrefs sound) async {
+    _sound = sound;
+    final android = _android;
+    if (android == null) return;
+    await android.createNotificationChannel(
+      AndroidNotificationChannel(
+        sound.channelId,
+        _channelName,
+        description: _channelDescription,
+        importance: Importance.max,
+        playSound: true,
+        sound: sound.uri == null ? null : UriAndroidNotificationSound(sound.uri!),
+        enableVibration: true,
+        vibrationPattern: _vibration,
+        audioAttributesUsage: sound.alarmStream
+            ? AudioAttributesUsage.alarm
+            : AudioAttributesUsage.notification,
+      ),
+    );
+    final channels = await android.getNotificationChannels() ?? const [];
+    for (final c in channels) {
+      final old =
+          c.id == 'hisaab_reminders' ||
+          (c.id.startsWith('hisaab_r_') && c.id != sound.channelId);
+      if (old) await android.deleteNotificationChannel(channelId: c.id);
+    }
+  }
+
+  static final Int64List _vibration = Int64List.fromList([0, 600, 300, 600, 300, 900]);
+
+  /// Android 12+: exact alarms need the user's OK ("Alarms & reminders").
+  Future<bool> canScheduleExact() async =>
+      await _android?.canScheduleExactNotifications() ?? false;
+
+  Future<void> requestExactAlarms() async {
+    await _android?.requestExactAlarmsPermission();
+  }
+
+  /// Plays the chosen sound for a moment (settings preview).
+  static const _soundChannel = MethodChannel('hisaab/sound');
+
+  Future<({String uri, String title})?> pickRingtone(String? existingUri) async {
+    if (kIsWeb || !Platform.isAndroid) return null;
+    final r = await _soundChannel.invokeMapMethod<String, String>('pick', {
+      'existing': existingUri,
+    });
+    if (r == null || r['uri'] == null) return null;
+    return (uri: r['uri']!, title: r['title'] ?? 'Ringtone');
+  }
+
+  Future<void> previewSound(String? uri, {required bool alarm}) async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    await _soundChannel.invokeMethod<void>('preview', {'uri': uri, 'alarm': alarm});
+  }
+
+  Future<void> stopPreview() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    await _soundChannel.invokeMethod<void>('stopPreview');
+  }
+
+  /// Asks Android to let Hisaab run without battery restrictions.
+  Future<void> requestIgnoreBatteryOptimisation() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    await const AndroidIntent(
+      action: 'android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+      data: 'package:com.hisaab.hisaab',
+    ).launch();
   }
 
   /// The notification that launched the app (cold start), if any.
@@ -120,11 +192,21 @@ class ReminderScheduler {
 
   NotificationDetails _details(PlannedReminder r) => NotificationDetails(
     android: AndroidNotificationDetails(
-      _channelId,
+      _sound.channelId,
       _channelName,
-      channelDescription: 'Paydays, dues, subscriptions and your own reminders',
-      importance: Importance.high,
-      priority: Priority.high,
+      channelDescription: _channelDescription,
+      icon: 'ic_stat_hisaab',
+      color: _navy,
+      importance: Importance.max,
+      priority: Priority.max,
+      category: AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.private,
+      audioAttributesUsage: _sound.alarmStream
+          ? AudioAttributesUsage.alarm
+          : AudioAttributesUsage.notification,
+      additionalFlags: _sound.keepRinging
+          ? Int32List.fromList([_flagInsistent])
+          : null,
       actions: r.dueActions
           ? const [
               AndroidNotificationAction(
@@ -145,17 +227,25 @@ class ReminderScheduler {
 
   /// Cancels everything and schedules [plan] (already limited to 60).
   /// Returns how many notifications were scheduled.
-  Future<int> schedule(List<PlannedReminder> plan) async {
+  Future<int> schedule(
+    List<PlannedReminder> plan, {
+    SoundPrefs sound = SoundPrefs.defaults,
+  }) async {
     if (!_ready) return 0;
+    if (sound.channelId != _sound.channelId) {
+      await ensureChannel(sound);
+    } else {
+      _sound = sound; // same channel, maybe a different "keep ringing"
+    }
     // Only pending ones: reminders already shown stay in the shade.
     await _plugin.cancelAllPendingNotifications();
-    var id = 1;
+    final mode = await _mode();
     for (final r in plan) {
       await _plugin.zonedSchedule(
-        id: id++,
+        id: notificationIdFor(r.key),
         scheduledDate: tz.TZDateTime.from(r.at, tz.local),
         notificationDetails: _details(r),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        androidScheduleMode: mode,
         title: r.title,
         body: r.body,
         payload: r.payload,
@@ -163,6 +253,12 @@ class ReminderScheduler {
     }
     return plan.length;
   }
+
+  /// Exact (fires on time even in Doze) when allowed, otherwise inexact.
+  Future<AndroidScheduleMode> _mode() async =>
+      await canScheduleExact()
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle;
 
   Future<int> pendingCount() async =>
       _ready ? (await _plugin.pendingNotificationRequests()).length : 0;
@@ -204,7 +300,7 @@ class ReminderScheduler {
           payload: 'test',
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: await _mode(),
       title: 'Hisaab',
       body: 'Scheduled reminders work on this phone.',
       payload: 'test',

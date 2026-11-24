@@ -125,7 +125,7 @@ class NotificationCoordinator {
         ),
       ),
     );
-    return _scheduler.schedule(plan);
+    return _scheduler.schedule(plan, sound: settings.soundPrefs);
   }
 
   void dispose() => _debounce?.cancel();

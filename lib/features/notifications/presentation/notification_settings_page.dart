@@ -17,7 +17,9 @@ class NotificationSettingsPage extends ConsumerStatefulWidget {
 class _NotificationSettingsPageState
     extends ConsumerState<NotificationSettingsPage> {
   bool? _allowed;
+  bool? _exact;
   int _pending = 0;
+  bool _previewing = false;
 
   @override
   void initState() {
@@ -25,15 +27,43 @@ class _NotificationSettingsPageState
     _refresh();
   }
 
+  @override
+  void dispose() {
+    ref.read(reminderSchedulerProvider).stopPreview();
+    super.dispose();
+  }
+
   Future<void> _refresh() async {
     final scheduler = ref.read(reminderSchedulerProvider);
     final allowed = await scheduler.areNotificationsEnabled();
     final pending = await scheduler.pendingCount();
+    final exact = await scheduler.canScheduleExact();
     if (mounted) {
       setState(() {
         _allowed = allowed;
         _pending = pending;
+        _exact = exact;
       });
+    }
+  }
+
+  Future<void> _pickSound(SoundPrefs sound) async {
+    final scheduler = ref.read(reminderSchedulerProvider);
+    final picked = await scheduler.pickRingtone(sound.uri);
+    if (picked == null) return;
+    final repo = ref.read(settingsRepositoryProvider);
+    await repo.set(SoundPrefs.uriKey, picked.uri);
+    await repo.set(SoundPrefs.titleKey, picked.title);
+  }
+
+  Future<void> _togglePreview(SoundPrefs sound) async {
+    final scheduler = ref.read(reminderSchedulerProvider);
+    if (_previewing) {
+      await scheduler.stopPreview();
+      setState(() => _previewing = false);
+    } else {
+      await scheduler.previewSound(sound.uri, alarm: sound.alarmStream);
+      setState(() => _previewing = true);
     }
   }
 
@@ -79,6 +109,8 @@ class _NotificationSettingsPageState
     final prefs = settings?.notificationPrefs ?? NotificationPrefs.defaults;
     final scheduler = ref.read(reminderSchedulerProvider);
     final scheme = Theme.of(context).colorScheme;
+    final sound = settings?.soundPrefs ?? SoundPrefs.defaults;
+    final repo = ref.read(settingsRepositoryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Notifications')),
       body: ListView(
@@ -122,6 +154,7 @@ class _NotificationSettingsPageState
                     minimumSize: const Size.fromHeight(46),
                   ),
                   onPressed: () async {
+                    await ref.read(notificationCoordinatorProvider).reschedule();
                     await scheduler.scheduleTest();
                     if (context.mounted) {
                       showMessage(context, 'A test reminder will arrive in 1 minute.');
@@ -155,12 +188,143 @@ class _NotificationSettingsPageState
                           minimumSize: const Size.fromHeight(46),
                         ),
                         onPressed: () async {
+                          await ref.read(notificationCoordinatorProvider).reschedule();
                           await scheduler.showTest();
                         },
                         child: const Text('Send a test'),
                       ),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+          const SectionTitle('Sound'),
+          AppCard(
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Reminder sound',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => _pickSound(sound),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: scheme.primary.withValues(alpha: 0.09),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.music_note_outlined, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  sound.uri == null
+                                      ? 'Phone default'
+                                      : (sound.title ?? 'Custom ringtone'),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      tooltip: _previewing ? 'Stop' : 'Play',
+                      onPressed: () => _togglePreview(sound),
+                      icon: Icon(_previewing ? Icons.stop : Icons.play_arrow),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Loud (alarm volume)'),
+                  subtitle: const Text(
+                    'Uses the alarm volume, so reminders are heard even when the phone is quiet.',
+                  ),
+                  value: sound.alarmStream,
+                  onChanged: (v) => repo.setBool(SoundPrefs.alarmKey, v),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Keep ringing until I respond'),
+                  subtitle: const Text(
+                    'The sound repeats until you open or dismiss the reminder.',
+                  ),
+                  value: sound.keepRinging,
+                  onChanged: (v) => repo.setBool(SoundPrefs.ringingKey, v),
+                ),
+              ],
+            ),
+          ),
+          const SectionTitle('Reliable delivery'),
+          AppCard(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(
+                    _exact == true
+                        ? Icons.check_circle_outline
+                        : Icons.warning_amber_rounded,
+                    color: _exact == true ? null : Colors.orange,
+                  ),
+                  title: Text(
+                    _exact == true
+                        ? 'Exact timing is on'
+                        : 'Exact timing is off',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: Text(
+                    _exact == true
+                        ? 'Reminders fire at the minute, even when the phone is idle.'
+                        : 'Allow "Alarms & reminders" so reminders are not delayed.',
+                  ),
+                  trailing: _exact == true
+                      ? null
+                      : TextButton(
+                          onPressed: () async {
+                            await scheduler.requestExactAlarms();
+                            await _refresh();
+                          },
+                          child: const Text('Allow'),
+                        ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.battery_saver_outlined),
+                  title: const Text(
+                    'Run without battery limits',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: const Text(
+                    'Lets reminders arrive when the app is closed.',
+                  ),
+                  trailing: TextButton(
+                    onPressed: scheduler.requestIgnoreBatteryOptimisation,
+                    child: const Text('Allow'),
+                  ),
                 ),
               ],
             ),
