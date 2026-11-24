@@ -15,3 +15,15 @@
 11. **Schema snapshots** live in `drift_schemas/` for migration tests.
 13. **Android build settings**: `compileSdk = 37` and core library desugaring are required by flutter_local_notifications. Gradle memory lowered to `-Xmx3G` (8G caused JVM/Dart crashes on this 16 GB PC).
 14. **Package id** is `com.hisaab.hisaab`. An older app with the same id (higher version code) was on the test phone and was replaced on first install.
+
+## 2026-11-25: Phase 2
+15. **Inactive vs archived.** `status = inactive`: hidden from pickers (shown behind "Show inactive"), still in lists and always counted in balances. `isArchived`: also moved to an "Archived" section of the manager lists, hidden from pickers; still counted in balances. "Other money" can be neither.
+16. **Account "money in / out" and period income/expense** count only `income` and `expense` transactions. Transfers and lend/borrow/repay change balances but are never income or expense. Account net = in - out; margin = net / in.
+17. **Source "received / spent"** = income and expense allocations tagged to that source in the period; "left now" = the source's balance across all accounts.
+18. **Balances in SQL.** One query unions allocation movements (+ for income/borrow_in/repay_in, - for expense/lend_out/repay_out, transfers - from / + to), opening splits, and the unsplit opening remainder tagged "Other money". An independent transactions-only query is tested to equal it.
+19. **Editing amount**: one allocation follows the amount; if split, Save is disabled until the split is fixed. Edit previews exclude the transaction's own effect (`balancesWithout`).
+20. **Delete + undo**: repository returns a snapshot (transaction + allocations); undo re-saves it.
+21. **Deleting** an account/source/category with data is blocked and offers archive or move. Categories ask which category receives the transactions.
+22. **Phase 4 items** (Lend, Borrow, Expected cash in) are disabled in quick add. Notification permission is requested in Phase 6, not onboarding.
+23. **Settings** live in `app_settings` (`ask_source_each_expense`, `onboarding_done`, `month_start_day`, `theme_mode`). The router redirects to onboarding until `onboarding_done`.
+24. **Git on Windows**: commit messages with here-strings must be sent from PowerShell (not Bash), otherwise a stray `@` ends up in the message.

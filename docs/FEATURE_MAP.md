@@ -1,9 +1,9 @@
-# Feature Map
+﻿# Feature Map
 
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Setup: project, git, docs, theme, router, Drift schema, seeds | Done |
-| 2 | Money basics: accounts, sources, categories, expense/income/transfer, allocations (auto-pick, split), Activity + filters, account/source details, onboarding | Not started |
+| 2 | Money basics: accounts, sources, categories, expense/income/transfer, allocations (auto-pick, split), Activity + filters, account/source details, onboarding | Done |
 | 3 | Dashboard: Home cards, Money by source, period switcher, month start day, charts | Not started |
 | 4 | Dues and people: expected/lent/borrowed, partial payments, statuses, extend date, history, track record, person page, payday dues | Not started |
 | 5 | Subscriptions, savings, custom reminders | Not started |
@@ -21,3 +21,12 @@
 - `lib/core/router/`: go_router config
 - `lib/core/utils/money.dart`: paisa formatting/parsing
 - `lib/features/shell/`: bottom-nav shell, placeholder page
+
+## Code map (Phase 2 additions)
+- `lib/core/providers.dart`: Riverpod providers (repositories, streams, balances)
+- `lib/core/ui/`: shared widgets (`MoneyText`, `AppCard`, `IconBox`, `PickerField`, `AmountField`, pickers, `ManagedList`)
+- `lib/core/utils/period.dart`: period ranges with month start day
+- `lib/features/ledger/`: `LedgerService`
+- `lib/features/transactions/`: repository, domain (models, allocation logic), forms, split sheet, activity
+- `lib/features/accounts|sources|categories/`: data + presentation
+- `lib/features/settings|onboarding|more|home|shell/`
