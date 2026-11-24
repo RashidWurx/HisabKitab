@@ -11,4 +11,5 @@
 8. **Amounts in the UI are 1 rupee = 100 paisa**, parsed with up to 2 decimals.
 9. **Number grouping**: standard `12,500` / `1,250,000` (not lakh grouping), as in the spec example.
 10. **sqlite3 comes through `drift_flutter`**; the old `sqlite3_flutter_libs` plugin is end-of-life and not a direct dependency.
+12. **Visual design follows `designs/UI Screens/`** (5 reference mockups). Palette: cream `#F9F3E8` background, navy `#112E4E` primary (hero card `#183858`, mid `#2A4E76`, soft `#5C7C9F`), borders `#E6E0D8`, ink `#0B1F3A`. Green/red via `AppColors`. Outlined cards, 12-14px radius, full-width 52px navy buttons, bottom sheets with drag handle, "+" FAB centered over the nav. Dark mode is a navy version of the same palette. Match these mockups when building each screen.
 11. **Schema snapshots** live in `drift_schemas/` for migration tests.
