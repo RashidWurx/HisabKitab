@@ -13,7 +13,7 @@ _Last updated: 2026-11-24_
 - Drift database, schema v1, all tables, foreign keys on, seeds (Other money source + categories), schema dumped to `drift_schemas/`.
 - Tests: money format/parse, seeding, foreign keys.
 
-- Theme restyled to match `designs/UI Screens/` (cream + navy). Phone: TECNO KJ7 (Android 14) connected over USB for testing; first debug run in progress.
+- Theme restyled to match `designs/UI Screens/` (cream + navy). Phone: TECNO KJ7 (Android 14) connected over USB for testing; first debug run verified: app launches, 5-tab nav renders correctly.
 
 ## Next
 Phase 2: Money basics (accounts, sources, categories, add/edit expense/income/transfer, allocations with auto-pick and split, Activity, detail screens, onboarding).

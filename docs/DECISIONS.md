@@ -13,3 +13,5 @@
 10. **sqlite3 comes through `drift_flutter`**; the old `sqlite3_flutter_libs` plugin is end-of-life and not a direct dependency.
 12. **Visual design follows `designs/UI Screens/`** (5 reference mockups). Palette: cream `#F9F3E8` background, navy `#112E4E` primary (hero card `#183858`, mid `#2A4E76`, soft `#5C7C9F`), borders `#E6E0D8`, ink `#0B1F3A`. Green/red via `AppColors`. Outlined cards, 12-14px radius, full-width 52px navy buttons, bottom sheets with drag handle, "+" FAB centered over the nav. Dark mode is a navy version of the same palette. Match these mockups when building each screen.
 11. **Schema snapshots** live in `drift_schemas/` for migration tests.
+13. **Android build settings**: `compileSdk = 37` and core library desugaring are required by flutter_local_notifications. Gradle memory lowered to `-Xmx3G` (8G caused JVM/Dart crashes on this 16 GB PC).
+14. **Package id** is `com.hisaab.hisaab`. An older app with the same id (higher version code) was on the test phone and was replaced on first install.

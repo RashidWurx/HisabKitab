@@ -211,7 +211,9 @@ abstract final class AppTheme {
         indicatorColor: Colors.transparent,
         labelTextStyle: WidgetStateProperty.resolveWith(
           (s) => TextStyle(
-            fontSize: 12,
+            fontSize: 11,
+            letterSpacing: -0.2,
+            overflow: TextOverflow.visible,
             fontWeight: s.contains(WidgetState.selected)
                 ? FontWeight.w700
                 : FontWeight.w500,

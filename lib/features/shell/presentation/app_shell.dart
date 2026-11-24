@@ -12,6 +12,7 @@ class AppShell extends StatelessWidget {
     return Scaffold(
       body: shell,
       bottomNavigationBar: NavigationBar(
+        labelPadding: EdgeInsets.zero,
         selectedIndex: shell.currentIndex,
         onDestinationSelected: (i) =>
             shell.goBranch(i, initialLocation: i == shell.currentIndex),
