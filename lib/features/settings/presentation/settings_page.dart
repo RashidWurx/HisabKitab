@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/providers.dart';
+import '../../applock/application/app_lock_controller.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/widgets.dart';
 import '../data/settings_repository.dart';
@@ -42,6 +43,16 @@ class SettingsPage extends ConsumerWidget {
               subtitle: const Text('Paydays, dues, subscriptions, backup'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push('/settings/notifications'),
+            ),
+          ),
+          const SectionTitle('Security'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('App lock'),
+              subtitle: const Text('PIN, fingerprint, auto-lock'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push('/settings/app-lock'),
             ),
           ),
           const SectionTitle('Months'),
@@ -129,6 +140,7 @@ class SettingsPage extends ConsumerWidget {
     );
     if (typed == null || typed.trim().toUpperCase() != 'DELETE') return;
     await ref.read(settingsRepositoryProvider).deleteAllData();
+    await ref.read(appLockProvider.notifier).disable(); // forget the PIN too
     // Onboarding flag is gone, so the router sends the user back to setup.
   }
 }

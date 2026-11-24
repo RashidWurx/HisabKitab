@@ -4,6 +4,8 @@ import 'package:material_ui/material_ui.dart';
 import 'core/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'features/applock/application/app_lock_controller.dart';
+import 'features/applock/presentation/lock_screen.dart';
 import 'features/notifications/data/notification_coordinator.dart';
 
 void main() {
@@ -38,9 +40,19 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _ensurePaydays();
-      ref.read(notificationCoordinatorProvider).requestReschedule();
+    final lock = ref.read(appLockProvider.notifier);
+    switch (state) {
+      case AppLifecycleState.inactive:
+        lock.onInactive();
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        lock.onPaused();
+      case AppLifecycleState.resumed:
+        lock.onResumed();
+        _ensurePaydays();
+        ref.read(notificationCoordinatorProvider).requestReschedule();
+      case AppLifecycleState.detached:
+        break;
     }
   }
 
@@ -72,6 +84,8 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
         _ => ThemeMode.system,
       },
       routerConfig: ref.watch(routerProvider),
+      // App lock sits above the whole app (including dialogs' routes).
+      builder: (context, child) => AppLockGate(child: child ?? const SizedBox.shrink()),
     );
   }
 }
