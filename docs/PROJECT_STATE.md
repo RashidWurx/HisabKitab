@@ -3,19 +3,21 @@
 _Last updated: 2026-11-25_
 
 ## Current phase
-**Phase 4: Dues and people** is built (code, tests, committed). **Not yet verified on the phone**: the laptop restarted and the phone was disconnected. A crash seen while adding a person from the due form (`_dependents.isEmpty` assertion, caused by disposing a TextEditingController under a closing dialog) was fixed by `showTextDialog`, but the fix has not been re-tested on the device.
+**Phase 5: Subscriptions, savings, custom reminders** is built and committed. Phases 4 and 5 (and the UI redesign + performance pass) are **not yet verified on the phone** because the PC cannot see the device (adb lists nothing). A release APK builds fine: `build/app/outputs/flutter-apk/app-release.apk`.
 
 ## Done
-- Phases 1-3 (setup, ledger, money screens, dashboard).
-- **Dues domain/data**: computed status (pending/partial/overdue/settled/cancelled), late days from the ORIGINAL date, partial payments, overpayment confirm, extend date (must be after today, unlimited, history), notes (editable with "edited"), snooze, cancel with write-off, delete, payment edit/delete with history entries, lent/borrowed create the lend_out/borrow_in transaction, repay_in goes back to the lending sources, track record and person net, rolling payday dues (31st rule), all with tests (63 tests total).
-- **Screens**: Dues (To receive / To pay, status filter, People, one-tap "Received" on expected income), due detail with timeline, Mark received / Mark paid sheet, Extend date sheet, due form (Lend / Borrow / Expected cash in), People list, person form and person page (net, track record, history), source details (open dues, track record), account details (expected to arrive). Quick add tiles are now live.
-- **Polish pass**: themes cached, theme switch is instant (no animation), router no longer reacts to unrelated settings, lazy Activity list with day totals, redesigned Home (gradient hero, quick actions, account cards, source cards with progress, upcoming), tinted icon tiles, avatars, soft card shadows, new Dues tiles.
+- Phases 1-4 (setup, ledger, money screens, dashboard, dues and people).
+- **Schema v2**: `subscriptions.anchor_day` (keeps a 31st billing day after short months), with a tested v1 -> v2 migration and a schema snapshot.
+- **Subscriptions**: list with monthly cost and paid-this-month, renewal countdowns, "Pay" sheet (amount editable) that creates a linked expense and moves the next date forward, pause/resume/cancel/delete, per-subscription history and spent this month/year/all time, form with idea chips (Spotify, Google One, iCloud, VPS, Warehouse).
+- **Savings**: total saved, goal progress per savings account, Add to savings / Withdraw (pre-filled transfers), create savings account shortcut.
+- **Custom reminders**: add/edit/delete, repeat (none/daily/weekly/monthly/every N days), active switch, "Pay" opens Add expense pre-filled; repeating reminders roll forward on app start/resume.
+- 80 tests, `flutter analyze` clean.
 
 ## Next
-1. Re-connect the phone, test Phase 4 flows on a RELEASE build (smoothness), fix issues.
-2. Phase 5: Subscriptions, savings, custom reminders.
+1. Reconnect the phone and test phases 4-5 on a RELEASE build (also check dark/light switching speed).
+2. Phase 6: Notifications (ReminderScheduler, per-type settings, overrides, tap to open the right screen).
 
 ## Open items
-- iOS parts tested later on a Mac. Google Cloud / Xcode steps go in the README in Phase 8.
+- Notification fields on subscriptions/dues are stored but nothing fires yet (Phase 6).
 - Month-by-month history on Source details still not built.
-- Two Phase 1 commit messages start with a stray `@ `; history not rewritten.
+- iOS parts tested later on a Mac. Google Cloud / Xcode steps go in the README in Phase 8.

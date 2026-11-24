@@ -41,3 +41,10 @@
 33. **Paydays**: `PaydayService` runs on start, on app resume and when sources change; one due per source per period (`periodKey`); needs an expected amount and a linked account.
 34. **Performance rules**: cache `ThemeData`, `themeAnimationDuration: Duration.zero`, `InkRipple`, router listens only to the onboarding flag, lazy lists for long data, `RepaintBoundary` on charts, chart animations off. Judge smoothness on a release build, not debug.
 35. **Dialogs with text fields** must use `showTextDialog` (the controller lives in the dialog's State). Never dispose a controller right after `await showDialog`.
+## 2026-11-25: Phase 5
+36. **Subscription dates** use the original billing day (`anchor_day`), so 31 Jan -> 28 Feb -> 31 Mar. Marking paid moves the date forward exactly one cycle from the paid due date.
+37. **Subscription "this month"** follows the month start day setting.
+38. **Monthly cost**: yearly / 12, weekly x 52 / 12, daily x 365 / 12, "every N" divides by N; rounded to whole paisa; only active subscriptions count.
+39. **Deleting a subscription** keeps its expenses (they lose the link). Marking paid uses the subscription's category, else the "Subscriptions" category, else the first expense category.
+40. **Savings** is the existing savings account type + goal on the account; "Add to savings" / "Withdraw" are transfers opened with `?to=` / `?from=`.
+41. **Reminder pre-fill**: `/transaction/new/expense?amount=<paisa>&category=..&account=..`.
