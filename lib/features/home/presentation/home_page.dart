@@ -157,6 +157,7 @@ class HomePage extends ConsumerWidget {
                   label: 'To receive',
                   amount: dues.toReceive,
                   color: colors.positive,
+                  route: '/dues',
                   extra: dues.overdueCount > 0
                       ? Text(
                           '${dues.overdueCount} overdue',
@@ -176,6 +177,7 @@ class HomePage extends ConsumerWidget {
                   label: 'To pay',
                   amount: dues.toPay,
                   color: colors.negative,
+                  route: '/dues?tab=pay',
                 ),
               ),
             ],
@@ -285,11 +287,12 @@ class HomePage extends ConsumerWidget {
     required String label,
     required int amount,
     required Color color,
+    required String route,
     Widget? extra,
   }) {
     return AppCard(
       padding: const EdgeInsets.all(14),
-      onTap: () => context.go('/dues'),
+      onTap: () => context.go(route),
       child: Row(
         children: [
           Icon(icon, size: 26),

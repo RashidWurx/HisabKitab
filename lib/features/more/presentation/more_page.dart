@@ -13,7 +13,7 @@ class MorePage extends StatelessWidget {
       (Icons.account_balance_wallet_outlined, 'Accounts', () => context.push('/accounts')),
       (Icons.toll_outlined, 'Income sources', () => context.push('/sources')),
       (Icons.sell_outlined, 'Categories', () => context.push('/categories')),
-      (Icons.people_outline, 'People', soon),
+      (Icons.people_outline, 'People', () => context.push('/people')),
       (Icons.track_changes, 'Savings', soon),
       (Icons.notifications_none, 'Custom reminders', soon),
       (Icons.settings_outlined, 'Settings', () => context.push('/settings')),

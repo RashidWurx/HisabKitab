@@ -2,7 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../features/accounts/data/account_repository.dart';
 import '../features/categories/data/category_repository.dart';
+import '../features/dues/data/due_repository.dart';
+import '../features/dues/data/payday_service.dart';
+import '../features/dues/domain/due_models.dart';
 import '../features/ledger/data/ledger_service.dart';
+import '../features/people/data/person_repository.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/sources/data/source_repository.dart';
 import '../features/transactions/data/transaction_repository.dart';
@@ -27,6 +31,31 @@ final settingsRepositoryProvider = Provider(
 );
 final ledgerProvider = Provider(
   (ref) => LedgerService(ref.watch(databaseProvider)),
+);
+
+final dueRepositoryProvider = Provider(
+  (ref) => DueRepository(ref.watch(databaseProvider)),
+);
+final personRepositoryProvider = Provider(
+  (ref) => PersonRepository(ref.watch(databaseProvider)),
+);
+final paydayServiceProvider = Provider(
+  (ref) => PaydayService(ref.watch(databaseProvider)),
+);
+
+final peopleProvider = StreamProvider<List<PeopleData>>(
+  (ref) => ref.watch(personRepositoryProvider).watchAll(),
+);
+
+/// Every due with its computed status, paid and remaining amounts.
+final dueViewsProvider = StreamProvider<List<DueView>>(
+  (ref) => ref.watch(dueRepositoryProvider).watchViews(),
+);
+final dueViewProvider = StreamProvider.family<DueView?, String>(
+  (ref, id) => ref.watch(dueRepositoryProvider).watchView(id),
+);
+final dueEventsProvider = StreamProvider.family<List<DueEvent>, String>(
+  (ref, id) => ref.watch(dueRepositoryProvider).watchEvents(id),
 );
 
 final accountsProvider = StreamProvider<List<Account>>(

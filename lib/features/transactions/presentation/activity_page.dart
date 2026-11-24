@@ -197,6 +197,16 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                     padding: const EdgeInsets.only(right: 20),
                     child: const Icon(Icons.delete_outline, color: Colors.white),
                   ),
+                  confirmDismiss: (_) async {
+                    if (group[i].dueId != null) {
+                      showMessage(
+                        context,
+                        'This belongs to a due. Open the due to change or delete it.',
+                      );
+                      return false;
+                    }
+                    return true;
+                  },
                   onDismissed: (_) => _delete(group[i]),
                   child: TransactionTile(
                     transaction: group[i],
@@ -204,6 +214,10 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                     categories: categories,
                     onTap: () {
                       final t = group[i];
+                      if (t.dueId != null) {
+                        context.push('/dues/${t.dueId}');
+                        return;
+                      }
                       const editable = {
                         TransactionType.expense,
                         TransactionType.income,

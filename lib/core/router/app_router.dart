@@ -7,7 +7,11 @@ import '../../features/accounts/presentation/account_form_page.dart';
 import '../../features/accounts/presentation/accounts_page.dart';
 import '../../features/categories/presentation/categories_page.dart';
 import '../../features/categories/presentation/category_form_page.dart';
+import '../../features/dues/presentation/due_detail_page.dart';
+import '../../features/dues/presentation/due_form_page.dart';
+import '../../features/dues/presentation/dues_page.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../../features/people/presentation/people_pages.dart';
 import '../../features/more/presentation/more_page.dart';
 import '../../features/onboarding/presentation/onboarding_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
@@ -85,7 +89,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/dues',
-                builder: (_, _) => const PlaceholderPage(title: 'Dues'),
+                builder: (_, state) => DuesPage(
+                  key: ValueKey(state.uri.queryParameters['tab']),
+                  initialTab: state.uri.queryParameters['tab'] == 'pay' ? 1 : 0,
+                ),
               ),
             ],
           ),
@@ -152,6 +159,35 @@ final routerProvider = Provider<GoRouter>((ref) {
         (s) => TransactionFormPage(transactionId: s.pathParameters['id']),
       ),
       _full('/settings', (_) => const SettingsPage()),
+      _full(
+        '/dues/new/:kind',
+        (s) => DueFormPage(
+          kind: switch (s.pathParameters['kind']) {
+            'lent' => DueKind.lent,
+            'borrowed' => DueKind.borrowed,
+            _ => DueKind.expectedIncome,
+          },
+          personId: s.uri.queryParameters['person'],
+        ),
+      ),
+      _full(
+        '/dues/:id',
+        (s) => DueDetailPage(dueId: s.pathParameters['id']!),
+      ),
+      _full(
+        '/dues/:id/edit',
+        (s) => DueFormPage(dueId: s.pathParameters['id']),
+      ),
+      _full('/people', (_) => const PeoplePage()),
+      _full('/people/new', (_) => const PersonFormPage()),
+      _full(
+        '/people/:id',
+        (s) => PersonDetailPage(personId: s.pathParameters['id']!),
+      ),
+      _full(
+        '/people/:id/edit',
+        (s) => PersonFormPage(personId: s.pathParameters['id']),
+      ),
     ],
   );
   ref.onDispose(router.dispose);

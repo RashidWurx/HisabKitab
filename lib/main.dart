@@ -9,11 +9,42 @@ void main() {
   runApp(const ProviderScope(child: HisaabApp()));
 }
 
-class HisaabApp extends ConsumerWidget {
+class HisaabApp extends ConsumerStatefulWidget {
   const HisaabApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HisaabApp> createState() => _HisaabAppState();
+}
+
+class _HisaabAppState extends ConsumerState<HisaabApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _ensurePaydays();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _ensurePaydays();
+  }
+
+  /// Rolling payday dues: on start, on resume and when sources change.
+  void _ensurePaydays() {
+    ref.read(paydayServiceProvider).ensureNextPaydays();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Sources can change schedule, amount, account or status.
+    ref.listen(sourcesProvider, (_, _) => _ensurePaydays());
     final mode = ref.watch(
       settingsProvider.select((s) => s.value?.themeMode ?? 'system'),
     );

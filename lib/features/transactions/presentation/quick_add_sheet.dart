@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/ui/widgets.dart';
 
-/// The "+" menu. Lend, Borrow and Expected cash in arrive with Dues (Phase 4).
+/// The "+" menu.
 Future<void> showQuickAddSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
@@ -63,13 +63,13 @@ Future<void> showQuickAddSheet(BuildContext context) {
                     'Transfer',
                     () => go('/transaction/new/transfer'),
                   ),
-                  _tile(ctx, Icons.volunteer_activism_outlined, 'Lend', null),
-                  _tile(ctx, Icons.handshake_outlined, 'Borrow', null),
+                  _tile(ctx, Icons.volunteer_activism_outlined, 'Lend', () => go('/dues/new/lent')),
+                  _tile(ctx, Icons.handshake_outlined, 'Borrow', () => go('/dues/new/borrowed')),
                   _tile(
                     ctx,
                     Icons.event_available_outlined,
                     'Expected\ncash in',
-                    null,
+                    () => go('/dues/new/expected'),
                   ),
                 ],
               ),
