@@ -17,6 +17,9 @@ _Last updated: 2026-11-25_
 - Verified on the TECNO KJ7: permission prompt, instant test notification, scheduled alarms registered with AlarmManager, scheduled test delivered while the app was open.
 - NOT verified / failing: delivery while the app is in the background on this phone (HiOS restricts background apps). Needs the phone's background/autostart setting turned on, then a retest. Reboot survival not yet tested.
 
+## Phase 7 (app lock): built and verified
+- On the TECNO KJ7: PIN setup and confirm, FLAG_SECURE active (screenshots go blank), PIN check from the settings sheet, turning the lock off. Lock screen behaviour (wrong PIN, lockout, re-lock on resume, timeouts) is covered by widget tests; fingerprint prompt not exercised.
+
 ## Next
 1. Reconnect the phone and test phases 4-5 on a RELEASE build (also check dark/light switching speed).
 2. Phase 6: Notifications (ReminderScheduler, per-type settings, overrides, tap to open the right screen).

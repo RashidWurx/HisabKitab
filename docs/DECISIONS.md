@@ -53,3 +53,10 @@
 43. **Defaults**: 9:00 AM, 1 day before and on the day (dues, paydays, subscriptions); overdue nudges daily from the day after the due date (3 ahead); backup reminder after 7 days; each due can override with its own date/time and repeat; each subscription with its own days-before; custom reminders use their own time.
 44. **Tap routing**: payload `due:<id>` / `sub:<id>` / `reminder:<id>` / `backup` / `test`. Due notifications have "Received" and "Extend" buttons that open the Mark received / Extend sheets. A reminder with an amount/category/account opens Add expense pre-filled.
 45. **Phone-specific**: on TECNO/HiOS (and similar) a scheduled notification arrived while the app was in the foreground but NOT while it was in the background, even with battery optimisation off. The Notifications screen explains this and links to the app's system settings (battery, autostart). The user must allow background activity for reliable reminders.
+## 2026-11-25: Phase 7
+46. **App lock** keeps everything in `flutter_secure_storage` (flag, timeout, biometrics, PIN length, salt, PBKDF2-HMAC-SHA256 hash with 10,000 iterations), not in the database, so a restored backup can never bring back a lock whose PIN is gone; an "enabled" flag without a hash counts as off.
+47. **Lockout**: first 4 wrong PINs free, then 30 s, 1 min, 5 min, 15 min, 1 h. Success resets the counter.
+48. **Lock timing**: immediately / after 1 minute / after 5 minutes of being in the background (`shouldLockOnResume`). System dialogs and the biometric prompt are ignored for locking.
+49. **Hidden in recents**: Android `FLAG_SECURE` through the `hisaab/privacy` channel while the lock is on (this also blocks screenshots and `adb screencap`), plus a navy cover whenever the app is inactive.
+50. **Forgot PIN** = erase all data and the PIN (double confirm) and then restore a backup. "Delete all data" in Settings also removes the PIN.
+51. `MainActivity` is a `FlutterFragmentActivity` (needed by local_auth) and the launch themes use AppCompat.
