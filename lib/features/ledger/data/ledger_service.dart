@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/enums.dart';
 import '../../../core/database/seed.dart';
 import '../../transactions/domain/transaction_models.dart';
 
@@ -133,6 +134,24 @@ SELECT account_id, source_id, SUM(amt) AS bal FROM (
       if (k.accountId == accountId) out[k.sourceId] = v;
     });
     return out;
+  }
+
+  /// Headline numbers: total across accounts flagged "include in total"
+  /// (archived accounts too, since their money still exists), and how much of
+  /// that total is in savings accounts.
+  static ({int total, int savings}) headlineTotals(
+    List<Account> accounts,
+    Map<String, int> accountBalances,
+  ) {
+    var total = 0;
+    var savings = 0;
+    for (final a in accounts) {
+      if (!a.includeInTotal) continue;
+      final b = accountBalances[a.id] ?? 0;
+      total += b;
+      if (a.type == AccountType.savings) savings += b;
+    }
+    return (total: total, savings: savings);
   }
 
   Stream<Map<String, int>> watchAccountBalances() =>

@@ -66,6 +66,20 @@ List<AllocationInput> splitWithOtherSources({
   return result;
 }
 
+/// Current balances with an existing transaction's effect taken back out.
+/// Used by the edit form so "balance after" previews are not double counted.
+Map<AccountSource, int> balancesWithout(
+  Map<AccountSource, int> balances,
+  TransactionInput? original,
+) {
+  final result = Map<AccountSource, int>.of(balances);
+  if (original == null) return result;
+  transactionDeltas(original).forEach((key, delta) {
+    result[key] = (result[key] ?? 0) - delta;
+  });
+  return result;
+}
+
 /// True when allocations are all positive and add up exactly to [amount].
 bool allocationsValid(List<AllocationInput> allocations, int amount) {
   if (allocations.isEmpty) return false;

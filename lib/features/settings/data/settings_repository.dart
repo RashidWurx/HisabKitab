@@ -46,7 +46,7 @@ class SettingsRepository {
       // Rows reference each other in a loop (accounts <-> sources), so check
       // foreign keys only at commit time.
       await _db.customStatement('PRAGMA defer_foreign_keys = ON');
-      for (final table in [
+      for (final table in <TableInfo<Table, Object?>>[
         _db.dueEvents,
         _db.transactionAllocations,
         _db.transactions,

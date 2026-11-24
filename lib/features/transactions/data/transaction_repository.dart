@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' hide Transaction;
+import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
