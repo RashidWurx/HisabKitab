@@ -24,7 +24,8 @@ _Last updated: 2026-11-25_
 - Backup zip = `hisaab.sqlite` (VACUUM INTO) + `manifest.json`. Local export (share sheet) and import (file picker) need no setup. Restore checks the file first (newer schema, damaged, not a backup), keeps a rollback copy, swaps the DB and reschedules reminders.
 - Backup & restore screen at `/backup` (More > Backup & restore; the "backup" reminder opens it). Cloud: Google Drive appdata folder (needs `--dart-define=GOOGLE_SERVER_CLIENT_ID`) and iCloud via Swift plugin; latest 10 kept. Setup steps are in README.
 - 125 tests, `flutter analyze` clean.
-- Not verified: export/import/restore on the phone, Google Drive (needs Cloud setup), iCloud (needs a Mac).
+- Phone-verified (TECNO KJ7, release): Backup screen renders, Export makes `hisaab_backup_<date>.zip` (7 KB) and opens the share sheet, "Last backup" updates.
+- Not verified: import/restore on the phone, Google Drive (needs Cloud setup), iCloud (needs a Mac).
 
 ## Next
 1. Phase 9: polish and tests (empty states, app icon, source month history, forms/More/Settings redesign).
