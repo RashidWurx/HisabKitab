@@ -38,9 +38,10 @@ class _SplitRow {
 }
 
 class AccountFormPage extends ConsumerStatefulWidget {
-  const AccountFormPage({super.key, this.accountId});
+  const AccountFormPage({super.key, this.accountId, this.initialType});
 
   final String? accountId;
+  final AccountType? initialType;
 
   @override
   ConsumerState<AccountFormPage> createState() => _AccountFormPageState();
@@ -71,6 +72,10 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     if (_isEdit) {
       _load();
     } else {
+      if (widget.initialType != null) {
+        _type = widget.initialType!;
+        _iconKey = _typeDefaultIcon[_type]!;
+      }
       _loaded = true;
     }
   }

@@ -39,6 +39,7 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
   /// Rolling payday dues: on start, on resume and when sources change.
   void _ensurePaydays() {
     ref.read(paydayServiceProvider).ensureNextPaydays();
+    ref.read(reminderRepositoryProvider).rollForward();
   }
 
   @override

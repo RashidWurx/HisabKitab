@@ -14,9 +14,13 @@ import '../../features/home/presentation/home_page.dart';
 import '../../features/people/presentation/people_pages.dart';
 import '../../features/more/presentation/more_page.dart';
 import '../../features/onboarding/presentation/onboarding_page.dart';
+import '../../features/reminders/presentation/reminders_page.dart';
+import '../../features/savings/presentation/savings_page.dart';
+import '../../features/subscriptions/presentation/subscription_detail_page.dart';
+import '../../features/subscriptions/presentation/subscription_form_page.dart';
+import '../../features/subscriptions/presentation/subscriptions_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
-import '../../features/shell/presentation/placeholder_page.dart';
 import '../../features/sources/presentation/source_detail_page.dart';
 import '../../features/sources/presentation/source_form_page.dart';
 import '../../features/sources/presentation/sources_page.dart';
@@ -105,7 +109,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/subscriptions',
-                builder: (_, _) => const PlaceholderPage(title: 'Subscriptions'),
+                builder: (_, _) => const SubscriptionsPage(),
               ),
             ],
           ),
@@ -117,7 +121,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       _full('/accounts', (_) => const AccountsPage()),
-      _full('/accounts/new', (_) => const AccountFormPage()),
+      _full(
+        '/accounts/new',
+        (s) => AccountFormPage(
+          initialType: s.uri.queryParameters['type'] == 'savings'
+              ? AccountType.savings
+              : null,
+        ),
+      ),
       _full(
         '/accounts/:id',
         (s) => AccountDetailPage(accountId: s.pathParameters['id']!),
@@ -152,6 +163,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       _full(
         '/transaction/new/:type',
         (s) => TransactionFormPage(
+          prefillAmount: int.tryParse(s.uri.queryParameters['amount'] ?? ''),
+          prefillCategoryId: s.uri.queryParameters['category'],
+          prefillAccountId: s.uri.queryParameters['account'],
+          fromAccountId: s.uri.queryParameters['from'],
+          toAccountId: s.uri.queryParameters['to'],
           type: switch (s.pathParameters['type']) {
             'income' => TransactionType.income,
             'transfer' => TransactionType.transfer,
@@ -164,6 +180,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         (s) => TransactionFormPage(transactionId: s.pathParameters['id']),
       ),
       _full('/settings', (_) => const SettingsPage()),
+      _full(
+        '/subscriptions/new',
+        (s) => SubscriptionFormPage(initialName: s.uri.queryParameters['name']),
+      ),
+      _full(
+        '/subscriptions/:id',
+        (s) => SubscriptionDetailPage(subscriptionId: s.pathParameters['id']!),
+      ),
+      _full(
+        '/subscriptions/:id/edit',
+        (s) => SubscriptionFormPage(subscriptionId: s.pathParameters['id']),
+      ),
+      _full('/savings', (_) => const SavingsPage()),
+      _full('/reminders', (_) => const RemindersPage()),
+      _full('/reminders/new', (_) => const ReminderFormPage()),
+      _full(
+        '/reminders/:id/edit',
+        (s) => ReminderFormPage(reminderId: s.pathParameters['id']),
+      ),
       _full(
         '/dues/new/:kind',
         (s) => DueFormPage(

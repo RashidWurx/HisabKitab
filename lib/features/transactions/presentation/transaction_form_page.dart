@@ -21,10 +21,26 @@ import 'split_sheet.dart';
 /// Add / edit an expense, income or transfer.
 /// For editing, pass [transactionId] (the type is read from the record).
 class TransactionFormPage extends ConsumerStatefulWidget {
-  const TransactionFormPage({super.key, this.type, this.transactionId});
+  const TransactionFormPage({
+    super.key,
+    this.type,
+    this.transactionId,
+    this.prefillAmount,
+    this.prefillCategoryId,
+    this.prefillAccountId,
+    this.fromAccountId,
+    this.toAccountId,
+  });
 
   final TransactionType? type;
   final String? transactionId;
+
+  /// Optional pre-fill (reminders, savings shortcuts). Amount is in paisa.
+  final int? prefillAmount;
+  final String? prefillCategoryId;
+  final String? prefillAccountId;
+  final String? fromAccountId;
+  final String? toAccountId;
 
   @override
   ConsumerState<TransactionFormPage> createState() =>
@@ -61,8 +77,28 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     if (_isEdit) {
       _load();
     } else {
+      _applyPrefill();
       _loaded = true;
     }
+  }
+
+  void _applyPrefill() {
+    final w = widget;
+    if (w.prefillAmount != null && w.prefillAmount! > 0) {
+      _amount.text = Money.format(w.prefillAmount!)
+          .replaceFirst('Rs ', '')
+          .replaceAll(',', '');
+    }
+    if (w.prefillCategoryId != null) _categoryId = w.prefillCategoryId;
+    if (w.prefillAccountId != null) {
+      _accountId = w.prefillAccountId;
+      _accountTouched = true;
+    }
+    if (w.fromAccountId != null) {
+      _accountId = w.fromAccountId;
+      _accountTouched = true;
+    }
+    if (w.toAccountId != null) _toAccountId = w.toAccountId;
   }
 
   Future<void> _load() async {

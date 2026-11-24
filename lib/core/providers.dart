@@ -7,12 +7,15 @@ import '../features/dues/data/payday_service.dart';
 import '../features/dues/domain/due_models.dart';
 import '../features/ledger/data/ledger_service.dart';
 import '../features/people/data/person_repository.dart';
+import '../features/reminders/data/reminder_repository.dart';
+import '../features/subscriptions/data/subscription_repository.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/sources/data/source_repository.dart';
 import '../features/transactions/data/transaction_repository.dart';
 import '../features/transactions/domain/transaction_models.dart';
 import 'database/app_database.dart';
 import 'database/database_provider.dart';
+import 'utils/period.dart';
 
 final accountRepositoryProvider = Provider(
   (ref) => AccountRepository(ref.watch(databaseProvider)),
@@ -42,6 +45,41 @@ final personRepositoryProvider = Provider(
 final paydayServiceProvider = Provider(
   (ref) => PaydayService(ref.watch(databaseProvider)),
 );
+
+final subscriptionRepositoryProvider = Provider(
+  (ref) => SubscriptionRepository(ref.watch(databaseProvider)),
+);
+final reminderRepositoryProvider = Provider(
+  (ref) => ReminderRepository(ref.watch(databaseProvider)),
+);
+
+final subscriptionsProvider = StreamProvider<List<Subscription>>(
+  (ref) => ref.watch(subscriptionRepositoryProvider).watchAll(),
+);
+final remindersProvider = StreamProvider<List<CustomReminder>>(
+  (ref) => ref.watch(reminderRepositoryProvider).watchAll(),
+);
+
+/// Spent on subscriptions (null id = all subscriptions).
+final subscriptionSpendProvider =
+    StreamProvider.family<SubscriptionSpend, String?>((ref, id) {
+      final startDay = ref.watch(
+        settingsProvider.select((s) => s.value?.monthStartDay ?? 1),
+      );
+      return ref
+          .watch(subscriptionRepositoryProvider)
+          .watchSpend(
+            subscriptionId: id,
+            monthStart: rangeFor(
+              PeriodKind.thisMonth,
+              monthStartDay: startDay,
+            ).start,
+          );
+    });
+final subscriptionPaymentsProvider =
+    StreamProvider.family<List<Transaction>, String>(
+      (ref, id) => ref.watch(subscriptionRepositoryProvider).watchPayments(id),
+    );
 
 final peopleProvider = StreamProvider<List<PeopleData>>(
   (ref) => ref.watch(personRepositoryProvider).watchAll(),
