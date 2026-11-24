@@ -7,7 +7,7 @@
 | 3 | Dashboard: Home cards, Money by source, period switcher, month start day, charts | Done |
 | 4 | Dues and people: expected/lent/borrowed, partial payments, statuses, extend date, history, track record, person page, payday dues | Built, awaiting phone test |
 | 5 | Subscriptions, savings, custom reminders | Built, awaiting phone test |
-| 6 | Notifications: ReminderScheduler, per-type settings, overrides, deep links | Not started |
+| 6 | Notifications: ReminderScheduler, per-type settings, overrides, deep links | Built, background delivery needs phone setting |
 | 7 | App lock (PIN, biometrics) | Not started |
 | 8 | Backup and restore: local export/import, Google Drive, iCloud | Not started |
 | 9 | Polish and tests | Not started |

@@ -13,6 +13,10 @@ _Last updated: 2026-11-25_
 - **Custom reminders**: add/edit/delete, repeat (none/daily/weekly/monthly/every N days), active switch, "Pay" opens Add expense pre-filled; repeating reminders roll forward on app start/resume.
 - 80 tests, `flutter analyze` clean.
 
+## Phase 6 (notifications): built, partly verified
+- Verified on the TECNO KJ7: permission prompt, instant test notification, scheduled alarms registered with AlarmManager, scheduled test delivered while the app was open.
+- NOT verified / failing: delivery while the app is in the background on this phone (HiOS restricts background apps). Needs the phone's background/autostart setting turned on, then a retest. Reboot survival not yet tested.
+
 ## Next
 1. Reconnect the phone and test phases 4-5 on a RELEASE build (also check dark/light switching speed).
 2. Phase 6: Notifications (ReminderScheduler, per-type settings, overrides, tap to open the right screen).

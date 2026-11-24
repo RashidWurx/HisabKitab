@@ -165,7 +165,47 @@ class _NotificationSettingsPageState
               ],
             ),
           ),
-          const SectionTitle('Reminder types'),
+          const SectionTitle('Not arriving when the app is closed?'),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Some phones (TECNO, Infinix, Xiaomi, Oppo, Vivo and others) stop apps in the background to save battery, which can silence reminders. Set Hisaab to "No restrictions" / "Allow background activity", and turn on Autostart if your phone has it.',
+                  style: TextStyle(color: scheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(46),
+                        ),
+                        onPressed: scheduler.openAppSettings,
+                        child: const Text('App settings'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.tonal(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(46),
+                        ),
+                        onPressed: scheduler.openBatterySettings,
+                        child: const Text('Battery'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Then use "Send a test in 1 minute", close the app and wait: it should still arrive.',
+                  style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),          const SectionTitle('Reminder types'),
           for (final t in NotificationType.values)
             Padding(
               padding: const EdgeInsets.only(bottom: 10),

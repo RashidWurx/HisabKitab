@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -146,7 +147,8 @@ class ReminderScheduler {
   /// Returns how many notifications were scheduled.
   Future<int> schedule(List<PlannedReminder> plan) async {
     if (!_ready) return 0;
-    await _plugin.cancelAll();
+    // Only pending ones: reminders already shown stay in the shade.
+    await _plugin.cancelAllPendingNotifications();
     var id = 1;
     for (final r in plan) {
       await _plugin.zonedSchedule(
@@ -207,5 +209,24 @@ class ReminderScheduler {
       body: 'Scheduled reminders work on this phone.',
       payload: 'test',
     );
+  }
+
+  /// Opens this app's system settings page (battery, notifications...).
+  /// Some phones (TECNO, Xiaomi, Oppo...) stop background reminders unless the
+  /// app is set to run without restrictions there.
+  Future<void> openAppSettings() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    await const AndroidIntent(
+      action: 'android.settings.APPLICATION_DETAILS_SETTINGS',
+      data: 'package:com.hisaab.hisaab',
+    ).launch();
+  }
+
+  /// Opens the system "Battery optimisation" list.
+  Future<void> openBatterySettings() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    await const AndroidIntent(
+      action: 'android.settings.IGNORE_BATTERY_OPTIMIZATION_SETTINGS',
+    ).launch();
   }
 }
