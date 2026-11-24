@@ -4295,6 +4295,17 @@ class $SubscriptionsTable extends Subscriptions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _anchorDayMeta = const VerificationMeta(
+    'anchorDay',
+  );
+  @override
+  late final GeneratedColumn<int> anchorDay = GeneratedColumn<int>(
+    'anchor_day',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _accountIdMeta = const VerificationMeta(
     'accountId',
   );
@@ -4371,6 +4382,7 @@ class $SubscriptionsTable extends Subscriptions
     billingUnit,
     billingEvery,
     nextDueDate,
+    anchorDay,
     accountId,
     categoryId,
     reminderDaysBefore,
@@ -4430,6 +4442,12 @@ class $SubscriptionsTable extends Subscriptions
       );
     } else if (isInserting) {
       context.missing(_nextDueDateMeta);
+    }
+    if (data.containsKey('anchor_day')) {
+      context.handle(
+        _anchorDayMeta,
+        anchorDay.isAcceptableOrUnknown(data['anchor_day']!, _anchorDayMeta),
+      );
     }
     if (data.containsKey('account_id')) {
       context.handle(
@@ -4503,6 +4521,10 @@ class $SubscriptionsTable extends Subscriptions
         DriftSqlType.dateTime,
         data['${effectivePrefix}next_due_date'],
       )!,
+      anchorDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}anchor_day'],
+      ),
       accountId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}account_id'],
@@ -4554,6 +4576,10 @@ class Subscription extends DataClass implements Insertable<Subscription> {
   /// Every N units (1 month, 3 months, 14 days, ...).
   final int billingEvery;
   final DateTime nextDueDate;
+
+  /// Day of month the subscription was set up on (so a 31st billing day
+  /// returns to the 31st after a short month). Added in schema v2.
+  final int? anchorDay;
   final String accountId;
   final String? categoryId;
   final int? reminderDaysBefore;
@@ -4567,6 +4593,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     required this.billingUnit,
     required this.billingEvery,
     required this.nextDueDate,
+    this.anchorDay,
     required this.accountId,
     this.categoryId,
     this.reminderDaysBefore,
@@ -4587,6 +4614,9 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     }
     map['billing_every'] = Variable<int>(billingEvery);
     map['next_due_date'] = Variable<DateTime>(nextDueDate);
+    if (!nullToAbsent || anchorDay != null) {
+      map['anchor_day'] = Variable<int>(anchorDay);
+    }
     map['account_id'] = Variable<String>(accountId);
     if (!nullToAbsent || categoryId != null) {
       map['category_id'] = Variable<String>(categoryId);
@@ -4614,6 +4644,9 @@ class Subscription extends DataClass implements Insertable<Subscription> {
       billingUnit: Value(billingUnit),
       billingEvery: Value(billingEvery),
       nextDueDate: Value(nextDueDate),
+      anchorDay: anchorDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(anchorDay),
       accountId: Value(accountId),
       categoryId: categoryId == null && nullToAbsent
           ? const Value.absent()
@@ -4641,6 +4674,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
       ),
       billingEvery: serializer.fromJson<int>(json['billingEvery']),
       nextDueDate: serializer.fromJson<DateTime>(json['nextDueDate']),
+      anchorDay: serializer.fromJson<int?>(json['anchorDay']),
       accountId: serializer.fromJson<String>(json['accountId']),
       categoryId: serializer.fromJson<String?>(json['categoryId']),
       reminderDaysBefore: serializer.fromJson<int?>(json['reminderDaysBefore']),
@@ -4663,6 +4697,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
       ),
       'billingEvery': serializer.toJson<int>(billingEvery),
       'nextDueDate': serializer.toJson<DateTime>(nextDueDate),
+      'anchorDay': serializer.toJson<int?>(anchorDay),
       'accountId': serializer.toJson<String>(accountId),
       'categoryId': serializer.toJson<String?>(categoryId),
       'reminderDaysBefore': serializer.toJson<int?>(reminderDaysBefore),
@@ -4681,6 +4716,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     BillingUnit? billingUnit,
     int? billingEvery,
     DateTime? nextDueDate,
+    Value<int?> anchorDay = const Value.absent(),
     String? accountId,
     Value<String?> categoryId = const Value.absent(),
     Value<int?> reminderDaysBefore = const Value.absent(),
@@ -4694,6 +4730,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     billingUnit: billingUnit ?? this.billingUnit,
     billingEvery: billingEvery ?? this.billingEvery,
     nextDueDate: nextDueDate ?? this.nextDueDate,
+    anchorDay: anchorDay.present ? anchorDay.value : this.anchorDay,
     accountId: accountId ?? this.accountId,
     categoryId: categoryId.present ? categoryId.value : this.categoryId,
     reminderDaysBefore: reminderDaysBefore.present
@@ -4717,6 +4754,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
       nextDueDate: data.nextDueDate.present
           ? data.nextDueDate.value
           : this.nextDueDate,
+      anchorDay: data.anchorDay.present ? data.anchorDay.value : this.anchorDay,
       accountId: data.accountId.present ? data.accountId.value : this.accountId,
       categoryId: data.categoryId.present
           ? data.categoryId.value
@@ -4739,6 +4777,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
           ..write('billingUnit: $billingUnit, ')
           ..write('billingEvery: $billingEvery, ')
           ..write('nextDueDate: $nextDueDate, ')
+          ..write('anchorDay: $anchorDay, ')
           ..write('accountId: $accountId, ')
           ..write('categoryId: $categoryId, ')
           ..write('reminderDaysBefore: $reminderDaysBefore, ')
@@ -4757,6 +4796,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
     billingUnit,
     billingEvery,
     nextDueDate,
+    anchorDay,
     accountId,
     categoryId,
     reminderDaysBefore,
@@ -4774,6 +4814,7 @@ class Subscription extends DataClass implements Insertable<Subscription> {
           other.billingUnit == this.billingUnit &&
           other.billingEvery == this.billingEvery &&
           other.nextDueDate == this.nextDueDate &&
+          other.anchorDay == this.anchorDay &&
           other.accountId == this.accountId &&
           other.categoryId == this.categoryId &&
           other.reminderDaysBefore == this.reminderDaysBefore &&
@@ -4789,6 +4830,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
   final Value<BillingUnit> billingUnit;
   final Value<int> billingEvery;
   final Value<DateTime> nextDueDate;
+  final Value<int?> anchorDay;
   final Value<String> accountId;
   final Value<String?> categoryId;
   final Value<int?> reminderDaysBefore;
@@ -4803,6 +4845,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     this.billingUnit = const Value.absent(),
     this.billingEvery = const Value.absent(),
     this.nextDueDate = const Value.absent(),
+    this.anchorDay = const Value.absent(),
     this.accountId = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.reminderDaysBefore = const Value.absent(),
@@ -4818,6 +4861,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     required BillingUnit billingUnit,
     this.billingEvery = const Value.absent(),
     required DateTime nextDueDate,
+    this.anchorDay = const Value.absent(),
     required String accountId,
     this.categoryId = const Value.absent(),
     this.reminderDaysBefore = const Value.absent(),
@@ -4839,6 +4883,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     Expression<String>? billingUnit,
     Expression<int>? billingEvery,
     Expression<DateTime>? nextDueDate,
+    Expression<int>? anchorDay,
     Expression<String>? accountId,
     Expression<String>? categoryId,
     Expression<int>? reminderDaysBefore,
@@ -4854,6 +4899,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
       if (billingUnit != null) 'billing_unit': billingUnit,
       if (billingEvery != null) 'billing_every': billingEvery,
       if (nextDueDate != null) 'next_due_date': nextDueDate,
+      if (anchorDay != null) 'anchor_day': anchorDay,
       if (accountId != null) 'account_id': accountId,
       if (categoryId != null) 'category_id': categoryId,
       if (reminderDaysBefore != null)
@@ -4872,6 +4918,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     Value<BillingUnit>? billingUnit,
     Value<int>? billingEvery,
     Value<DateTime>? nextDueDate,
+    Value<int?>? anchorDay,
     Value<String>? accountId,
     Value<String?>? categoryId,
     Value<int?>? reminderDaysBefore,
@@ -4887,6 +4934,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
       billingUnit: billingUnit ?? this.billingUnit,
       billingEvery: billingEvery ?? this.billingEvery,
       nextDueDate: nextDueDate ?? this.nextDueDate,
+      anchorDay: anchorDay ?? this.anchorDay,
       accountId: accountId ?? this.accountId,
       categoryId: categoryId ?? this.categoryId,
       reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
@@ -4919,6 +4967,9 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
     }
     if (nextDueDate.present) {
       map['next_due_date'] = Variable<DateTime>(nextDueDate.value);
+    }
+    if (anchorDay.present) {
+      map['anchor_day'] = Variable<int>(anchorDay.value);
     }
     if (accountId.present) {
       map['account_id'] = Variable<String>(accountId.value);
@@ -4955,6 +5006,7 @@ class SubscriptionsCompanion extends UpdateCompanion<Subscription> {
           ..write('billingUnit: $billingUnit, ')
           ..write('billingEvery: $billingEvery, ')
           ..write('nextDueDate: $nextDueDate, ')
+          ..write('anchorDay: $anchorDay, ')
           ..write('accountId: $accountId, ')
           ..write('categoryId: $categoryId, ')
           ..write('reminderDaysBefore: $reminderDaysBefore, ')
@@ -12865,6 +12917,7 @@ typedef $$SubscriptionsTableCreateCompanionBuilder =
       required BillingUnit billingUnit,
       Value<int> billingEvery,
       required DateTime nextDueDate,
+      Value<int?> anchorDay,
       required String accountId,
       Value<String?> categoryId,
       Value<int?> reminderDaysBefore,
@@ -12881,6 +12934,7 @@ typedef $$SubscriptionsTableUpdateCompanionBuilder =
       Value<BillingUnit> billingUnit,
       Value<int> billingEvery,
       Value<DateTime> nextDueDate,
+      Value<int?> anchorDay,
       Value<String> accountId,
       Value<String?> categoryId,
       Value<int?> reminderDaysBefore,
@@ -12988,6 +13042,11 @@ class $$SubscriptionsTableFilterComposer
 
   ColumnFilters<DateTime> get nextDueDate => $composableBuilder(
     column: $table.nextDueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -13123,6 +13182,11 @@ class $$SubscriptionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get anchorDay => $composableBuilder(
+    column: $table.anchorDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get reminderDaysBefore => $composableBuilder(
     column: $table.reminderDaysBefore,
     builder: (column) => ColumnOrderings(column),
@@ -13223,6 +13287,9 @@ class $$SubscriptionsTableAnnotationComposer
     column: $table.nextDueDate,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get anchorDay =>
+      $composableBuilder(column: $table.anchorDay, builder: (column) => column);
 
   GeneratedColumn<int> get reminderDaysBefore => $composableBuilder(
     column: $table.reminderDaysBefore,
@@ -13348,6 +13415,7 @@ class $$SubscriptionsTableTableManager
                 Value<BillingUnit> billingUnit = const Value.absent(),
                 Value<int> billingEvery = const Value.absent(),
                 Value<DateTime> nextDueDate = const Value.absent(),
+                Value<int?> anchorDay = const Value.absent(),
                 Value<String> accountId = const Value.absent(),
                 Value<String?> categoryId = const Value.absent(),
                 Value<int?> reminderDaysBefore = const Value.absent(),
@@ -13362,6 +13430,7 @@ class $$SubscriptionsTableTableManager
                 billingUnit: billingUnit,
                 billingEvery: billingEvery,
                 nextDueDate: nextDueDate,
+                anchorDay: anchorDay,
                 accountId: accountId,
                 categoryId: categoryId,
                 reminderDaysBefore: reminderDaysBefore,
@@ -13378,6 +13447,7 @@ class $$SubscriptionsTableTableManager
                 required BillingUnit billingUnit,
                 Value<int> billingEvery = const Value.absent(),
                 required DateTime nextDueDate,
+                Value<int?> anchorDay = const Value.absent(),
                 required String accountId,
                 Value<String?> categoryId = const Value.absent(),
                 Value<int?> reminderDaysBefore = const Value.absent(),
@@ -13392,6 +13462,7 @@ class $$SubscriptionsTableTableManager
                 billingUnit: billingUnit,
                 billingEvery: billingEvery,
                 nextDueDate: nextDueDate,
+                anchorDay: anchorDay,
                 accountId: accountId,
                 categoryId: categoryId,
                 reminderDaysBefore: reminderDaysBefore,

@@ -33,7 +33,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump this and add a step in [migration] for every schema change.
   /// Also run `dart run drift_dev schema dump` to save the new version.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -42,8 +42,13 @@ class AppDatabase extends _$AppDatabase {
       await seedDatabase(this);
     },
     onUpgrade: (m, from, to) async {
-      // Example for the future:
-      // if (from < 2) await m.addColumn(accounts, accounts.someNewColumn);
+      if (from < 2) {
+        // v2: remember the billing day of a subscription.
+        await m.addColumn(subscriptions, subscriptions.anchorDay);
+        await customStatement(
+          'UPDATE subscriptions SET anchor_day = CAST(strftime(\'%d\', next_due_date, \'unixepoch\', \'localtime\') AS INTEGER) WHERE anchor_day IS NULL',
+        );
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

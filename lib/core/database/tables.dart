@@ -157,6 +157,10 @@ class Subscriptions extends Table {
   /// Every N units (1 month, 3 months, 14 days, ...).
   IntColumn get billingEvery => integer().withDefault(const Constant(1))();
   DateTimeColumn get nextDueDate => dateTime()();
+
+  /// Day of month the subscription was set up on (so a 31st billing day
+  /// returns to the 31st after a short month). Added in schema v2.
+  IntColumn get anchorDay => integer().nullable()();
   TextColumn get accountId => text().references(Accounts, #id)();
   TextColumn get categoryId => text().nullable().references(Categories, #id)();
   IntColumn get reminderDaysBefore => integer().nullable()();
