@@ -9,6 +9,31 @@ const periodLabels = {
   PeriodKind.allTime: 'All time',
 };
 
+/// The last [count] month-periods, oldest first, ending with the current one.
+List<DateRange> lastMonthRanges(
+  int count, {
+  int monthStartDay = 1,
+  DateTime? now,
+}) {
+  final current = rangeFor(
+    PeriodKind.thisMonth,
+    monthStartDay: monthStartDay,
+    now: now,
+  );
+  final startDay = monthStartDay.clamp(1, 28);
+  return [
+    for (var i = count - 1; i >= 0; i--)
+      DateRange(
+        start: DateTime(current.start!.year, current.start!.month - i, startDay),
+        end: DateTime(
+          current.start!.year,
+          current.start!.month - i + 1,
+          startDay,
+        ),
+      ),
+  ];
+}
+
 /// Turns a period choice into a date range (end exclusive).
 /// [monthStartDay] (1-28) lets a "month" run payday to payday.
 DateRange rangeFor(
