@@ -169,7 +169,11 @@ class PlannedReminder {
     required this.body,
     required this.payload,
     this.dueActions = false,
+    this.keyOverride,
   });
+
+  /// Used by snoozed copies, which keep the key of their log row.
+  final String? keyOverride;
 
   final DateTime at;
   final NotificationType type;
@@ -184,7 +188,8 @@ class PlannedReminder {
 
   /// Identity of this notification: what it is about and when it fires.
   /// Stable across re-plans, so ids and the inbox rows stay the same.
-  String get key => '${type.name}|$payload@${at.millisecondsSinceEpoch}';
+  String get key =>
+      keyOverride ?? '${type.name}|$payload@${at.millisecondsSinceEpoch}';
 }
 
 /// iOS allows 64 pending notifications; we schedule the nearest 60 on

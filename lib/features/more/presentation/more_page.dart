@@ -14,6 +14,7 @@ class MorePage extends StatelessWidget {
       (Icons.sell_outlined, 'Categories', () => context.push('/categories')),
       (Icons.people_outline, 'People', () => context.push('/people')),
       (Icons.track_changes, 'Savings', () => context.push('/savings')),
+      (Icons.notifications_active_outlined, 'Missed reminders', () => context.push('/notifications')),
       (Icons.notifications_none, 'Custom reminders', () => context.push('/reminders')),
       (Icons.settings_outlined, 'Settings', () => context.push('/settings')),
       (Icons.cloud_upload_outlined, 'Backup & restore', () => context.push('/backup')),

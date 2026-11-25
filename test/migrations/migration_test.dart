@@ -33,4 +33,17 @@ void main() {
     expect(accounts.single.name, 'Meezan');
     await db.close();
   });
+
+  test('migrating v2 -> v3 adds the notification log and keeps data', () async {
+    final schema = await verifier.schemaAt(2);
+    final created = DateTime(2026, 1, 1).millisecondsSinceEpoch ~/ 1000;
+    schema.rawDatabase.execute(
+      "INSERT INTO accounts (id, name, created_at) VALUES ('a', 'Meezan', $created)",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 3);
+    expect((await db.select(db.accounts).get()).single.name, 'Meezan');
+    expect(await db.select(db.notificationLog).get(), isEmpty);
+    await db.close();
+  });
 }

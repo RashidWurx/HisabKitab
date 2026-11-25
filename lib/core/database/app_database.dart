@@ -21,6 +21,7 @@ part 'app_database.g.dart';
     DueEvents,
     CustomReminders,
     AppSettings,
+    NotificationLog,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -33,7 +34,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump this and add a step in [migration] for every schema change.
   /// Also run `dart run drift_dev schema dump` to save the new version.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -48,6 +49,10 @@ class AppDatabase extends _$AppDatabase {
         await customStatement(
           'UPDATE subscriptions SET anchor_day = CAST(strftime(\'%d\', next_due_date, \'unixepoch\', \'localtime\') AS INTEGER) WHERE anchor_day IS NULL',
         );
+      }
+      if (from < 3) {
+        // v3: the notification log (missed-reminders inbox).
+        await m.createTable(notificationLog);
       }
     },
     beforeOpen: (details) async {

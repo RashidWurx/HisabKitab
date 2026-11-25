@@ -21,6 +21,7 @@ import '../../features/subscriptions/presentation/subscription_form_page.dart';
 import '../../features/subscriptions/presentation/subscriptions_page.dart';
 import '../../features/applock/presentation/app_lock_page.dart';
 import '../../features/backup/presentation/backup_page.dart';
+import '../../features/notifications/presentation/missed_page.dart';
 import '../../features/notifications/presentation/notification_settings_page.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/shell/presentation/app_shell.dart';
@@ -184,6 +185,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       _full('/settings', (_) => const SettingsPage()),
       _full('/backup', (_) => const BackupPage()),
+      _full('/notifications', (_) => const MissedPage()),
       _full('/settings/app-lock', (_) => const AppLockPage()),
       _full('/settings/app-lock/setup', (_) => const PinSetupPage()),
       _full(

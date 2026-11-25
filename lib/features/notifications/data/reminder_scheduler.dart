@@ -11,8 +11,10 @@ import 'package:timezone/timezone.dart' as tz;
 import '../domain/notification_models.dart';
 
 /// Called when the user taps a notification (or one of its buttons).
-/// [action] is `receive` / `extend` for the due buttons, otherwise null.
-typedef NotificationTapHandler = void Function(String payload, String? action);
+/// [action]: `receive` / `extend` (dues), `pay` (subscription), `done` and
+/// `snooze` (all), otherwise null. [id] is the notification id.
+typedef NotificationTapHandler =
+    void Function(String payload, String? action, int? id);
 
 const _channelName = 'Reminders';
 const _channelDescription = 'Paydays, dues, subscriptions and your own reminders';
@@ -59,7 +61,7 @@ class ReminderScheduler {
       ),
       onDidReceiveNotificationResponse: (response) {
         final payload = response.payload;
-        if (payload != null) onTap(payload, response.actionId);
+        if (payload != null) onTap(payload, response.actionId, response.id);
       },
     );
     await ensureChannel(_sound);
@@ -146,13 +148,13 @@ class ReminderScheduler {
   }
 
   /// The notification that launched the app (cold start), if any.
-  Future<({String payload, String? action})?> launchedBy() async {
+  Future<({String payload, String? action, int? id})?> launchedBy() async {
     if (!_supported) return null;
     final details = await _plugin.getNotificationAppLaunchDetails();
     final response = details?.notificationResponse;
     if (details?.didNotificationLaunchApp == true &&
         response?.payload != null) {
-      return (payload: response!.payload!, action: response.actionId);
+      return (payload: response!.payload!, action: response.actionId, id: response.id);
     }
     return null;
   }
@@ -207,23 +209,27 @@ class ReminderScheduler {
       additionalFlags: _sound.keepRinging
           ? Int32List.fromList([_flagInsistent])
           : null,
-      actions: r.dueActions
-          ? const [
-              AndroidNotificationAction(
-                'receive',
-                'Received',
-                showsUserInterface: true,
-              ),
-              AndroidNotificationAction(
-                'extend',
-                'Extend',
-                showsUserInterface: true,
-              ),
-            ]
-          : null,
+      actions: _actionsFor(r),
     ),
     iOS: const DarwinNotificationDetails(),
   );
+
+  /// Buttons on the notification. All open the app (showsUserInterface) so
+  /// they run in the main isolate, where the database is available.
+  List<AndroidNotificationAction>? _actionsFor(PlannedReminder r) {
+    AndroidNotificationAction a(String id, String label) =>
+        AndroidNotificationAction(id, label, showsUserInterface: true);
+    if (r.payload.startsWith('due:')) {
+      return [a('receive', 'Received'), a('extend', 'Extend'), a('snooze', 'Later')];
+    }
+    if (r.payload.startsWith('sub:')) {
+      return [a('pay', 'Pay'), a('snooze', 'Later')];
+    }
+    if (r.payload.startsWith('reminder:')) {
+      return [a('done', 'Done'), a('snooze', 'Later')];
+    }
+    return null;
+  }
 
   /// Cancels everything and schedules [plan] (already limited to 60).
   /// Returns how many notifications were scheduled.

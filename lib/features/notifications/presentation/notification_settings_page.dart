@@ -154,8 +154,7 @@ class _NotificationSettingsPageState
                     minimumSize: const Size.fromHeight(46),
                   ),
                   onPressed: () async {
-                    await ref.read(notificationCoordinatorProvider).reschedule();
-                    await scheduler.scheduleTest();
+                    await ref.read(notificationCoordinatorProvider).scheduleTest();
                     if (context.mounted) {
                       showMessage(context, 'A test reminder will arrive in 1 minute.');
                     }

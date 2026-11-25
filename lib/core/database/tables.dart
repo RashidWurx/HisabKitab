@@ -259,6 +259,31 @@ class CustomReminders extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Every notification the app asked the phone to show (past and upcoming).
+/// Android never reports a missed or swiped-away notification, so the rows
+/// whose time has passed and that the user has not handled yet ARE the
+/// "Missed" inbox. [key] is stable across re-plans.
+class NotificationLog extends Table {
+  TextColumn get key => text()();
+  IntColumn get notificationId => integer()();
+  TextColumn get type => text()();
+  TextColumn get title => text()();
+  TextColumn get body => text()();
+
+  /// Where it leads: `due:<id>`, `sub:<id>`, `reminder:<id>`, `backup`.
+  TextColumn get payload => text()();
+  DateTimeColumn get fireAt => dateTime()();
+
+  /// A "remind me later" copy made by Snooze (kept even when the plan changes).
+  BoolColumn get isSnooze => boolean().withDefault(const Constant(false))();
+
+  /// Set when the user opened it, used one of its buttons, or dismissed it.
+  DateTimeColumn get handledAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
 /// Simple key/value store for app settings (not secrets; the PIN hash lives
 /// in flutter_secure_storage).
 class AppSettings extends Table {

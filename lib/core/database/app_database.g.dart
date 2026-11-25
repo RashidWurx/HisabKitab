@@ -7687,6 +7687,575 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   }
 }
 
+class $NotificationLogTable extends NotificationLog
+    with TableInfo<$NotificationLogTable, NotificationLogData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotificationLogTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notificationIdMeta = const VerificationMeta(
+    'notificationId',
+  );
+  @override
+  late final GeneratedColumn<int> notificationId = GeneratedColumn<int>(
+    'notification_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fireAtMeta = const VerificationMeta('fireAt');
+  @override
+  late final GeneratedColumn<DateTime> fireAt = GeneratedColumn<DateTime>(
+    'fire_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isSnoozeMeta = const VerificationMeta(
+    'isSnooze',
+  );
+  @override
+  late final GeneratedColumn<bool> isSnooze = GeneratedColumn<bool>(
+    'is_snooze',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_snooze" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _handledAtMeta = const VerificationMeta(
+    'handledAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> handledAt = GeneratedColumn<DateTime>(
+    'handled_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    key,
+    notificationId,
+    type,
+    title,
+    body,
+    payload,
+    fireAt,
+    isSnooze,
+    handledAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notification_log';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NotificationLogData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('notification_id')) {
+      context.handle(
+        _notificationIdMeta,
+        notificationId.isAcceptableOrUnknown(
+          data['notification_id']!,
+          _notificationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_notificationIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('fire_at')) {
+      context.handle(
+        _fireAtMeta,
+        fireAt.isAcceptableOrUnknown(data['fire_at']!, _fireAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fireAtMeta);
+    }
+    if (data.containsKey('is_snooze')) {
+      context.handle(
+        _isSnoozeMeta,
+        isSnooze.isAcceptableOrUnknown(data['is_snooze']!, _isSnoozeMeta),
+      );
+    }
+    if (data.containsKey('handled_at')) {
+      context.handle(
+        _handledAtMeta,
+        handledAt.isAcceptableOrUnknown(data['handled_at']!, _handledAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  NotificationLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NotificationLogData(
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      notificationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notification_id'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      fireAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fire_at'],
+      )!,
+      isSnooze: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_snooze'],
+      )!,
+      handledAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}handled_at'],
+      ),
+    );
+  }
+
+  @override
+  $NotificationLogTable createAlias(String alias) {
+    return $NotificationLogTable(attachedDatabase, alias);
+  }
+}
+
+class NotificationLogData extends DataClass
+    implements Insertable<NotificationLogData> {
+  final String key;
+  final int notificationId;
+  final String type;
+  final String title;
+  final String body;
+
+  /// Where it leads: `due:<id>`, `sub:<id>`, `reminder:<id>`, `backup`.
+  final String payload;
+  final DateTime fireAt;
+
+  /// A "remind me later" copy made by Snooze (kept even when the plan changes).
+  final bool isSnooze;
+
+  /// Set when the user opened it, used one of its buttons, or dismissed it.
+  final DateTime? handledAt;
+  const NotificationLogData({
+    required this.key,
+    required this.notificationId,
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.payload,
+    required this.fireAt,
+    required this.isSnooze,
+    this.handledAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['notification_id'] = Variable<int>(notificationId);
+    map['type'] = Variable<String>(type);
+    map['title'] = Variable<String>(title);
+    map['body'] = Variable<String>(body);
+    map['payload'] = Variable<String>(payload);
+    map['fire_at'] = Variable<DateTime>(fireAt);
+    map['is_snooze'] = Variable<bool>(isSnooze);
+    if (!nullToAbsent || handledAt != null) {
+      map['handled_at'] = Variable<DateTime>(handledAt);
+    }
+    return map;
+  }
+
+  NotificationLogCompanion toCompanion(bool nullToAbsent) {
+    return NotificationLogCompanion(
+      key: Value(key),
+      notificationId: Value(notificationId),
+      type: Value(type),
+      title: Value(title),
+      body: Value(body),
+      payload: Value(payload),
+      fireAt: Value(fireAt),
+      isSnooze: Value(isSnooze),
+      handledAt: handledAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(handledAt),
+    );
+  }
+
+  factory NotificationLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NotificationLogData(
+      key: serializer.fromJson<String>(json['key']),
+      notificationId: serializer.fromJson<int>(json['notificationId']),
+      type: serializer.fromJson<String>(json['type']),
+      title: serializer.fromJson<String>(json['title']),
+      body: serializer.fromJson<String>(json['body']),
+      payload: serializer.fromJson<String>(json['payload']),
+      fireAt: serializer.fromJson<DateTime>(json['fireAt']),
+      isSnooze: serializer.fromJson<bool>(json['isSnooze']),
+      handledAt: serializer.fromJson<DateTime?>(json['handledAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'notificationId': serializer.toJson<int>(notificationId),
+      'type': serializer.toJson<String>(type),
+      'title': serializer.toJson<String>(title),
+      'body': serializer.toJson<String>(body),
+      'payload': serializer.toJson<String>(payload),
+      'fireAt': serializer.toJson<DateTime>(fireAt),
+      'isSnooze': serializer.toJson<bool>(isSnooze),
+      'handledAt': serializer.toJson<DateTime?>(handledAt),
+    };
+  }
+
+  NotificationLogData copyWith({
+    String? key,
+    int? notificationId,
+    String? type,
+    String? title,
+    String? body,
+    String? payload,
+    DateTime? fireAt,
+    bool? isSnooze,
+    Value<DateTime?> handledAt = const Value.absent(),
+  }) => NotificationLogData(
+    key: key ?? this.key,
+    notificationId: notificationId ?? this.notificationId,
+    type: type ?? this.type,
+    title: title ?? this.title,
+    body: body ?? this.body,
+    payload: payload ?? this.payload,
+    fireAt: fireAt ?? this.fireAt,
+    isSnooze: isSnooze ?? this.isSnooze,
+    handledAt: handledAt.present ? handledAt.value : this.handledAt,
+  );
+  NotificationLogData copyWithCompanion(NotificationLogCompanion data) {
+    return NotificationLogData(
+      key: data.key.present ? data.key.value : this.key,
+      notificationId: data.notificationId.present
+          ? data.notificationId.value
+          : this.notificationId,
+      type: data.type.present ? data.type.value : this.type,
+      title: data.title.present ? data.title.value : this.title,
+      body: data.body.present ? data.body.value : this.body,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      fireAt: data.fireAt.present ? data.fireAt.value : this.fireAt,
+      isSnooze: data.isSnooze.present ? data.isSnooze.value : this.isSnooze,
+      handledAt: data.handledAt.present ? data.handledAt.value : this.handledAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationLogData(')
+          ..write('key: $key, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('payload: $payload, ')
+          ..write('fireAt: $fireAt, ')
+          ..write('isSnooze: $isSnooze, ')
+          ..write('handledAt: $handledAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    key,
+    notificationId,
+    type,
+    title,
+    body,
+    payload,
+    fireAt,
+    isSnooze,
+    handledAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NotificationLogData &&
+          other.key == this.key &&
+          other.notificationId == this.notificationId &&
+          other.type == this.type &&
+          other.title == this.title &&
+          other.body == this.body &&
+          other.payload == this.payload &&
+          other.fireAt == this.fireAt &&
+          other.isSnooze == this.isSnooze &&
+          other.handledAt == this.handledAt);
+}
+
+class NotificationLogCompanion extends UpdateCompanion<NotificationLogData> {
+  final Value<String> key;
+  final Value<int> notificationId;
+  final Value<String> type;
+  final Value<String> title;
+  final Value<String> body;
+  final Value<String> payload;
+  final Value<DateTime> fireAt;
+  final Value<bool> isSnooze;
+  final Value<DateTime?> handledAt;
+  final Value<int> rowid;
+  const NotificationLogCompanion({
+    this.key = const Value.absent(),
+    this.notificationId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.title = const Value.absent(),
+    this.body = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.fireAt = const Value.absent(),
+    this.isSnooze = const Value.absent(),
+    this.handledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationLogCompanion.insert({
+    required String key,
+    required int notificationId,
+    required String type,
+    required String title,
+    required String body,
+    required String payload,
+    required DateTime fireAt,
+    this.isSnooze = const Value.absent(),
+    this.handledAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       notificationId = Value(notificationId),
+       type = Value(type),
+       title = Value(title),
+       body = Value(body),
+       payload = Value(payload),
+       fireAt = Value(fireAt);
+  static Insertable<NotificationLogData> custom({
+    Expression<String>? key,
+    Expression<int>? notificationId,
+    Expression<String>? type,
+    Expression<String>? title,
+    Expression<String>? body,
+    Expression<String>? payload,
+    Expression<DateTime>? fireAt,
+    Expression<bool>? isSnooze,
+    Expression<DateTime>? handledAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (notificationId != null) 'notification_id': notificationId,
+      if (type != null) 'type': type,
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (payload != null) 'payload': payload,
+      if (fireAt != null) 'fire_at': fireAt,
+      if (isSnooze != null) 'is_snooze': isSnooze,
+      if (handledAt != null) 'handled_at': handledAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationLogCompanion copyWith({
+    Value<String>? key,
+    Value<int>? notificationId,
+    Value<String>? type,
+    Value<String>? title,
+    Value<String>? body,
+    Value<String>? payload,
+    Value<DateTime>? fireAt,
+    Value<bool>? isSnooze,
+    Value<DateTime?>? handledAt,
+    Value<int>? rowid,
+  }) {
+    return NotificationLogCompanion(
+      key: key ?? this.key,
+      notificationId: notificationId ?? this.notificationId,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      payload: payload ?? this.payload,
+      fireAt: fireAt ?? this.fireAt,
+      isSnooze: isSnooze ?? this.isSnooze,
+      handledAt: handledAt ?? this.handledAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (notificationId.present) {
+      map['notification_id'] = Variable<int>(notificationId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (fireAt.present) {
+      map['fire_at'] = Variable<DateTime>(fireAt.value);
+    }
+    if (isSnooze.present) {
+      map['is_snooze'] = Variable<bool>(isSnooze.value);
+    }
+    if (handledAt.present) {
+      map['handled_at'] = Variable<DateTime>(handledAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationLogCompanion(')
+          ..write('key: $key, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('payload: $payload, ')
+          ..write('fireAt: $fireAt, ')
+          ..write('isSnooze: $isSnooze, ')
+          ..write('handledAt: $handledAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7706,6 +8275,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $NotificationLogTable notificationLog = $NotificationLogTable(
+    this,
+  );
   late final Index idxTxDate = Index(
     'idx_tx_date',
     'CREATE INDEX idx_tx_date ON transactions (date)',
@@ -7751,6 +8323,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dueEvents,
     customReminders,
     appSettings,
+    notificationLog,
     idxTxDate,
     idxTxAccount,
     idxTxToAccount,
@@ -16364,6 +16937,305 @@ typedef $$AppSettingsTableProcessedTableManager =
       AppSetting,
       PrefetchHooks Function()
     >;
+typedef $$NotificationLogTableCreateCompanionBuilder =
+    NotificationLogCompanion Function({
+      required String key,
+      required int notificationId,
+      required String type,
+      required String title,
+      required String body,
+      required String payload,
+      required DateTime fireAt,
+      Value<bool> isSnooze,
+      Value<DateTime?> handledAt,
+      Value<int> rowid,
+    });
+typedef $$NotificationLogTableUpdateCompanionBuilder =
+    NotificationLogCompanion Function({
+      Value<String> key,
+      Value<int> notificationId,
+      Value<String> type,
+      Value<String> title,
+      Value<String> body,
+      Value<String> payload,
+      Value<DateTime> fireAt,
+      Value<bool> isSnooze,
+      Value<DateTime?> handledAt,
+      Value<int> rowid,
+    });
+
+class $$NotificationLogTableFilterComposer
+    extends Composer<_$AppDatabase, $NotificationLogTable> {
+  $$NotificationLogTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fireAt => $composableBuilder(
+    column: $table.fireAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isSnooze => $composableBuilder(
+    column: $table.isSnooze,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get handledAt => $composableBuilder(
+    column: $table.handledAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NotificationLogTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotificationLogTable> {
+  $$NotificationLogTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fireAt => $composableBuilder(
+    column: $table.fireAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isSnooze => $composableBuilder(
+    column: $table.isSnooze,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get handledAt => $composableBuilder(
+    column: $table.handledAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NotificationLogTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotificationLogTable> {
+  $$NotificationLogTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fireAt =>
+      $composableBuilder(column: $table.fireAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSnooze =>
+      $composableBuilder(column: $table.isSnooze, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get handledAt =>
+      $composableBuilder(column: $table.handledAt, builder: (column) => column);
+}
+
+class $$NotificationLogTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotificationLogTable,
+          NotificationLogData,
+          $$NotificationLogTableFilterComposer,
+          $$NotificationLogTableOrderingComposer,
+          $$NotificationLogTableAnnotationComposer,
+          $$NotificationLogTableCreateCompanionBuilder,
+          $$NotificationLogTableUpdateCompanionBuilder,
+          (
+            NotificationLogData,
+            BaseReferences<
+              _$AppDatabase,
+              $NotificationLogTable,
+              NotificationLogData
+            >,
+          ),
+          NotificationLogData,
+          PrefetchHooks Function()
+        > {
+  $$NotificationLogTableTableManager(
+    _$AppDatabase db,
+    $NotificationLogTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotificationLogTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotificationLogTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NotificationLogTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<int> notificationId = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<DateTime> fireAt = const Value.absent(),
+                Value<bool> isSnooze = const Value.absent(),
+                Value<DateTime?> handledAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationLogCompanion(
+                key: key,
+                notificationId: notificationId,
+                type: type,
+                title: title,
+                body: body,
+                payload: payload,
+                fireAt: fireAt,
+                isSnooze: isSnooze,
+                handledAt: handledAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String key,
+                required int notificationId,
+                required String type,
+                required String title,
+                required String body,
+                required String payload,
+                required DateTime fireAt,
+                Value<bool> isSnooze = const Value.absent(),
+                Value<DateTime?> handledAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationLogCompanion.insert(
+                key: key,
+                notificationId: notificationId,
+                type: type,
+                title: title,
+                body: body,
+                payload: payload,
+                fireAt: fireAt,
+                isSnooze: isSnooze,
+                handledAt: handledAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$NotificationLogTable, NotificationLogData>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NotificationLogTable,
+                    NotificationLogData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NotificationLogTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotificationLogTable,
+      NotificationLogData,
+      $$NotificationLogTableFilterComposer,
+      $$NotificationLogTableOrderingComposer,
+      $$NotificationLogTableAnnotationComposer,
+      $$NotificationLogTableCreateCompanionBuilder,
+      $$NotificationLogTableUpdateCompanionBuilder,
+      (
+        NotificationLogData,
+        BaseReferences<
+          _$AppDatabase,
+          $NotificationLogTable,
+          NotificationLogData
+        >,
+      ),
+      NotificationLogData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -16397,4 +17269,6 @@ class $AppDatabaseManager {
       $$CustomRemindersTableTableManager(_db, _db.customReminders);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$NotificationLogTableTableManager get notificationLog =>
+      $$NotificationLogTableTableManager(_db, _db.notificationLog);
 }

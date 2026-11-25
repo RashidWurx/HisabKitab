@@ -2,14 +2,21 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/database/app_database.dart';
+import '../../../core/database/database_provider.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/app_router.dart';
 import '../../settings/data/settings_repository.dart';
 import '../domain/notification_models.dart';
+import 'notification_log_repository.dart';
 import 'reminder_scheduler.dart';
 
 final reminderSchedulerProvider = Provider<ReminderScheduler>(
   (ref) => ReminderScheduler(),
+);
+
+final notificationLogRepositoryProvider = Provider<NotificationLogRepository>(
+  (ref) => NotificationLogRepository(ref.watch(databaseProvider)),
 );
 
 final notificationCoordinatorProvider = Provider<NotificationCoordinator>(
@@ -56,7 +63,9 @@ class NotificationCoordinator {
     _started = true;
     await _scheduler.init(onTap: _handleTap);
     final launched = await _scheduler.launchedBy();
-    if (launched != null) _handleTap(launched.payload, launched.action);
+    if (launched != null) {
+      _handleTap(launched.payload, launched.action, launched.id);
+    }
     await reschedule();
   }
 
@@ -67,31 +76,62 @@ class NotificationCoordinator {
     _debounce = Timer(const Duration(milliseconds: 1200), reschedule);
   }
 
-  void _handleTap(String payload, String? action) {
+  Future<void> _handleTap(String payload, String? action, int? id) async {
+    final log = _ref.read(notificationLogRepositoryProvider);
+    if (action == 'snooze' && id != null) {
+      final rows = await (_ref.read(databaseProvider).select(_ref.read(databaseProvider).notificationLog)
+            ..where((l) => l.notificationId.equals(id)))
+          .get();
+      if (rows.isNotEmpty) await snooze(rows.first);
+      return; // stay where the user was
+    }
+    if (id != null) await log.handleById(id);
+    if (action == 'done') return;
     // The router may not be ready on a cold start: wait a moment.
     Future<void>.delayed(const Duration(milliseconds: 400), () async {
-      final router = _ref.read(routerProvider);
-      var route = routeForPayload(payload, action);
-      if (payload.startsWith('reminder:')) {
-        // A reminder with an amount / category / account opens Add expense
-        // pre-filled; otherwise its edit screen.
-        final r = await _ref
-            .read(reminderRepositoryProvider)
-            .get(payload.substring('reminder:'.length));
-        if (r != null &&
-            (r.amount != null || r.categoryId != null || r.accountId != null)) {
-          route = Uri(
-            path: '/transaction/new/expense',
-            queryParameters: {
-              if (r.amount != null) 'amount': '${r.amount}',
-              if (r.categoryId != null) 'category': r.categoryId!,
-              if (r.accountId != null) 'account': r.accountId!,
-            },
-          ).toString();
-        }
-      }
-      router.push(route);
+      final route = await resolveRoute(payload, action);
+      _ref.read(routerProvider).push(route);
     });
+  }
+
+  /// The screen a notification leads to. A reminder with an amount, category
+  /// or account opens Add expense pre-filled; otherwise its edit screen.
+  Future<String> resolveRoute(String payload, String? action) async {
+    var route = routeForPayload(payload, action);
+    if (payload.startsWith('reminder:')) {
+      final r = await _ref
+          .read(reminderRepositoryProvider)
+          .get(payload.substring('reminder:'.length));
+      if (r != null &&
+          (r.amount != null || r.categoryId != null || r.accountId != null)) {
+        route = Uri(
+          path: '/transaction/new/expense',
+          queryParameters: {
+            if (r.amount != null) 'amount': '${r.amount}',
+            if (r.categoryId != null) 'category': r.categoryId!,
+            if (r.accountId != null) 'account': r.accountId!,
+          },
+        ).toString();
+      }
+    }
+    return route;
+  }
+  /// The settings page's test: goes through the real plan + inbox path.
+  Future<void> scheduleTest() async {
+    await _ref.read(notificationLogRepositoryProvider).addOneOff(
+      title: 'Hisaab',
+      body: 'Scheduled reminders work on this phone.',
+      payload: 'test',
+      at: DateTime.now().add(const Duration(minutes: 1)),
+    );
+    await reschedule();
+  }
+
+  /// Remind me again in an hour.
+  Future<DateTime> snooze(NotificationLogData row, {Duration by = const Duration(hours: 1)}) async {
+    final at = await _ref.read(notificationLogRepositoryProvider).snooze(row, by: by);
+    await reschedule();
+    return at;
   }
 
   /// Cancel everything, then schedule the nearest 60 upcoming reminders.
@@ -125,7 +165,32 @@ class NotificationCoordinator {
         ),
       ),
     );
-    return _scheduler.schedule(plan, sound: settings.soundPrefs);
+    final log = db.read(notificationLogRepositoryProvider);
+    final snoozes = await log.upcomingSnoozes();
+    final all = [
+      ...plan,
+      for (final s in snoozes)
+        PlannedReminder(
+          at: s.fireAt,
+          type: NotificationType.values.firstWhere(
+            (t) => t.name == s.type,
+            orElse: () => NotificationType.custom,
+          ),
+          title: s.title,
+          body: s.body,
+          payload: s.payload,
+          dueActions: s.payload.startsWith('due:'),
+          keyOverride: s.key,
+        ),
+    ]..sort((a, b) => a.at.compareTo(b.at));
+    final limited = all.take(maxScheduled).toList();
+    await log.syncPlan(limited);
+    await log.resolveGone(
+      openDueIds: {for (final d in dues) if (d.isOpen) d.due.id},
+      subscriptionIds: {for (final s in subs) s.id},
+      reminderIds: {for (final r in reminders) r.id},
+    );
+    return _scheduler.schedule(limited, sound: settings.soundPrefs);
   }
 
   void dispose() => _debounce?.cancel();

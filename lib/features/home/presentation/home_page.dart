@@ -12,6 +12,7 @@ import '../../../core/utils/money.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
 import '../data/dashboard_service.dart';
+import '../../notifications/presentation/missed_page.dart';
 import 'dashboard_charts.dart';
 import 'home_providers.dart';
 
@@ -62,7 +63,7 @@ class HomePage extends ConsumerWidget {
             letterSpacing: -0.6,
           ),
         ),
-        actions: const [_PeriodSwitcher(), SizedBox(width: 12)],
+        actions: const [_PeriodSwitcher(), _MissedBell(), SizedBox(width: 8)],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 128),
@@ -955,6 +956,26 @@ class _PeriodSwitcher extends ConsumerWidget {
             const Icon(Icons.keyboard_arrow_down, size: 20),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Bell with a count of reminders that were missed; opens the inbox.
+class _MissedBell extends ConsumerWidget {
+  const _MissedBell();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(missedCountProvider);
+    return IconButton(
+      tooltip: 'Missed reminders',
+      onPressed: () => context.push('/notifications'),
+      icon: Badge(
+        isLabelVisible: count > 0,
+        label: Text(count > 99 ? '99+' : '$count'),
+        backgroundColor: context.appColors.negative,
+        child: const Icon(Icons.notifications_none),
       ),
     );
   }
