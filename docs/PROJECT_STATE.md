@@ -32,7 +32,7 @@ _Last updated: 2026-11-25_
 2. Phone test of backup export/import.
 
 ## Open items
-- Month-by-month history on Source details still not built.
+- (Done in phase 9) Month-by-month history on Source details.
 - Scheduled notifications do not arrive in the background on the TECNO/HiOS phone until background activity/autostart is allowed. Reboot survival untested.
 - iOS parts (iCloud, Face ID, notifications) tested later on a Mac.
 ## Notifications, icon and app lock (after phase 8)
@@ -42,3 +42,8 @@ _Last updated: 2026-11-25_
 - Phone-verified (TECNO, USB): v2 to v3 upgrade keeps data, scheduled test fires with the app swiped away, appears in Missed reminders, In 1 hour schedules an exact alarm.
 - Not verified: custom ringtone picking, notification action buttons, reboot survival, HiOS autostart.
 - App lock fix: fingerprint prompt no longer loops (lifecycle events within 2 s of a biometric prompt are ignored). Needs a phone check.
+
+## Phase 9 (in progress)
+- Done and phone-verified: Source details "Month by month" card (last 6 months, received/spent); More screen redesigned into grouped sections with icon tiles, subtitles and a live badge on Missed reminders.
+- Next: empty states pass, Settings screen polish, form polish, remaining spec unit tests.
+- flutter analyze clean, 133 tests pass.

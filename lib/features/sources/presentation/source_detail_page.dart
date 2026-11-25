@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/database/app_database.dart';
@@ -14,6 +15,88 @@ import '../../dues/presentation/due_widgets.dart';
 import '../../people/presentation/people_pages.dart';
 import 'source_form_page.dart';
 import 'sources_page.dart';
+
+/// Received and spent from this source for the last six months, newest first.
+class _MonthHistory extends ConsumerWidget {
+  const _MonthHistory({required this.sourceId, required this.ranges});
+
+  final String sourceId;
+  final List<DateRange> ranges;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    const head = TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700);
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Text('Month', style: head.copyWith(color: scheme.onSurfaceVariant)),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  'Received',
+                  textAlign: TextAlign.end,
+                  style: head.copyWith(color: scheme.onSurfaceVariant),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  'Spent',
+                  textAlign: TextAlign.end,
+                  style: head.copyWith(color: scheme.onSurfaceVariant),
+                ),
+              ),
+            ],
+          ),
+          const Divider(height: 14),
+          for (final r in ranges)
+            Consumer(
+              builder: (context, ref, _) {
+                final s = ref.watch(sourceStatsProvider((sourceId, r))).value;
+                final received = s?.received ?? 0;
+                final spent = s?.spent ?? 0;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          DateFormat('MMM yy').format(r.start!),
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: MoneyText(received, neutral: received == 0),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: MoneyText(-spent, neutral: spent == 0),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
 
 class SourceDetailPage extends ConsumerStatefulWidget {
   const SourceDetailPage({super.key, required this.sourceId});
@@ -244,6 +327,14 @@ class _SourceDetailPageState extends ConsumerState<SourceDetailPage> {
           ],
           const SectionTitle('Payment track record'),
           TrackRecordCard(record: trackRecordFor(sourceDues)),
+          const SectionTitle('Month by month'),
+          _MonthHistory(
+            sourceId: id,
+            ranges: lastMonthRanges(
+              6,
+              monthStartDay: monthStartDayOf(ref),
+            ).reversed.toList(),
+          ),
           const SectionTitle('Spending by category'),
           CategoryBars(spend: spend, categories: cats),
           if (!source.isBuiltIn) ...[
