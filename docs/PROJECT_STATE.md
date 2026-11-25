@@ -35,3 +35,10 @@ _Last updated: 2026-11-25_
 - Month-by-month history on Source details still not built.
 - Scheduled notifications do not arrive in the background on the TECNO/HiOS phone until background activity/autostart is allowed. Reboot survival untested.
 - iOS parts (iCloud, Face ID, notifications) tested later on a Mac.
+## Notifications, icon and app lock (after phase 8)
+- Icon: adaptive + themed launcher icon from `icon.png`, white `ic_stat_hisaab` notification icon.
+- Reminders use a loud channel (alarm stream, max importance, FLAG_INSISTENT so it keeps ringing until opened or cleared). Ringtone is chosen from the system picker; the channel id encodes the sound because Android channel sounds are immutable. Exact alarms are used when allowed. Notification ids are stable (FNV hash of the plan key).
+- Missed reminders inbox (More, and the bell on Home): every scheduled reminder is logged in `notification_log` (schema v3). Past and unhandled rows are "missed". Open / In 1 hour (snooze) / Done / Clear all. Notification buttons per type: Received/Extend/Later (dues), Pay/Later (subscriptions), Done/Later (reminders).
+- Phone-verified (TECNO, USB): v2 to v3 upgrade keeps data, scheduled test fires with the app swiped away, appears in Missed reminders, In 1 hour schedules an exact alarm.
+- Not verified: custom ringtone picking, notification action buttons, reboot survival, HiOS autostart.
+- App lock fix: fingerprint prompt no longer loops (lifecycle events within 2 s of a biometric prompt are ignored). Needs a phone check.

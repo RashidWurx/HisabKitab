@@ -90,14 +90,23 @@ class AppLockController extends Notifier<AppLockState> {
     }
   }
 
+  /// The system fingerprint sheet pauses/resumes the app; those events can
+  /// land just after the prompt ends and must not re-lock (that caused an
+  /// endless "touch the sensor" loop).
+  DateTime? _bioGraceUntil;
+  bool get _inBioGrace =>
+      _authenticating ||
+      (_bioGraceUntil != null && DateTime.now().isBefore(_bioGraceUntil!));
+
   void onPaused() {
-    if (!state.config.enabled || _authenticating) return;
+    if (!state.config.enabled || _inBioGrace) return;
     _backgroundedAt ??= DateTime.now();
     onInactive();
   }
 
   void onResumed() {
-    if (_authenticating) {
+    if (_inBioGrace) {
+      _backgroundedAt = null;
       state = state.copyWith(covered: false);
       return;
     }
@@ -154,6 +163,7 @@ class AppLockController extends Notifier<AppLockState> {
     } finally {
       _authenticating = false;
       _backgroundedAt = null;
+      _bioGraceUntil = DateTime.now().add(const Duration(seconds: 2));
     }
   }
 
