@@ -48,3 +48,4 @@ _Last updated: 2026-11-25_
 - Next: empty states pass, Settings screen polish, form polish, remaining spec unit tests.
 - flutter analyze clean, 133 tests pass.
 - Phase 9 step 2 (phone-verified): Settings redesigned (grouped, icon tiles, app lock status line); `InlineEmpty` card replaces plain-text empty notes on account, source, subscription and person screens. Fingerprint loop fix confirmed on the phone. 133 tests pass.
+- Phase 9 step 3: Save button pinned to the bottom (`SaveBar`) on the expense/income/transfer, account, source, due, subscription and category forms. New randomized invariant test (`test/ledger/ledger_invariants_test.dart`: 3 seeds x 120 mixed operations; source balances sum to account balance and allocations sum to amount after every step). 136 tests pass. Forms not yet looked at on the phone.

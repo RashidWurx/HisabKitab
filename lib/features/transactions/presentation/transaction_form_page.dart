@@ -539,8 +539,13 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
             ),
           ),
           if (_isExpense) _afterPreview(sources),
-          const SizedBox(height: 24),
-          FilledButton(
+        ],
+      ),
+      // Always reachable, however long the form is.
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: FilledButton(
             onPressed: _saving || _splitStale ? null : _save,
             child: Text(switch (_type) {
               TransactionType.expense => _isEdit ? 'Save changes' : 'Save expense',
@@ -548,7 +553,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
               _ => _isEdit ? 'Save changes' : 'Save transfer',
             }),
           ),
-        ],
+        ),
       ),
     );
   }

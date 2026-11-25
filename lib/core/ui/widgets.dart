@@ -645,3 +645,20 @@ final List<TextInputFormatter> amountFormatters = [
 
 /// Parsed amount helper for text controllers. Null when empty/invalid.
 int? parseAmount(String text) => Money.parse(text);
+
+/// Save button pinned to the bottom of a form, above the keyboard and the
+/// system navigation bar.
+class SaveBar extends StatelessWidget {
+  const SaveBar({super.key, required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: FilledButton(onPressed: onPressed, child: Text(label)),
+    ),
+  );
+}

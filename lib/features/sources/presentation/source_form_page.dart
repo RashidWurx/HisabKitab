@@ -318,12 +318,11 @@ class _SourceFormPageState extends ConsumerState<SourceFormPage> {
             controller: _note,
             decoration: const InputDecoration(labelText: 'Note (optional)'),
           ),
-          const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _saving ? null : _save,
-            child: Text(_isEdit ? 'Save changes' : 'Add source'),
-          ),
         ],
+      ),
+      bottomNavigationBar: SaveBar(
+        onPressed: _saving ? null : _save,
+        label: _isEdit ? 'Save changes' : 'Add source',
       ),
     );
   }
