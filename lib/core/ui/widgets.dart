@@ -226,6 +226,30 @@ class SoftProgress extends StatelessWidget {
     );
   }
 }
+/// Compact empty note for a section inside a longer screen.
+class InlineEmpty extends StatelessWidget {
+  const InlineEmpty(this.icon, this.text, {super.key});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return AppCard(
+      child: Row(
+        children: [
+          Icon(icon, color: scheme.outline),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(text, style: TextStyle(color: scheme.onSurfaceVariant)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Friendly empty state with an optional action button.
 class EmptyState extends StatelessWidget {
   const EmptyState({

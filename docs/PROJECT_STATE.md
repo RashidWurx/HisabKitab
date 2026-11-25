@@ -47,3 +47,4 @@ _Last updated: 2026-11-25_
 - Done and phone-verified: Source details "Month by month" card (last 6 months, received/spent); More screen redesigned into grouped sections with icon tiles, subtitles and a live badge on Missed reminders.
 - Next: empty states pass, Settings screen polish, form polish, remaining spec unit tests.
 - flutter analyze clean, 133 tests pass.
+- Phase 9 step 2 (phone-verified): Settings redesigned (grouped, icon tiles, app lock status line); `InlineEmpty` card replaces plain-text empty notes on account, source, subscription and person screens. Fingerprint loop fix confirmed on the phone. 133 tests pass.

@@ -176,7 +176,7 @@ class SubscriptionDetailPage extends ConsumerWidget {
           ],
           const SectionTitle('Payment history'),
           if (payments.isEmpty)
-            const AppCard(child: Text('No payments recorded yet.'))
+            const InlineEmpty(Icons.receipt_long_outlined, 'No payments recorded yet.')
           else
             AppCard(
               padding: EdgeInsets.zero,

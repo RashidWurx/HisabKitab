@@ -124,7 +124,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
           ShareBar(amounts: [for (final e in sourceRows) e.value]),
           const SizedBox(height: 8),
           if (sourceRows.isEmpty)
-            const Text('No money in this account yet.')
+            const InlineEmpty(Icons.account_balance_wallet_outlined, 'No money in this account yet.')
           else
             Card(
               child: Column(
@@ -244,7 +244,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
             ),
           ),
           if (recent.isEmpty)
-            const Text('No transactions yet.')
+            const InlineEmpty(Icons.receipt_long_outlined, 'No transactions yet. Add one from the Home screen.')
           else
             Card(
               clipBehavior: Clip.antiAlias,

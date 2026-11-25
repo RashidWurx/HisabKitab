@@ -275,7 +275,7 @@ class _SourceDetailPageState extends ConsumerState<SourceDetailPage> {
           ),
           const SectionTitle('Where your money is'),
           if (where.isEmpty)
-            const Text('No money from this source is sitting anywhere.')
+            const InlineEmpty(Icons.savings_outlined, 'No money from this source is sitting anywhere.')
           else
             Card(
               child: Column(

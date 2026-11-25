@@ -365,7 +365,7 @@ class PersonDetailPage extends ConsumerWidget {
           ],
           const SectionTitle('History'),
           if (closed.isEmpty)
-            const Text('Settled and cancelled dues will show here.')
+            const InlineEmpty(Icons.history, 'Settled and cancelled dues will show here.')
           else
             for (final v in closed) tile(v),
         ],
