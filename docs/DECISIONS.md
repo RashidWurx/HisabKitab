@@ -64,3 +64,9 @@
 52. **Home period is saved** (`home_period` setting: a `PeriodKind` name or `custom:<start>:<end>`). Account and source detail pages keep their own temporary period.
 53. **Home total = money in accounts minus open borrowed dues** (`LedgerService.netBalance`), so it can be negative. Account balances, allocations and the `borrow_in` transaction are unchanged. A line under the total shows both numbers while something is owed.
 54. **A custom reminder with an amount is a planned payment.** No expense exists until the user records it ("Paid" opens Add expense pre-filled; `ReminderRepository.recordPaid` saves the expense and closes that occurrence in one DB transaction). It never rolls forward by itself, stays in Upcoming while unpaid, and is nudged using the overdue settings. Notification payload `pay:<id>`. Planned payments are not part of the Home total or the "To pay" amount.
+
+## 2026-11-27: 3rd party money
+55. **Money borrowed from one person for another** is its own record (`pass_throughs` + `pass_entries`, schema v4), not a due. Chosen with the user: it can travel through an account or straight between the two; it shows in its own Home card; paying the lender before collecting is allowed (the other person then owes the user); returns can be in parts, with separate "collect by" and "return by" dates.
+56. Account movements are transactions of type `passIn` / `passOut` (never income, expense or dues). Their money is tagged "Other money"; when the user's own money covers a payment it comes from real sources and returns to them when collected.
+57. **Home total also subtracts 3rd party money being held** (per record, only accounts included in the total). Money the user covered is not added back until collected.
+58. Mistakes are fixed by removing a history step or deleting the record. The first step and (after any return) the amount cannot be edited. Reminders use the "owed to you" / "you owe" and overdue settings; payload `pass:<id>`.

@@ -10,6 +10,7 @@ import '../../../core/ui/pickers.dart';
 import '../../../core/ui/widgets.dart';
 import '../../ledger/data/ledger_service.dart';
 import '../data/transaction_repository.dart';
+import 'open_transaction.dart';
 import 'transaction_tile.dart';
 
 const _typeLabels = {
@@ -20,6 +21,8 @@ const _typeLabels = {
   TransactionType.borrowIn: 'Borrowed',
   TransactionType.repayIn: 'Repaid to me',
   TransactionType.repayOut: 'I repaid',
+  TransactionType.passIn: '3rd party in',
+  TransactionType.passOut: '3rd party out',
 };
 
 class ActivityPage extends ConsumerStatefulWidget {
@@ -184,11 +187,6 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
     }
     flush();
 
-    const editable = {
-      TransactionType.expense,
-      TransactionType.income,
-      TransactionType.transfer,
-    };
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 128),
       itemCount: items.length,
@@ -238,6 +236,14 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                 ),
               ),
               confirmDismiss: (_) async {
+                if (t.type == TransactionType.passIn ||
+                    t.type == TransactionType.passOut) {
+                  showMessage(
+                    context,
+                    'This is 3rd party money. Open the record to change it.',
+                  );
+                  return false;
+                }
                 if (t.dueId != null) {
                   showMessage(
                     context,
@@ -260,18 +266,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                   transaction: t,
                   accounts: accounts,
                   categories: categories,
-                  onTap: () {
-                    if (t.dueId != null) {
-                      context.push('/dues/${t.dueId}');
-                    } else if (editable.contains(t.type)) {
-                      context.push('/transaction/${t.id}/edit');
-                    } else {
-                      showMessage(
-                        context,
-                        'Lend, borrow and repayments are managed from Dues.',
-                      );
-                    }
-                  },
+                  onTap: () => openTransaction(context, ref, t),
                 ),
               ),
             ),

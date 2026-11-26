@@ -78,6 +78,12 @@ Future<void> showQuickAddSheet(BuildContext context) {
                     'Plan a\npayment',
                     () => go('/reminders/new?kind=payment'),
                   ),
+                  _tile(
+                    ctx,
+                    Icons.sync_alt,
+                    '3rd party',
+                    () => go('/third-party/new'),
+                  ),
                 ],
               ),
             ],

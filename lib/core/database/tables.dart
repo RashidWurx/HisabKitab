@@ -259,6 +259,49 @@ class CustomReminders extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// 3rd party money: borrowed from one person for another. Added in schema v4.
+class PassThroughs extends Table {
+  TextColumn get id => text()();
+
+  /// Who lent the money.
+  @ReferenceName('passesLent')
+  TextColumn get fromPersonId => text().references(People, #id)();
+
+  /// Who it was borrowed for.
+  @ReferenceName('passesReceived')
+  TextColumn get forPersonId => text().references(People, #id)();
+  IntColumn get amount => integer()();
+  DateTimeColumn get startDate => dateTime()();
+
+  /// When to collect it back, and when it is due back to the lender.
+  DateTimeColumn get collectBy => dateTime().nullable()();
+  DateTimeColumn get returnBy => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// The history of a 3rd party record. Entries that move money through an
+/// account point at their transaction. Added in schema v4.
+@DataClassName('PassEntry')
+@TableIndex(name: 'idx_pass_entries_pass', columns: {#passId})
+class PassEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get passId => text().references(PassThroughs, #id)();
+  TextColumn get kind => textEnum<PassEntryKind>()();
+  IntColumn get amount => integer()();
+  DateTimeColumn get date => dateTime()();
+  TextColumn get transactionId =>
+      text().nullable().references(Transactions, #id)();
+  TextColumn get note => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Every notification the app asked the phone to show (past and upcoming).
 /// Android never reports a missed or swiped-away notification, so the rows
 /// whose time has passed and that the user has not handled yet ARE the

@@ -60,7 +60,7 @@ class AccountDashRow {
   final int expected;
 }
 
-enum UpcomingKind { due, subscription, reminder, payment }
+enum UpcomingKind { due, subscription, reminder, payment, collect, payBack }
 
 class UpcomingItem {
   const UpcomingItem({
@@ -275,7 +275,26 @@ SELECT * FROM (
     FROM custom_reminders r
    WHERE r.is_active = 1 AND r.remind_at < ?
      AND (r.amount IS NOT NULL OR r.remind_at >= ?)
-) WHERE kind <> 'due' OR amount > 0
+  UNION ALL
+  SELECT 'collect', p.id, pr.name || ' (for ' || pl.name || ')', p.collect_by,
+         COALESCE((SELECT SUM(CASE
+             WHEN e.kind IN ('givenOut','lentDirect') THEN e.amount
+             WHEN e.kind IN ('collected','returnedDirect') THEN -e.amount
+             ELSE 0 END) FROM pass_entries e WHERE e.pass_id = p.id), 0), 1
+    FROM pass_throughs p
+    JOIN people pr ON pr.id = p.for_person_id
+    JOIN people pl ON pl.id = p.from_person_id
+   WHERE p.collect_by IS NOT NULL AND p.collect_by < ?
+  UNION ALL
+  SELECT 'payBack', p.id, pl.name || ' (for ' || pr.name || ')', p.return_by,
+         p.amount - COALESCE((SELECT SUM(e.amount) FROM pass_entries e
+             WHERE e.pass_id = p.id
+               AND e.kind IN ('repaid','returnedDirect')), 0), 0
+    FROM pass_throughs p
+    JOIN people pr ON pr.id = p.for_person_id
+    JOIN people pl ON pl.id = p.from_person_id
+   WHERE p.return_by IS NOT NULL AND p.return_by < ?
+) WHERE kind NOT IN ('due','collect','payBack') OR amount > 0
  ORDER BY at ASC
 ''',
           variables: [
@@ -283,12 +302,17 @@ SELECT * FROM (
             Variable.withDateTime(end),
             Variable.withDateTime(end),
             Variable.withDateTime(start),
+            Variable.withDateTime(end),
+            Variable.withDateTime(end),
           ],
           readsFrom: {
             _db.dues,
             _db.transactions,
             _db.subscriptions,
             _db.customReminders,
+            _db.passThroughs,
+            _db.passEntries,
+            _db.people,
           },
         )
         .watch()
@@ -300,6 +324,8 @@ SELECT * FROM (
                   'due' => UpcomingKind.due,
                   'subscription' => UpcomingKind.subscription,
                   'payment' => UpcomingKind.payment,
+                  'collect' => UpcomingKind.collect,
+                  'payBack' => UpcomingKind.payBack,
                   _ => UpcomingKind.reminder,
                 },
                 id: r.read<String>('id'),

@@ -9,6 +9,8 @@ import '../features/ledger/data/ledger_service.dart';
 import '../features/people/data/person_repository.dart';
 import '../features/reminders/data/reminder_repository.dart';
 import '../features/subscriptions/data/subscription_repository.dart';
+import '../features/thirdparty/data/pass_repository.dart';
+import '../features/thirdparty/domain/pass_models.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/sources/data/source_repository.dart';
 import '../features/transactions/data/transaction_repository.dart';
@@ -51,6 +53,18 @@ final subscriptionRepositoryProvider = Provider(
 );
 final reminderRepositoryProvider = Provider(
   (ref) => ReminderRepository(ref.watch(databaseProvider)),
+);
+
+final passRepositoryProvider = Provider(
+  (ref) => PassRepository(ref.watch(databaseProvider)),
+);
+
+/// Every 3rd party record with its history.
+final passViewsProvider = StreamProvider<List<PassView>>(
+  (ref) => ref.watch(passRepositoryProvider).watchViews(),
+);
+final passSummaryProvider = Provider<PassSummary>(
+  (ref) => PassSummary.of(ref.watch(passViewsProvider).value ?? const []),
 );
 
 final subscriptionsProvider = StreamProvider<List<Subscription>>(

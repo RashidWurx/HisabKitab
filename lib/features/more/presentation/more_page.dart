@@ -23,6 +23,7 @@ const _groups = <(String, List<_Item>)>[
       _Item(Icons.sell_outlined, 'Categories', 'Where your money goes', '/categories'),
       _Item(Icons.people_outline, 'People', 'Who owes what', '/people'),
       _Item(Icons.track_changes, 'Savings', 'Goals and set-aside money', '/savings'),
+      _Item(Icons.sync_alt, '3rd party money', 'Borrowed for someone else', '/third-party'),
     ],
   ),
   (

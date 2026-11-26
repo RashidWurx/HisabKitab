@@ -86,9 +86,14 @@ class PersonRepository {
               ..addColumns([txs])
               ..where(_db.transactions.personId.equals(id)))
             .getSingle();
-    if ((d.read(dues) ?? 0) + (t.read(txs) ?? 0) > 0) {
+    final passes =
+        await (_db.select(_db.passThroughs)..where(
+              (p) => p.fromPersonId.equals(id) | p.forPersonId.equals(id),
+            ))
+            .get();
+    if ((d.read(dues) ?? 0) + (t.read(txs) ?? 0) + passes.length > 0) {
       throw BlockedDeleteException(
-        'This person has dues or transactions. Archive them instead.',
+        'This person has dues, transactions or 3rd party records. Archive them instead.',
       );
     }
     await (_db.delete(_db.people)..where((p) => p.id.equals(id))).go();

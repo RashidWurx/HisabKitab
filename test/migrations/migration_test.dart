@@ -46,4 +46,17 @@ void main() {
     expect(await db.select(db.notificationLog).get(), isEmpty);
     await db.close();
   });
+  test('migrating v3 -> v4 adds 3rd party money and keeps data', () async {
+    final schema = await verifier.schemaAt(3);
+    final created = DateTime(2026, 1, 1).millisecondsSinceEpoch ~/ 1000;
+    schema.rawDatabase.execute(
+      "INSERT INTO accounts (id, name, created_at) VALUES ('a', 'Meezan', $created)",
+    );
+    final db = AppDatabase(schema.newConnection());
+    await verifier.migrateAndValidate(db, 4);
+    expect((await db.select(db.accounts).get()).single.name, 'Meezan');
+    expect(await db.select(db.passThroughs).get(), isEmpty);
+    expect(await db.select(db.passEntries).get(), isEmpty);
+    await db.close();
+  });
 }

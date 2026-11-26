@@ -57,6 +57,14 @@ class TransactionTile extends StatelessWidget {
         subtitle = account?.name ?? '';
         iconKey = 'people';
         color = const Color(0xFF9C27B0);
+      case TransactionType.passIn:
+      case TransactionType.passOut:
+        title = t.type == TransactionType.passIn
+            ? '3rd party received'
+            : '3rd party paid';
+        subtitle = account?.name ?? '';
+        iconKey = 'people';
+        color = const Color(0xFF00796B);
       default:
         title =
             category?.name ??

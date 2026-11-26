@@ -40,6 +40,8 @@ String routeForPayload(String payload, String? action) {
     case 'reminder':
     case 'pay':
       return '/reminders/$id/edit';
+    case 'pass':
+      return '/third-party/$id';
     case 'backup':
       return '/backup';
     case 'test':
@@ -151,6 +153,7 @@ class NotificationCoordinator {
     final dues = await db.read(dueRepositoryProvider).watchViews().first;
     final subs = await db.read(subscriptionRepositoryProvider).watchAll().first;
     final reminders = await db.read(reminderRepositoryProvider).watchAll().first;
+    final passes = await db.read(passRepositoryProvider).views();
     final people = await db.read(peopleProvider.future);
     final sources = await db.read(sourcesProvider.future);
     final accounts = await db.read(accountsProvider.future);
@@ -164,6 +167,7 @@ class NotificationCoordinator {
         accounts: {for (final a in accounts) a.id: a},
         subscriptions: subs,
         reminders: reminders,
+        passes: passes,
         backupAnchor: DateTime.fromMillisecondsSinceEpoch(
           int.tryParse(anchor) ?? DateTime.now().millisecondsSinceEpoch,
         ),
@@ -193,6 +197,7 @@ class NotificationCoordinator {
       openDueIds: {for (final d in dues) if (d.isOpen) d.due.id},
       subscriptionIds: {for (final s in subs) s.id},
       reminderIds: {for (final r in reminders) r.id},
+      openPassIds: {for (final p in passes) if (p.isOpen) p.pass.id},
     );
     return _scheduler.schedule(limited, sound: settings.soundPrefs);
   }
@@ -207,6 +212,7 @@ void listenForReschedule(WidgetRef ref) {
   ref.listen(dueViewsProvider, again);
   ref.listen(subscriptionsProvider, again);
   ref.listen(remindersProvider, again);
+  ref.listen(passViewsProvider, again);
   ref.listen(sourcesProvider, again);
   ref.listen(accountsProvider, again);
   ref.listen(peopleProvider, again);

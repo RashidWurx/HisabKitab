@@ -225,6 +225,9 @@ class ReminderScheduler {
     if (r.payload.startsWith('sub:')) {
       return [a('pay', 'Pay'), a('snooze', 'Later')];
     }
+    if (r.payload.startsWith('pass:')) {
+      return [a('open', 'Open'), a('snooze', 'Later')];
+    }
     if (r.payload.startsWith('pay:')) {
       return [a('paid', 'Paid'), a('snooze', 'Later')];
     }

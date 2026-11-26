@@ -12,6 +12,7 @@ import '../../../core/utils/money.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
 import '../../transactions/data/transaction_repository.dart';
+import '../../transactions/presentation/open_transaction.dart';
 import '../../transactions/presentation/transaction_tile.dart';
 import 'accounts_page.dart';
 
@@ -256,7 +257,8 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage> {
                       transaction: recent[i],
                       accounts: acctMap,
                       categories: cats,
-                      onTap: () => context.push('/transaction/${recent[i].id}/edit'),
+                      onTap: () =>
+                          openTransaction(context, ref, recent[i]),
                     ),
                   ],
                 ],

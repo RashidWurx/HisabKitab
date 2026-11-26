@@ -12,6 +12,7 @@ import '../../../core/utils/money.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
 import '../../reminders/data/reminder_repository.dart';
+import '../../thirdparty/domain/pass_models.dart';
 import '../data/dashboard_service.dart';
 import '../../notifications/presentation/missed_page.dart';
 import 'dashboard_charts.dart';
@@ -39,6 +40,7 @@ class HomePage extends ConsumerWidget {
     final range = ref.watch(dashboardRangeProvider);
     final totals = ref.watch(periodTotalsProvider((range, null))).value;
     final dues = ref.watch(dueSummaryProvider).value ?? DueSummary.empty;
+    final others = ref.watch(passSummaryProvider);
     final sourceRows = ref.watch(sourceRowsProvider(range)).value ?? const {};
     final accountRows = ref.watch(accountRowsProvider(range)).value ?? const {};
     final upcoming = ref.watch(upcomingProvider).value ?? const [];
@@ -74,9 +76,11 @@ class HomePage extends ConsumerWidget {
             total: LedgerService.netBalance(
               inAccounts: headline.total,
               borrowedOwed: dues.toPay,
+              heldForOthers: others.heldInTotal,
             ),
             inAccounts: headline.total,
             owed: dues.toPay,
+            held: others.heldInTotal,
             savings: headline.savings,
             income: totals?.moneyIn ?? 0,
             expense: totals?.moneyOut ?? 0,
@@ -114,6 +118,11 @@ class HomePage extends ConsumerWidget {
               ),
             ],
           ),
+          // ---- 3rd party money ----
+          if (others.openCount > 0) ...[
+            const SizedBox(height: 12),
+            _ThirdPartyCard(others),
+          ],
           // ---- Accounts ----
           SectionTitle(
             'Accounts',
@@ -179,7 +188,14 @@ class HomePage extends ConsumerWidget {
                 children: [
                   for (var i = 0; i < upcoming.length; i++) ...[
                     if (i > 0) const Divider(indent: 76),
-                    if (upcoming[i].kind == UpcomingKind.payment)
+                    if (upcoming[i].kind == UpcomingKind.collect ||
+                        upcoming[i].kind == UpcomingKind.payBack)
+                      InkWell(
+                        onTap: () =>
+                            context.push('/third-party/${upcoming[i].id}'),
+                        child: _UpcomingRow(item: upcoming[i]),
+                      )
+                    else if (upcoming[i].kind == UpcomingKind.payment)
                       InkWell(
                         onTap: () => _payPlanned(context, ref, upcoming[i].id),
                         child: _UpcomingRow(item: upcoming[i]),
@@ -289,6 +305,7 @@ class _Hero extends StatelessWidget {
     required this.total,
     required this.inAccounts,
     required this.owed,
+    required this.held,
     required this.savings,
     required this.income,
     required this.expense,
@@ -296,10 +313,11 @@ class _Hero extends StatelessWidget {
     required this.rangeLabel,
   });
 
-  /// Own money: [inAccounts] minus [owed].
+  /// Own money: [inAccounts] minus [owed] minus [held] (3rd party money).
   final int total;
   final int inAccounts;
   final int owed;
+  final int held;
   final int savings;
   final int income;
   final int expense;
@@ -372,9 +390,13 @@ class _Hero extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            if (owed > 0)
+            if (owed > 0 || held > 0)
               Text(
-                '${Money.format(inAccounts)} in accounts, minus ${Money.format(owed)} you owe',
+                [
+                  '${Money.format(inAccounts)} in accounts',
+                  if (owed > 0) 'minus ${Money.format(owed)} you owe',
+                  if (held > 0) 'minus ${Money.format(held)} held for others',
+                ].join(', '),
                 style: const TextStyle(color: Color(0xCCFFFFFF), fontSize: 13),
               ),
             Text(
@@ -861,6 +883,64 @@ class _SourceCard extends StatelessWidget {
   }
 }
 
+/// 3rd party money, kept apart from the user's own numbers.
+class _ThirdPartyCard extends StatelessWidget {
+  const _ThirdPartyCard(this.summary);
+
+  final PassSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    const value = TextStyle(fontSize: 18, fontWeight: FontWeight.w800);
+    final label = TextStyle(
+      fontSize: 12,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    Widget side(String text, int amount) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(text, style: label),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: MoneyText(amount, style: value),
+          ),
+        ],
+      ),
+    );
+    return AppCard(
+      padding: const EdgeInsets.all(14),
+      onTap: () => context.push('/third-party'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.sync_alt, size: 18),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  '3rd party money',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+              Text('${summary.openCount} open', style: label),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              side('To collect', summary.toCollect),
+              const SizedBox(width: 12),
+              side('To return', -summary.toPayBack),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _UpcomingRow extends StatelessWidget {
   const _UpcomingRow({required this.item});
 
@@ -878,6 +958,8 @@ class _UpcomingRow extends StatelessWidget {
         item.date.isAfter(DateTime.now())
             ? 'Planned · tap when paid'
             : 'Unpaid · tap when paid',
+      UpcomingKind.collect => '3rd party · to collect',
+      UpcomingKind.payBack => '3rd party · to return',
     };
     final color = item.isMoneyIn ? colors.positive : colors.negative;
     return Padding(

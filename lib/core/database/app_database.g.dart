@@ -8256,6 +8256,1107 @@ class NotificationLogCompanion extends UpdateCompanion<NotificationLogData> {
   }
 }
 
+class $PassThroughsTable extends PassThroughs
+    with TableInfo<$PassThroughsTable, PassThrough> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PassThroughsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fromPersonIdMeta = const VerificationMeta(
+    'fromPersonId',
+  );
+  @override
+  late final GeneratedColumn<String> fromPersonId = GeneratedColumn<String>(
+    'from_person_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES people (id)',
+    ),
+  );
+  static const VerificationMeta _forPersonIdMeta = const VerificationMeta(
+    'forPersonId',
+  );
+  @override
+  late final GeneratedColumn<String> forPersonId = GeneratedColumn<String>(
+    'for_person_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES people (id)',
+    ),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _collectByMeta = const VerificationMeta(
+    'collectBy',
+  );
+  @override
+  late final GeneratedColumn<DateTime> collectBy = GeneratedColumn<DateTime>(
+    'collect_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _returnByMeta = const VerificationMeta(
+    'returnBy',
+  );
+  @override
+  late final GeneratedColumn<DateTime> returnBy = GeneratedColumn<DateTime>(
+    'return_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    fromPersonId,
+    forPersonId,
+    amount,
+    startDate,
+    collectBy,
+    returnBy,
+    note,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pass_throughs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PassThrough> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('from_person_id')) {
+      context.handle(
+        _fromPersonIdMeta,
+        fromPersonId.isAcceptableOrUnknown(
+          data['from_person_id']!,
+          _fromPersonIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fromPersonIdMeta);
+    }
+    if (data.containsKey('for_person_id')) {
+      context.handle(
+        _forPersonIdMeta,
+        forPersonId.isAcceptableOrUnknown(
+          data['for_person_id']!,
+          _forPersonIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forPersonIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('collect_by')) {
+      context.handle(
+        _collectByMeta,
+        collectBy.isAcceptableOrUnknown(data['collect_by']!, _collectByMeta),
+      );
+    }
+    if (data.containsKey('return_by')) {
+      context.handle(
+        _returnByMeta,
+        returnBy.isAcceptableOrUnknown(data['return_by']!, _returnByMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PassThrough map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PassThrough(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      fromPersonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}from_person_id'],
+      )!,
+      forPersonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}for_person_id'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      collectBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}collect_by'],
+      ),
+      returnBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}return_by'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PassThroughsTable createAlias(String alias) {
+    return $PassThroughsTable(attachedDatabase, alias);
+  }
+}
+
+class PassThrough extends DataClass implements Insertable<PassThrough> {
+  final String id;
+
+  /// Who lent the money.
+  final String fromPersonId;
+
+  /// Who it was borrowed for.
+  final String forPersonId;
+  final int amount;
+  final DateTime startDate;
+
+  /// When to collect it back, and when it is due back to the lender.
+  final DateTime? collectBy;
+  final DateTime? returnBy;
+  final String? note;
+  final DateTime createdAt;
+  const PassThrough({
+    required this.id,
+    required this.fromPersonId,
+    required this.forPersonId,
+    required this.amount,
+    required this.startDate,
+    this.collectBy,
+    this.returnBy,
+    this.note,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['from_person_id'] = Variable<String>(fromPersonId);
+    map['for_person_id'] = Variable<String>(forPersonId);
+    map['amount'] = Variable<int>(amount);
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || collectBy != null) {
+      map['collect_by'] = Variable<DateTime>(collectBy);
+    }
+    if (!nullToAbsent || returnBy != null) {
+      map['return_by'] = Variable<DateTime>(returnBy);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PassThroughsCompanion toCompanion(bool nullToAbsent) {
+    return PassThroughsCompanion(
+      id: Value(id),
+      fromPersonId: Value(fromPersonId),
+      forPersonId: Value(forPersonId),
+      amount: Value(amount),
+      startDate: Value(startDate),
+      collectBy: collectBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(collectBy),
+      returnBy: returnBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(returnBy),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PassThrough.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PassThrough(
+      id: serializer.fromJson<String>(json['id']),
+      fromPersonId: serializer.fromJson<String>(json['fromPersonId']),
+      forPersonId: serializer.fromJson<String>(json['forPersonId']),
+      amount: serializer.fromJson<int>(json['amount']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      collectBy: serializer.fromJson<DateTime?>(json['collectBy']),
+      returnBy: serializer.fromJson<DateTime?>(json['returnBy']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'fromPersonId': serializer.toJson<String>(fromPersonId),
+      'forPersonId': serializer.toJson<String>(forPersonId),
+      'amount': serializer.toJson<int>(amount),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'collectBy': serializer.toJson<DateTime?>(collectBy),
+      'returnBy': serializer.toJson<DateTime?>(returnBy),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PassThrough copyWith({
+    String? id,
+    String? fromPersonId,
+    String? forPersonId,
+    int? amount,
+    DateTime? startDate,
+    Value<DateTime?> collectBy = const Value.absent(),
+    Value<DateTime?> returnBy = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+  }) => PassThrough(
+    id: id ?? this.id,
+    fromPersonId: fromPersonId ?? this.fromPersonId,
+    forPersonId: forPersonId ?? this.forPersonId,
+    amount: amount ?? this.amount,
+    startDate: startDate ?? this.startDate,
+    collectBy: collectBy.present ? collectBy.value : this.collectBy,
+    returnBy: returnBy.present ? returnBy.value : this.returnBy,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PassThrough copyWithCompanion(PassThroughsCompanion data) {
+    return PassThrough(
+      id: data.id.present ? data.id.value : this.id,
+      fromPersonId: data.fromPersonId.present
+          ? data.fromPersonId.value
+          : this.fromPersonId,
+      forPersonId: data.forPersonId.present
+          ? data.forPersonId.value
+          : this.forPersonId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      collectBy: data.collectBy.present ? data.collectBy.value : this.collectBy,
+      returnBy: data.returnBy.present ? data.returnBy.value : this.returnBy,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PassThrough(')
+          ..write('id: $id, ')
+          ..write('fromPersonId: $fromPersonId, ')
+          ..write('forPersonId: $forPersonId, ')
+          ..write('amount: $amount, ')
+          ..write('startDate: $startDate, ')
+          ..write('collectBy: $collectBy, ')
+          ..write('returnBy: $returnBy, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    fromPersonId,
+    forPersonId,
+    amount,
+    startDate,
+    collectBy,
+    returnBy,
+    note,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PassThrough &&
+          other.id == this.id &&
+          other.fromPersonId == this.fromPersonId &&
+          other.forPersonId == this.forPersonId &&
+          other.amount == this.amount &&
+          other.startDate == this.startDate &&
+          other.collectBy == this.collectBy &&
+          other.returnBy == this.returnBy &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt);
+}
+
+class PassThroughsCompanion extends UpdateCompanion<PassThrough> {
+  final Value<String> id;
+  final Value<String> fromPersonId;
+  final Value<String> forPersonId;
+  final Value<int> amount;
+  final Value<DateTime> startDate;
+  final Value<DateTime?> collectBy;
+  final Value<DateTime?> returnBy;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const PassThroughsCompanion({
+    this.id = const Value.absent(),
+    this.fromPersonId = const Value.absent(),
+    this.forPersonId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.collectBy = const Value.absent(),
+    this.returnBy = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PassThroughsCompanion.insert({
+    required String id,
+    required String fromPersonId,
+    required String forPersonId,
+    required int amount,
+    required DateTime startDate,
+    this.collectBy = const Value.absent(),
+    this.returnBy = const Value.absent(),
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       fromPersonId = Value(fromPersonId),
+       forPersonId = Value(forPersonId),
+       amount = Value(amount),
+       startDate = Value(startDate),
+       createdAt = Value(createdAt);
+  static Insertable<PassThrough> custom({
+    Expression<String>? id,
+    Expression<String>? fromPersonId,
+    Expression<String>? forPersonId,
+    Expression<int>? amount,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? collectBy,
+    Expression<DateTime>? returnBy,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fromPersonId != null) 'from_person_id': fromPersonId,
+      if (forPersonId != null) 'for_person_id': forPersonId,
+      if (amount != null) 'amount': amount,
+      if (startDate != null) 'start_date': startDate,
+      if (collectBy != null) 'collect_by': collectBy,
+      if (returnBy != null) 'return_by': returnBy,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PassThroughsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? fromPersonId,
+    Value<String>? forPersonId,
+    Value<int>? amount,
+    Value<DateTime>? startDate,
+    Value<DateTime?>? collectBy,
+    Value<DateTime?>? returnBy,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PassThroughsCompanion(
+      id: id ?? this.id,
+      fromPersonId: fromPersonId ?? this.fromPersonId,
+      forPersonId: forPersonId ?? this.forPersonId,
+      amount: amount ?? this.amount,
+      startDate: startDate ?? this.startDate,
+      collectBy: collectBy ?? this.collectBy,
+      returnBy: returnBy ?? this.returnBy,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (fromPersonId.present) {
+      map['from_person_id'] = Variable<String>(fromPersonId.value);
+    }
+    if (forPersonId.present) {
+      map['for_person_id'] = Variable<String>(forPersonId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (collectBy.present) {
+      map['collect_by'] = Variable<DateTime>(collectBy.value);
+    }
+    if (returnBy.present) {
+      map['return_by'] = Variable<DateTime>(returnBy.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PassThroughsCompanion(')
+          ..write('id: $id, ')
+          ..write('fromPersonId: $fromPersonId, ')
+          ..write('forPersonId: $forPersonId, ')
+          ..write('amount: $amount, ')
+          ..write('startDate: $startDate, ')
+          ..write('collectBy: $collectBy, ')
+          ..write('returnBy: $returnBy, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PassEntriesTable extends PassEntries
+    with TableInfo<$PassEntriesTable, PassEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PassEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _passIdMeta = const VerificationMeta('passId');
+  @override
+  late final GeneratedColumn<String> passId = GeneratedColumn<String>(
+    'pass_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES pass_throughs (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<PassEntryKind, String> kind =
+      GeneratedColumn<String>(
+        'kind',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<PassEntryKind>($PassEntriesTable.$converterkind);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
+    'transactionId',
+  );
+  @override
+  late final GeneratedColumn<String> transactionId = GeneratedColumn<String>(
+    'transaction_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES transactions (id)',
+    ),
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    passId,
+    kind,
+    amount,
+    date,
+    transactionId,
+    note,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pass_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PassEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('pass_id')) {
+      context.handle(
+        _passIdMeta,
+        passId.isAcceptableOrUnknown(data['pass_id']!, _passIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_passIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+        _transactionIdMeta,
+        transactionId.isAcceptableOrUnknown(
+          data['transaction_id']!,
+          _transactionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PassEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PassEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      passId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pass_id'],
+      )!,
+      kind: $PassEntriesTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      transactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_id'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PassEntriesTable createAlias(String alias) {
+    return $PassEntriesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<PassEntryKind, String, String> $converterkind =
+      const EnumNameConverter<PassEntryKind>(PassEntryKind.values);
+}
+
+class PassEntry extends DataClass implements Insertable<PassEntry> {
+  final String id;
+  final String passId;
+  final PassEntryKind kind;
+  final int amount;
+  final DateTime date;
+  final String? transactionId;
+  final String? note;
+  final DateTime createdAt;
+  const PassEntry({
+    required this.id,
+    required this.passId,
+    required this.kind,
+    required this.amount,
+    required this.date,
+    this.transactionId,
+    this.note,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['pass_id'] = Variable<String>(passId);
+    {
+      map['kind'] = Variable<String>(
+        $PassEntriesTable.$converterkind.toSql(kind),
+      );
+    }
+    map['amount'] = Variable<int>(amount);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || transactionId != null) {
+      map['transaction_id'] = Variable<String>(transactionId);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PassEntriesCompanion toCompanion(bool nullToAbsent) {
+    return PassEntriesCompanion(
+      id: Value(id),
+      passId: Value(passId),
+      kind: Value(kind),
+      amount: Value(amount),
+      date: Value(date),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PassEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PassEntry(
+      id: serializer.fromJson<String>(json['id']),
+      passId: serializer.fromJson<String>(json['passId']),
+      kind: $PassEntriesTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      amount: serializer.fromJson<int>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      transactionId: serializer.fromJson<String?>(json['transactionId']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'passId': serializer.toJson<String>(passId),
+      'kind': serializer.toJson<String>(
+        $PassEntriesTable.$converterkind.toJson(kind),
+      ),
+      'amount': serializer.toJson<int>(amount),
+      'date': serializer.toJson<DateTime>(date),
+      'transactionId': serializer.toJson<String?>(transactionId),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PassEntry copyWith({
+    String? id,
+    String? passId,
+    PassEntryKind? kind,
+    int? amount,
+    DateTime? date,
+    Value<String?> transactionId = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    DateTime? createdAt,
+  }) => PassEntry(
+    id: id ?? this.id,
+    passId: passId ?? this.passId,
+    kind: kind ?? this.kind,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+    transactionId: transactionId.present
+        ? transactionId.value
+        : this.transactionId,
+    note: note.present ? note.value : this.note,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PassEntry copyWithCompanion(PassEntriesCompanion data) {
+    return PassEntry(
+      id: data.id.present ? data.id.value : this.id,
+      passId: data.passId.present ? data.passId.value : this.passId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+      transactionId: data.transactionId.present
+          ? data.transactionId.value
+          : this.transactionId,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PassEntry(')
+          ..write('id: $id, ')
+          ..write('passId: $passId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    passId,
+    kind,
+    amount,
+    date,
+    transactionId,
+    note,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PassEntry &&
+          other.id == this.id &&
+          other.passId == this.passId &&
+          other.kind == this.kind &&
+          other.amount == this.amount &&
+          other.date == this.date &&
+          other.transactionId == this.transactionId &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt);
+}
+
+class PassEntriesCompanion extends UpdateCompanion<PassEntry> {
+  final Value<String> id;
+  final Value<String> passId;
+  final Value<PassEntryKind> kind;
+  final Value<int> amount;
+  final Value<DateTime> date;
+  final Value<String?> transactionId;
+  final Value<String?> note;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const PassEntriesCompanion({
+    this.id = const Value.absent(),
+    this.passId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PassEntriesCompanion.insert({
+    required String id,
+    required String passId,
+    required PassEntryKind kind,
+    required int amount,
+    required DateTime date,
+    this.transactionId = const Value.absent(),
+    this.note = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       passId = Value(passId),
+       kind = Value(kind),
+       amount = Value(amount),
+       date = Value(date),
+       createdAt = Value(createdAt);
+  static Insertable<PassEntry> custom({
+    Expression<String>? id,
+    Expression<String>? passId,
+    Expression<String>? kind,
+    Expression<int>? amount,
+    Expression<DateTime>? date,
+    Expression<String>? transactionId,
+    Expression<String>? note,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (passId != null) 'pass_id': passId,
+      if (kind != null) 'kind': kind,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PassEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? passId,
+    Value<PassEntryKind>? kind,
+    Value<int>? amount,
+    Value<DateTime>? date,
+    Value<String?>? transactionId,
+    Value<String?>? note,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return PassEntriesCompanion(
+      id: id ?? this.id,
+      passId: passId ?? this.passId,
+      kind: kind ?? this.kind,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      transactionId: transactionId ?? this.transactionId,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (passId.present) {
+      map['pass_id'] = Variable<String>(passId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $PassEntriesTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<String>(transactionId.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PassEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('passId: $passId, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -8278,6 +9379,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NotificationLogTable notificationLog = $NotificationLogTable(
     this,
   );
+  late final $PassThroughsTable passThroughs = $PassThroughsTable(this);
+  late final $PassEntriesTable passEntries = $PassEntriesTable(this);
   late final Index idxTxDate = Index(
     'idx_tx_date',
     'CREATE INDEX idx_tx_date ON transactions (date)',
@@ -8306,6 +9409,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_due_events_due',
     'CREATE INDEX idx_due_events_due ON due_events (due_id)',
   );
+  late final Index idxPassEntriesPass = Index(
+    'idx_pass_entries_pass',
+    'CREATE INDEX idx_pass_entries_pass ON pass_entries (pass_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8324,6 +9431,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     customReminders,
     appSettings,
     notificationLog,
+    passThroughs,
+    passEntries,
     idxTxDate,
     idxTxAccount,
     idxTxToAccount,
@@ -8331,6 +9440,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     idxAllocTx,
     idxAllocSource,
     idxDueEventsDue,
+    idxPassEntriesPass,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -12100,6 +13210,42 @@ final class $$PeopleTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$PassThroughsTable, List<PassThrough>>
+  _passesLentTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.passThroughs,
+    aliasName: 'people__id__pass_throughs__from_person_id',
+  );
+
+  $$PassThroughsTableProcessedTableManager get passesLent {
+    final manager = $$PassThroughsTableTableManager(
+      $_db,
+      $_db.passThroughs,
+    ).filter((f) => f.fromPersonId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_passesLentTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$PassThroughsTable, List<PassThrough>>
+  _passesReceivedTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.passThroughs,
+    aliasName: 'people__id__pass_throughs__for_person_id',
+  );
+
+  $$PassThroughsTableProcessedTableManager get passesReceived {
+    final manager = $$PassThroughsTableTableManager(
+      $_db,
+      $_db.passThroughs,
+    ).filter((f) => f.forPersonId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_passesReceivedTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$PeopleTableFilterComposer
@@ -12210,6 +13356,56 @@ class $$PeopleTableFilterComposer
           }) => $$TransactionsTableFilterComposer(
             $db: $db,
             $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> passesLent(
+    Expression<bool> Function($$PassThroughsTableFilterComposer f) f,
+  ) {
+    final $$PassThroughsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.fromPersonId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableFilterComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> passesReceived(
+    Expression<bool> Function($$PassThroughsTableFilterComposer f) f,
+  ) {
+    final $$PassThroughsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.forPersonId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableFilterComposer(
+            $db: $db,
+            $table: $db.passThroughs,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -12392,6 +13588,56 @@ class $$PeopleTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> passesLent<T extends Object>(
+    Expression<T> Function($$PassThroughsTableAnnotationComposer a) f,
+  ) {
+    final $$PassThroughsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.fromPersonId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> passesReceived<T extends Object>(
+    Expression<T> Function($$PassThroughsTableAnnotationComposer a) f,
+  ) {
+    final $$PassThroughsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.forPersonId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$PeopleTableTableManager
@@ -12411,6 +13657,8 @@ class $$PeopleTableTableManager
             bool defaultAccountId,
             bool duesRefs,
             bool transactionsRefs,
+            bool passesLent,
+            bool passesReceived,
           })
         > {
   $$PeopleTableTableManager(_$AppDatabase db, $PeopleTable table)
@@ -12481,12 +13729,16 @@ class $$PeopleTableTableManager
                 defaultAccountId = false,
                 duesRefs = false,
                 transactionsRefs = false,
+                passesLent = false,
+                passesReceived = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (duesRefs) db.dues,
                     if (transactionsRefs) db.transactions,
+                    if (passesLent) db.passThroughs,
+                    if (passesReceived) db.passThroughs,
                   ],
                   addJoins:
                       <
@@ -12556,6 +13808,42 @@ class $$PeopleTableTableManager
                           referencedColumn: 'person_id',
                           typedResults: items,
                         ),
+                      if (passesLent)
+                        await $_getPrefetchedDataByColumns<
+                          PeopleData,
+                          $PeopleTable,
+                          PassThrough,
+                          $PassThroughsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PeopleTableReferences
+                              ._passesLentTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PeopleTableReferences(db, table, p0).passesLent,
+                          currentColumn: 'id',
+                          referencedColumn: 'from_person_id',
+                          typedResults: items,
+                        ),
+                      if (passesReceived)
+                        await $_getPrefetchedDataByColumns<
+                          PeopleData,
+                          $PeopleTable,
+                          PassThrough,
+                          $PassThroughsTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PeopleTableReferences
+                              ._passesReceivedTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PeopleTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).passesReceived,
+                          currentColumn: 'id',
+                          referencedColumn: 'for_person_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -12580,6 +13868,8 @@ typedef $$PeopleTableProcessedTableManager =
         bool defaultAccountId,
         bool duesRefs,
         bool transactionsRefs,
+        bool passesLent,
+        bool passesReceived,
       })
     >;
 typedef $$DuesTableCreateCompanionBuilder = DuesCompanion Function({
@@ -14336,6 +15626,24 @@ final class $$TransactionsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$PassEntriesTable, List<PassEntry>>
+  _passEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.passEntries,
+    aliasName: 'transactions__id__pass_entries__transaction_id',
+  );
+
+  $$PassEntriesTableProcessedTableManager get passEntriesRefs {
+    final manager = $$PassEntriesTableTableManager(
+      $_db,
+      $_db.passEntries,
+    ).filter((f) => f.transactionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_passEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$TransactionsTableFilterComposer
@@ -14563,6 +15871,31 @@ class $$TransactionsTableFilterComposer
           }) => $$DueEventsTableFilterComposer(
             $db: $db,
             $table: $db.dueEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> passEntriesRefs(
+    Expression<bool> Function($$PassEntriesTableFilterComposer f) f,
+  ) {
+    final $$PassEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passEntries,
+      getReferencedColumn: (t) => t.transactionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.passEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14974,6 +16307,31 @@ class $$TransactionsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> passEntriesRefs<T extends Object>(
+    Expression<T> Function($$PassEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$PassEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passEntries,
+      getReferencedColumn: (t) => t.transactionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.passEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TransactionsTableTableManager
@@ -14998,6 +16356,7 @@ class $$TransactionsTableTableManager
             bool subscriptionId,
             bool transactionAllocationsRefs,
             bool dueEventsRefs,
+            bool passEntriesRefs,
           })
         > {
   $$TransactionsTableTableManager(_$AppDatabase db, $TransactionsTable table)
@@ -15093,12 +16452,14 @@ class $$TransactionsTableTableManager
                 subscriptionId = false,
                 transactionAllocationsRefs = false,
                 dueEventsRefs = false,
+                passEntriesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (transactionAllocationsRefs) db.transactionAllocations,
                     if (dueEventsRefs) db.dueEvents,
+                    if (passEntriesRefs) db.passEntries,
                   ],
                   addJoins:
                       <
@@ -15227,6 +16588,26 @@ class $$TransactionsTableTableManager
                           referencedColumn: 'transaction_id',
                           typedResults: items,
                         ),
+                      if (passEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          Transaction,
+                          $TransactionsTable,
+                          PassEntry,
+                          $PassEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TransactionsTableReferences
+                              ._passEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TransactionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).passEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'transaction_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -15256,6 +16637,7 @@ typedef $$TransactionsTableProcessedTableManager =
         bool subscriptionId,
         bool transactionAllocationsRefs,
         bool dueEventsRefs,
+        bool passEntriesRefs,
       })
     >;
 typedef $$TransactionAllocationsTableCreateCompanionBuilder =
@@ -17236,6 +18618,1043 @@ typedef $$NotificationLogTableProcessedTableManager =
       NotificationLogData,
       PrefetchHooks Function()
     >;
+typedef $$PassThroughsTableCreateCompanionBuilder =
+    PassThroughsCompanion Function({
+      required String id,
+      required String fromPersonId,
+      required String forPersonId,
+      required int amount,
+      required DateTime startDate,
+      Value<DateTime?> collectBy,
+      Value<DateTime?> returnBy,
+      Value<String?> note,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$PassThroughsTableUpdateCompanionBuilder =
+    PassThroughsCompanion Function({
+      Value<String> id,
+      Value<String> fromPersonId,
+      Value<String> forPersonId,
+      Value<int> amount,
+      Value<DateTime> startDate,
+      Value<DateTime?> collectBy,
+      Value<DateTime?> returnBy,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$PassThroughsTableReferences
+    extends BaseReferences<_$AppDatabase, $PassThroughsTable, PassThrough> {
+  $$PassThroughsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PeopleTable _fromPersonIdTable(_$AppDatabase db) =>
+      db.people.createAlias('pass_throughs__from_person_id__people__id');
+
+  $$PeopleTableProcessedTableManager get fromPersonId {
+    final $_column = $_itemColumn<String>('from_person_id')!;
+
+    final manager = $$PeopleTableTableManager(
+      $_db,
+      $_db.people,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_fromPersonIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PeopleTable _forPersonIdTable(_$AppDatabase db) =>
+      db.people.createAlias('pass_throughs__for_person_id__people__id');
+
+  $$PeopleTableProcessedTableManager get forPersonId {
+    final $_column = $_itemColumn<String>('for_person_id')!;
+
+    final manager = $$PeopleTableTableManager(
+      $_db,
+      $_db.people,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_forPersonIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$PassEntriesTable, List<PassEntry>>
+  _passEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.passEntries,
+    aliasName: 'pass_throughs__id__pass_entries__pass_id',
+  );
+
+  $$PassEntriesTableProcessedTableManager get passEntriesRefs {
+    final manager = $$PassEntriesTableTableManager(
+      $_db,
+      $_db.passEntries,
+    ).filter((f) => f.passId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_passEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PassThroughsTableFilterComposer
+    extends Composer<_$AppDatabase, $PassThroughsTable> {
+  $$PassThroughsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get collectBy => $composableBuilder(
+    column: $table.collectBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get returnBy => $composableBuilder(
+    column: $table.returnBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PeopleTableFilterComposer get fromPersonId {
+    final $$PeopleTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.fromPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableFilterComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PeopleTableFilterComposer get forPersonId {
+    final $$PeopleTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.forPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableFilterComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> passEntriesRefs(
+    Expression<bool> Function($$PassEntriesTableFilterComposer f) f,
+  ) {
+    final $$PassEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passEntries,
+      getReferencedColumn: (t) => t.passId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.passEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PassThroughsTableOrderingComposer
+    extends Composer<_$AppDatabase, $PassThroughsTable> {
+  $$PassThroughsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get collectBy => $composableBuilder(
+    column: $table.collectBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get returnBy => $composableBuilder(
+    column: $table.returnBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PeopleTableOrderingComposer get fromPersonId {
+    final $$PeopleTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.fromPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableOrderingComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PeopleTableOrderingComposer get forPersonId {
+    final $$PeopleTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.forPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableOrderingComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PassThroughsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PassThroughsTable> {
+  $$PassThroughsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get collectBy =>
+      $composableBuilder(column: $table.collectBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get returnBy =>
+      $composableBuilder(column: $table.returnBy, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$PeopleTableAnnotationComposer get fromPersonId {
+    final $$PeopleTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.fromPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableAnnotationComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PeopleTableAnnotationComposer get forPersonId {
+    final $$PeopleTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.forPersonId,
+      referencedTable: $db.people,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PeopleTableAnnotationComposer(
+            $db: $db,
+            $table: $db.people,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> passEntriesRefs<T extends Object>(
+    Expression<T> Function($$PassEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$PassEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.passEntries,
+      getReferencedColumn: (t) => t.passId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.passEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PassThroughsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PassThroughsTable,
+          PassThrough,
+          $$PassThroughsTableFilterComposer,
+          $$PassThroughsTableOrderingComposer,
+          $$PassThroughsTableAnnotationComposer,
+          $$PassThroughsTableCreateCompanionBuilder,
+          $$PassThroughsTableUpdateCompanionBuilder,
+          (PassThrough, $$PassThroughsTableReferences),
+          PassThrough,
+          PrefetchHooks Function({
+            bool fromPersonId,
+            bool forPersonId,
+            bool passEntriesRefs,
+          })
+        > {
+  $$PassThroughsTableTableManager(_$AppDatabase db, $PassThroughsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PassThroughsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PassThroughsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PassThroughsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> fromPersonId = const Value.absent(),
+                Value<String> forPersonId = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime?> collectBy = const Value.absent(),
+                Value<DateTime?> returnBy = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PassThroughsCompanion(
+                id: id,
+                fromPersonId: fromPersonId,
+                forPersonId: forPersonId,
+                amount: amount,
+                startDate: startDate,
+                collectBy: collectBy,
+                returnBy: returnBy,
+                note: note,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String fromPersonId,
+                required String forPersonId,
+                required int amount,
+                required DateTime startDate,
+                Value<DateTime?> collectBy = const Value.absent(),
+                Value<DateTime?> returnBy = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PassThroughsCompanion.insert(
+                id: id,
+                fromPersonId: fromPersonId,
+                forPersonId: forPersonId,
+                amount: amount,
+                startDate: startDate,
+                collectBy: collectBy,
+                returnBy: returnBy,
+                note: note,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PassThroughsTable, PassThrough>(table),
+                  $$PassThroughsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                fromPersonId = false,
+                forPersonId = false,
+                passEntriesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (passEntriesRefs) db.passEntries,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (fromPersonId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.fromPersonId,
+                            referencedTable: $$PassThroughsTableReferences
+                                ._fromPersonIdTable(db),
+                            referencedColumn: $$PassThroughsTableReferences
+                                ._fromPersonIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (forPersonId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.forPersonId,
+                            referencedTable: $$PassThroughsTableReferences
+                                ._forPersonIdTable(db),
+                            referencedColumn: $$PassThroughsTableReferences
+                                ._forPersonIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (passEntriesRefs)
+                        await $_getPrefetchedDataByColumns<
+                          PassThrough,
+                          $PassThroughsTable,
+                          PassEntry,
+                          $PassEntriesTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PassThroughsTableReferences
+                              ._passEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PassThroughsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).passEntriesRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'pass_id',
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$PassThroughsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PassThroughsTable,
+      PassThrough,
+      $$PassThroughsTableFilterComposer,
+      $$PassThroughsTableOrderingComposer,
+      $$PassThroughsTableAnnotationComposer,
+      $$PassThroughsTableCreateCompanionBuilder,
+      $$PassThroughsTableUpdateCompanionBuilder,
+      (PassThrough, $$PassThroughsTableReferences),
+      PassThrough,
+      PrefetchHooks Function({
+        bool fromPersonId,
+        bool forPersonId,
+        bool passEntriesRefs,
+      })
+    >;
+typedef $$PassEntriesTableCreateCompanionBuilder =
+    PassEntriesCompanion Function({
+      required String id,
+      required String passId,
+      required PassEntryKind kind,
+      required int amount,
+      required DateTime date,
+      Value<String?> transactionId,
+      Value<String?> note,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$PassEntriesTableUpdateCompanionBuilder =
+    PassEntriesCompanion Function({
+      Value<String> id,
+      Value<String> passId,
+      Value<PassEntryKind> kind,
+      Value<int> amount,
+      Value<DateTime> date,
+      Value<String?> transactionId,
+      Value<String?> note,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$PassEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $PassEntriesTable, PassEntry> {
+  $$PassEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PassThroughsTable _passIdTable(_$AppDatabase db) =>
+      db.passThroughs.createAlias('pass_entries__pass_id__pass_throughs__id');
+
+  $$PassThroughsTableProcessedTableManager get passId {
+    final $_column = $_itemColumn<String>('pass_id')!;
+
+    final manager = $$PassThroughsTableTableManager(
+      $_db,
+      $_db.passThroughs,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_passIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TransactionsTable _transactionIdTable(_$AppDatabase db) => db
+      .transactions
+      .createAlias('pass_entries__transaction_id__transactions__id');
+
+  $$TransactionsTableProcessedTableManager? get transactionId {
+    final $_column = $_itemColumn<String>('transaction_id');
+    if ($_column == null) return null;
+    final manager = $$TransactionsTableTableManager(
+      $_db,
+      $_db.transactions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_transactionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PassEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PassEntriesTable> {
+  $$PassEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<PassEntryKind, PassEntryKind, String>
+  get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PassThroughsTableFilterComposer get passId {
+    final $$PassThroughsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.passId,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableFilterComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TransactionsTableFilterComposer get transactionId {
+    final $$TransactionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.transactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableFilterComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PassEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PassEntriesTable> {
+  $$PassEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PassThroughsTableOrderingComposer get passId {
+    final $$PassThroughsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.passId,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableOrderingComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TransactionsTableOrderingComposer get transactionId {
+    final $$TransactionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.transactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PassEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PassEntriesTable> {
+  $$PassEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PassEntryKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$PassThroughsTableAnnotationComposer get passId {
+    final $$PassThroughsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.passId,
+      referencedTable: $db.passThroughs,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PassThroughsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.passThroughs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TransactionsTableAnnotationComposer get transactionId {
+    final $$TransactionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.transactionId,
+      referencedTable: $db.transactions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TransactionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.transactions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PassEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PassEntriesTable,
+          PassEntry,
+          $$PassEntriesTableFilterComposer,
+          $$PassEntriesTableOrderingComposer,
+          $$PassEntriesTableAnnotationComposer,
+          $$PassEntriesTableCreateCompanionBuilder,
+          $$PassEntriesTableUpdateCompanionBuilder,
+          (PassEntry, $$PassEntriesTableReferences),
+          PassEntry,
+          PrefetchHooks Function({bool passId, bool transactionId})
+        > {
+  $$PassEntriesTableTableManager(_$AppDatabase db, $PassEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PassEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PassEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PassEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> passId = const Value.absent(),
+                Value<PassEntryKind> kind = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String?> transactionId = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PassEntriesCompanion(
+                id: id,
+                passId: passId,
+                kind: kind,
+                amount: amount,
+                date: date,
+                transactionId: transactionId,
+                note: note,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String passId,
+                required PassEntryKind kind,
+                required int amount,
+                required DateTime date,
+                Value<String?> transactionId = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PassEntriesCompanion.insert(
+                id: id,
+                passId: passId,
+                kind: kind,
+                amount: amount,
+                date: date,
+                transactionId: transactionId,
+                note: note,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PassEntriesTable, PassEntry>(table),
+                  $$PassEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({passId = false, transactionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (passId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.passId,
+                        referencedTable: $$PassEntriesTableReferences
+                            ._passIdTable(db),
+                        referencedColumn: $$PassEntriesTableReferences
+                            ._passIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (transactionId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.transactionId,
+                        referencedTable: $$PassEntriesTableReferences
+                            ._transactionIdTable(db),
+                        referencedColumn: $$PassEntriesTableReferences
+                            ._transactionIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PassEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PassEntriesTable,
+      PassEntry,
+      $$PassEntriesTableFilterComposer,
+      $$PassEntriesTableOrderingComposer,
+      $$PassEntriesTableAnnotationComposer,
+      $$PassEntriesTableCreateCompanionBuilder,
+      $$PassEntriesTableUpdateCompanionBuilder,
+      (PassEntry, $$PassEntriesTableReferences),
+      PassEntry,
+      PrefetchHooks Function({bool passId, bool transactionId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -17271,4 +19690,8 @@ class $AppDatabaseManager {
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$NotificationLogTableTableManager get notificationLog =>
       $$NotificationLogTableTableManager(_db, _db.notificationLog);
+  $$PassThroughsTableTableManager get passThroughs =>
+      $$PassThroughsTableTableManager(_db, _db.passThroughs);
+  $$PassEntriesTableTableManager get passEntries =>
+      $$PassEntriesTableTableManager(_db, _db.passEntries);
 }

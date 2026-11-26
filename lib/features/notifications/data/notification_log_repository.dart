@@ -196,6 +196,7 @@ class NotificationLogRepository {
     required Set<String> openDueIds,
     required Set<String> subscriptionIds,
     required Set<String> reminderIds,
+    Set<String> openPassIds = const {},
     DateTime? now,
   }) async {
     final current = now ?? DateTime.now();
@@ -213,7 +214,8 @@ class NotificationLogRepository {
           (p.startsWith('sub:') && !subscriptionIds.contains(p.substring(4))) ||
           (p.startsWith('reminder:') &&
               !reminderIds.contains(p.substring(9))) ||
-          (p.startsWith('pay:') && !reminderIds.contains(p.substring(4)));
+          (p.startsWith('pay:') && !reminderIds.contains(p.substring(4))) ||
+          (p.startsWith('pass:') && !openPassIds.contains(p.substring(5)));
       if (gone) await handleByKey(r.key, now: current);
     }
   }

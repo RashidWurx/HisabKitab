@@ -102,6 +102,7 @@ const moneyInTypes = {
   TransactionType.income,
   TransactionType.borrowIn,
   TransactionType.repayIn,
+  TransactionType.passIn,
 };
 
 /// Types whose money leaves `accountId`.
@@ -109,6 +110,7 @@ const moneyOutTypes = {
   TransactionType.expense,
   TransactionType.lendOut,
   TransactionType.repayOut,
+  TransactionType.passOut,
 };
 
 /// How a transaction changes each (account, source) balance. The pure-Dart

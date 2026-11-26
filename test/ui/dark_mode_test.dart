@@ -19,6 +19,10 @@ import 'package:hisaab/features/dues/data/due_repository.dart';
 import 'package:hisaab/features/dues/presentation/dues_page.dart';
 import 'package:hisaab/features/home/presentation/home_page.dart';
 import 'package:hisaab/features/more/presentation/more_page.dart';
+import 'package:hisaab/features/people/data/person_repository.dart';
+import 'package:hisaab/features/thirdparty/data/pass_repository.dart';
+import 'package:hisaab/features/thirdparty/presentation/third_party_form_page.dart';
+import 'package:hisaab/features/thirdparty/presentation/third_party_page.dart';
 import 'package:hisaab/features/reminders/data/reminder_repository.dart';
 import 'package:hisaab/features/reminders/presentation/reminders_page.dart';
 import 'package:hisaab/features/savings/presentation/savings_page.dart';
@@ -92,6 +96,8 @@ void main() {
     'reminders': (_) => const RemindersPage(),
     'plan_payment': (_) => const ReminderFormPage(payment: true),
     'to_pay': (_) => const DuesPage(initialTab: 1),
+    'third_party': (_) => const ThirdPartyPage(),
+    'third_party_form': (_) => const ThirdPartyFormPage(),
     'add_expense': (_) =>
         const TransactionFormPage(type: TransactionType.expense),
   };
@@ -221,6 +227,20 @@ Future<String> _seed(AppDatabase db) async {
       amount: 5000 * rs,
       accountId: bank,
       remindAt: now.subtract(const Duration(days: 1)),
+    ),
+  );
+  final people = PersonRepository(db);
+  await PassRepository(db).create(
+    PassDraft(
+      fromPersonId: await people.save(const PersonDraft(name: 'Ali')),
+      forPersonId: await people.save(const PersonDraft(name: 'Bilal')),
+      amount: 10000 * rs,
+      date: now,
+      throughMe: true,
+      accountId: bank,
+      handedOver: false,
+      collectBy: now.add(const Duration(days: 2)),
+      returnBy: now.add(const Duration(days: 4)),
     ),
   );
   return bank;

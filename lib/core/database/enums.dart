@@ -18,6 +18,32 @@ enum TransactionType {
   borrowIn,
   repayIn,
   repayOut,
+
+  /// 3rd party money coming into / leaving an account. Never income or
+  /// expense.
+  passIn,
+  passOut,
+}
+
+/// One step in the history of a 3rd party record.
+enum PassEntryKind {
+  /// Lender to the user's account.
+  takenIn,
+
+  /// User's account to the person it was borrowed for.
+  givenOut,
+
+  /// Straight from the lender to that person.
+  lentDirect,
+
+  /// That person back into the user's account.
+  collected,
+
+  /// User's account back to the lender.
+  repaid,
+
+  /// Straight from that person back to the lender.
+  returnedDirect,
 }
 
 enum DueKind { expectedIncome, lent, borrowed }

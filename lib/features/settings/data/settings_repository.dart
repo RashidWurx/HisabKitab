@@ -57,6 +57,8 @@ class SettingsRepository {
       // foreign keys only at commit time.
       await _db.customStatement('PRAGMA defer_foreign_keys = ON');
       for (final table in <TableInfo<Table, Object?>>[
+        _db.passEntries,
+        _db.passThroughs,
         _db.dueEvents,
         _db.transactionAllocations,
         _db.transactions,

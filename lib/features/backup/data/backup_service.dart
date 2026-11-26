@@ -32,6 +32,8 @@ class BackupService {
     'categories',
     'people',
     'dues',
+    'pass_throughs',
+    'pass_entries',
     'subscriptions',
     'transactions',
     'transaction_allocations',

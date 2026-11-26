@@ -3,6 +3,7 @@ import '../../../core/database/enums.dart';
 import '../../../core/utils/money.dart';
 import '../../dues/domain/due_models.dart';
 import '../../reminders/data/reminder_repository.dart';
+import '../../thirdparty/domain/pass_models.dart';
 
 /// The 8 kinds of notification, each with its own settings.
 enum NotificationType {
@@ -206,6 +207,7 @@ class PlanInput {
     this.accounts = const {},
     this.subscriptions = const [],
     this.reminders = const [],
+    this.passes = const [],
     this.backupAnchor,
   });
 
@@ -217,6 +219,7 @@ class PlanInput {
   final Map<String, Account> accounts;
   final List<Subscription> subscriptions;
   final List<CustomReminder> reminders;
+  final List<PassView> passes;
 
   /// When the last backup happened (or when the app was first used).
   final DateTime? backupAnchor;
@@ -466,6 +469,71 @@ List<PlannedReminder> planReminders(PlanInput input) {
         );
       }
     }
+  }
+
+  // ---- 3rd party money ------------------------------------------------------
+  for (final v in input.passes) {
+    final payload = 'pass:${v.pass.id}';
+    final lender = input.people[v.pass.fromPersonId]?.name ?? 'the lender';
+    final receiver = input.people[v.pass.forPersonId]?.name ?? 'Someone';
+
+    void side(NotificationType type, DateTime? date, int amount, String text) {
+      if (date == null || amount <= 0) return;
+      final prefs = input.prefs.of(type);
+      final dueDay = _day(date);
+      if (prefs.enabled) {
+        for (final before in {0, prefs.days}) {
+          final at = _atMinutes(
+            DateTime(dueDay.year, dueDay.month, dueDay.day - before),
+            prefs.minutes,
+          );
+          add(
+            PlannedReminder(
+              at: at,
+              type: type,
+              title: '3rd party money',
+              body: '$text Due ${_when(dueDay, at)}.',
+              payload: payload,
+            ),
+          );
+        }
+      }
+      final nudge = input.prefs.of(NotificationType.overdue);
+      if (!prefs.enabled || !nudge.enabled) return;
+      final every = nudge.days < 1 ? 1 : nudge.days;
+      var day = DateTime(dueDay.year, dueDay.month, dueDay.day + 1);
+      var guard = 0;
+      while (!_atMinutes(day, nudge.minutes).isAfter(now) && guard++ < 4000) {
+        day = DateTime(day.year, day.month, day.day + every);
+      }
+      for (var i = 0; i < 3; i++) {
+        add(
+          PlannedReminder(
+            at: _atMinutes(
+              DateTime(day.year, day.month, day.day + i * every),
+              nudge.minutes,
+            ),
+            type: NotificationType.overdue,
+            title: '3rd party money',
+            body: '$text It was due on ${_shortDate(dueDay)}.',
+            payload: payload,
+          ),
+        );
+      }
+    }
+
+    side(
+      NotificationType.owed,
+      v.pass.collectBy,
+      v.toCollect,
+      'Collect ${Money.format(v.toCollect)} from $receiver (to return to $lender).',
+    );
+    side(
+      NotificationType.owe,
+      v.pass.returnBy,
+      v.toPayBack,
+      'Return ${Money.format(v.toPayBack)} to $lender (borrowed for $receiver).',
+    );
   }
 
   // ---- backup ---------------------------------------------------------------

@@ -69,7 +69,7 @@ class LedgerService {
   static const _sourceBalanceSql = '''
 SELECT account_id, source_id, SUM(amt) AS bal FROM (
   SELECT t.account_id AS account_id, a.source_id AS source_id,
-         CASE WHEN t.type IN ('income','borrowIn','repayIn')
+         CASE WHEN t.type IN ('income','borrowIn','repayIn','passIn')
               THEN a.amount ELSE -a.amount END AS amt
     FROM transaction_allocations a
     JOIN transactions t ON t.id = a.transaction_id
@@ -154,10 +154,14 @@ SELECT account_id, source_id, SUM(amt) AS bal FROM (
     return (total: total, savings: savings);
   }
 
-  /// The money that is really yours: what the accounts hold minus what is
-  /// still owed on borrowed money. Negative when you owe more than you have.
-  static int netBalance({required int inAccounts, required int borrowedOwed}) =>
-      inAccounts - borrowedOwed;
+  /// The money that is really yours: what the accounts hold, minus what is
+  /// still owed on borrowed money, minus 3rd party money you are holding.
+  /// Negative when you owe more than you have.
+  static int netBalance({
+    required int inAccounts,
+    required int borrowedOwed,
+    int heldForOthers = 0,
+  }) => inAccounts - borrowedOwed - heldForOthers;
 
   /// Net cash movement of a day's transactions: money in minus money out.
   /// Transfers are neutral.
@@ -182,7 +186,7 @@ SELECT account_id, source_id, SUM(amt) AS bal FROM (
     final rows = await _db.customSelect('''
 SELECT ac.id AS id,
        ac.opening_balance
-       + COALESCE((SELECT SUM(CASE WHEN t.type IN ('income','borrowIn','repayIn') THEN t.amount ELSE -t.amount END)
+       + COALESCE((SELECT SUM(CASE WHEN t.type IN ('income','borrowIn','repayIn','passIn') THEN t.amount ELSE -t.amount END)
                      FROM transactions t WHERE t.account_id = ac.id), 0)
        + COALESCE((SELECT SUM(t.amount) FROM transactions t
                     WHERE t.to_account_id = ac.id AND t.type = 'transfer'), 0) AS bal

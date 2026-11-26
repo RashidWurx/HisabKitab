@@ -113,12 +113,12 @@ void main() {
     expect(await dbFile.exists(), isFalse);
 
     // Restore into a fresh app database.
-    final preview = await service.inspect(zip, currentSchemaVersion: 3);
+    final preview = await service.inspect(zip, currentSchemaVersion: db.schemaVersion);
     expect(preview.manifest.deviceName, 'Test phone');
-    expect(preview.manifest.schemaVersion, 3);
+    expect(preview.manifest.schemaVersion, db.schemaVersion);
     expect(preview.manifest.counts, countsBefore);
 
-    await service.restoreInto(zip, dbFile, currentSchemaVersion: 3);
+    await service.restoreInto(zip, dbFile, currentSchemaVersion: db.schemaVersion);
     final restored = AppDatabase(NativeDatabase(dbFile));
     addTearDown(restored.close);
 
@@ -150,7 +150,7 @@ void main() {
     final newer = File(p.join(dir.path, 'newer.zip'))
       ..writeAsBytesSync(ZipEncoder().encode(forged));
     expect(
-      () => service.inspect(newer, currentSchemaVersion: 3),
+      () => service.inspect(newer, currentSchemaVersion: db.schemaVersion),
       throwsA(
         isA<BackupException>().having((e) => e.message, 'message', contains('newer version')),
       ),
@@ -163,7 +163,7 @@ void main() {
 
     final garbage = File(p.join(dir.path, 'garbage.zip'))..writeAsBytesSync([1, 2, 3, 4]);
     expect(
-      () => service.inspect(garbage, currentSchemaVersion: 3),
+      () => service.inspect(garbage, currentSchemaVersion: db.schemaVersion),
       throwsA(isA<BackupException>()),
     );
 
@@ -172,7 +172,7 @@ void main() {
         ZipEncoder().encode(Archive()..addFile(ArchiveFile.bytes('other.txt', [1, 2, 3]))),
       );
     expect(
-      () => service.inspect(noManifest, currentSchemaVersion: 3),
+      () => service.inspect(noManifest, currentSchemaVersion: db.schemaVersion),
       throwsA(isA<BackupException>()),
     );
 
@@ -198,7 +198,7 @@ void main() {
         ),
       );
     expect(
-      () => service.restoreInto(badDb, dbFile, currentSchemaVersion: 3),
+      () => service.restoreInto(badDb, dbFile, currentSchemaVersion: db.schemaVersion),
       throwsA(isA<BackupException>()),
     );
     expect(await service.recordCounts(db), before); // untouched

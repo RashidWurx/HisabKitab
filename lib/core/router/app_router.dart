@@ -15,6 +15,9 @@ import '../../features/people/presentation/people_pages.dart';
 import '../../features/more/presentation/more_page.dart';
 import '../../features/onboarding/presentation/onboarding_page.dart';
 import '../../features/reminders/presentation/reminders_page.dart';
+import '../../features/thirdparty/presentation/third_party_detail_page.dart';
+import '../../features/thirdparty/presentation/third_party_form_page.dart';
+import '../../features/thirdparty/presentation/third_party_page.dart';
 import '../../features/savings/presentation/savings_page.dart';
 import '../../features/subscriptions/presentation/subscription_detail_page.dart';
 import '../../features/subscriptions/presentation/subscription_form_page.dart';
@@ -213,6 +216,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         (s) => SubscriptionFormPage(subscriptionId: s.pathParameters['id']),
       ),
       _full('/savings', (_) => const SavingsPage()),
+      _full('/third-party', (_) => const ThirdPartyPage()),
+      _full('/third-party/new', (_) => const ThirdPartyFormPage()),
+      _full(
+        '/third-party/:id',
+        (s) => ThirdPartyDetailPage(passId: s.pathParameters['id']!),
+      ),
+      _full(
+        '/third-party/:id/edit',
+        (s) => ThirdPartyFormPage(passId: s.pathParameters['id']),
+      ),
       _full('/reminders', (_) => const RemindersPage()),
       _full(
         '/reminders/new',
