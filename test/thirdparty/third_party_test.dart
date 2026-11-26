@@ -237,35 +237,32 @@ void main() {
     expect(await db.select(db.transactions).get(), hasLength(1));
   });
 
-  test('editing a note keeps the history; changing the amount rewrites it',
-      () async {
+  test('the amount can be corrected only before a later step', () async {
     final id = await repo.create(draft(handedOver: false));
+    await repo.update(draft(id: id, handedOver: false, amount: 8000 * rs));
+    expect((await repo.view(id))!.amount, 8000 * rs);
+    expect(await inBank(), 28000 * rs);
+
     await repo.record(
       id,
       PassAction.handOver,
       amount: 3000 * rs,
       accountId: bank,
     );
-
-    await repo.update(draft(id: id, handedOver: false, note: 'School fee'));
-    expect((await repo.view(id))!.entries, hasLength(2));
-
-    await repo.update(draft(id: id, amount: 8000 * rs));
-    final v = (await repo.view(id))!;
-    expect(v.amount, 8000 * rs);
-    expect(v.toHandOver, 0);
-    expect(await inBank(), 20000 * rs);
-
-    await repo.record(
-      id,
-      PassAction.collect,
-      amount: 1000 * rs,
-      accountId: bank,
+    // The note can change and the history stays.
+    await repo.update(
+      draft(id: id, amount: 8000 * rs, handedOver: false, note: 'School fee'),
     );
+    final v = (await repo.view(id))!;
+    expect(v.pass.note, 'School fee');
+    expect(v.entries, hasLength(2));
+    expect(v.toHandOver, 5000 * rs);
+
     await expectLater(
       repo.update(draft(id: id, amount: 9000 * rs)),
       throwsA(isA<LedgerException>()),
     );
+    expect((await repo.view(id))!.entries, hasLength(2));
   });
 
   test('reminds to collect and to return, and shows in Upcoming', () async {

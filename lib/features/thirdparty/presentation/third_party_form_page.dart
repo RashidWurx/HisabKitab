@@ -35,7 +35,7 @@ class _ThirdPartyFormPageState extends ConsumerState<ThirdPartyFormPage> {
   DateTime? _collectBy;
   DateTime? _returnBy;
 
-  /// Money has been returned: amount and path are fixed.
+  /// Later steps are recorded: amount, date and path are fixed.
   bool _locked = false;
   bool _loaded = false;
   bool _saving = false;
@@ -80,7 +80,7 @@ class _ThirdPartyFormPageState extends ConsumerState<ThirdPartyFormPage> {
       _date = p.startDate;
       _collectBy = p.collectBy;
       _returnBy = p.returnBy;
-      _locked = v.hasReturns;
+      _locked = !v.isRewritable;
       _loaded = true;
     });
   }
@@ -155,16 +155,28 @@ class _ThirdPartyFormPageState extends ConsumerState<ThirdPartyFormPage> {
     String label,
     DateTime? value,
     ValueChanged<DateTime?> onChanged,
-  ) => PickerField(
-    label: label,
-    leading: const Icon(Icons.event_outlined),
-    value: value == null ? null : DateFormat('d MMM y').format(value),
-    placeholder: 'No date (no reminder)',
-    trailing: value == null ? Icons.keyboard_arrow_down : Icons.edit_calendar,
-    onTap: () async {
-      final d = await _pickDay(value);
-      if (d != null) setState(() => onChanged(d));
-    },
+  ) => Column(
+    crossAxisAlignment: CrossAxisAlignment.end,
+    children: [
+      PickerField(
+        label: label,
+        leading: const Icon(Icons.event_outlined),
+        value: value == null ? null : DateFormat('d MMM y').format(value),
+        placeholder: 'No date (no reminder)',
+        trailing: value == null
+            ? Icons.keyboard_arrow_down
+            : Icons.edit_calendar,
+        onTap: () async {
+          final d = await _pickDay(value);
+          if (d != null) setState(() => onChanged(d));
+        },
+      ),
+      if (value != null)
+        TextButton(
+          onPressed: () => setState(() => onChanged(null)),
+          child: const Text('Clear date'),
+        ),
+    ],
   );
 
   @override
@@ -198,7 +210,7 @@ class _ThirdPartyFormPageState extends ConsumerState<ThirdPartyFormPage> {
           if (_locked) ...[
             InlineEmpty(
               Icons.lock_outline,
-              'Money has been returned, so the amount ${Money.format(parseAmount(_amount.text) ?? 0)} and how it travelled are fixed.',
+              'Steps have been recorded, so the amount ${Money.format(parseAmount(_amount.text) ?? 0)}, date and path are fixed.',
             ),
           ] else
             AmountField(controller: _amount, autofocus: !_isEdit),

@@ -10,6 +10,9 @@ import '../../../core/ui/widgets.dart';
 import '../../accounts/data/account_repository.dart';
 import '../../dues/domain/due_models.dart';
 import '../../dues/presentation/due_widgets.dart';
+import '../../thirdparty/domain/pass_models.dart';
+import '../../thirdparty/presentation/pass_widgets.dart';
+import '../../thirdparty/presentation/third_party_page.dart';
 import '../../transactions/data/transaction_repository.dart';
 import '../data/person_repository.dart';
 
@@ -255,6 +258,14 @@ class PersonDetailPage extends ConsumerWidget {
         .fold<int>(0, (s, v) => s + v.remaining);
     final net = personNet(all, personId);
     final record = trackRecordFor(mine);
+    // Shown apart: 3rd party money is not part of what you owe each other.
+    final passes = [
+      for (final v
+          in ref.watch(passViewsProvider).value ?? const <PassView>[])
+        if (v.pass.fromPersonId == personId || v.pass.forPersonId == personId)
+          v,
+    ];
+    final everyone = ref.watch(peopleProvider).value ?? const <PeopleData>[];
     final open = sortDues(mine.where((v) => v.isOpen));
     final closed = sortDues(mine.where((v) => !v.isOpen)).reversed;
 
@@ -357,6 +368,11 @@ class PersonDetailPage extends ConsumerWidget {
               ),
             ],
           ),
+          if (passes.isNotEmpty) ...[
+            const SectionTitle('3rd party money'),
+            for (final v in passes)
+              PassTile(v, PassNames.of(v, everyone)),
+          ],
           const SectionTitle('Track record'),
           TrackRecordCard(record: record),
           if (open.isNotEmpty) ...[

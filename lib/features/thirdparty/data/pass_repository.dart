@@ -170,22 +170,21 @@ SELECT e.pass_id AS pass_id,
   }
 
   /// Edits a record. People, dates to remember and note can always change. The
-  /// amount cannot change once money has been returned. If the amount or the
-  /// way the money travelled changes before that, the first entries are written
-  /// again; otherwise the history is left as it is.
+  /// amount, date and path can change only before a later step is recorded;
+  /// the first entries are then written again.
   Future<void> update(PassDraft d) async {
     _validate(d);
     final id = d.id!;
     await _db.transaction(() async {
       final old = await view(id);
       if (old == null) throw LedgerException('This record no longer exists.');
-      if (old.hasReturns && d.amount != old.amount) {
+      if (!old.isRewritable && d.amount != old.amount) {
         throw LedgerException(
-          'The amount cannot change after money has been returned.',
+          'The amount cannot change after later steps are recorded.',
         );
       }
       var rewrite = false;
-      if (!old.hasReturns) {
+      if (old.isRewritable) {
         String? oldAccount;
         for (final e in old.entries) {
           if (e.kind != PassEntryKind.takenIn) continue;
@@ -206,7 +205,7 @@ SELECT e.pass_id AS pass_id,
           fromPersonId: Value(d.fromPersonId),
           forPersonId: Value(d.forPersonId),
           amount: Value(d.amount),
-          startDate: Value(old.hasReturns ? old.pass.startDate : d.date),
+          startDate: Value(old.isRewritable ? d.date : old.pass.startDate),
           collectBy: Value(d.collectBy),
           returnBy: Value(d.returnBy),
           note: Value(_clean(d.note)),

@@ -72,14 +72,25 @@ class PassView {
   bool get startedThroughMe =>
       entries.any((e) => e.kind == PassEntryKind.takenIn);
 
-  /// Nothing has come back or gone back yet, so the record can be rewritten.
-  bool get hasReturns => entries.any(
-    (e) => const {
-      PassEntryKind.collected,
-      PassEntryKind.repaid,
-      PassEntryKind.returnedDirect,
-    }.contains(e.kind),
-  );
+  /// True while the history holds only what creating the record wrote, so the
+  /// amount, date and path can still be corrected. Once a later step has been
+  /// recorded, it must not be rewritten.
+  bool get isRewritable {
+    if (entries.length == 1) {
+      return const {
+        PassEntryKind.takenIn,
+        PassEntryKind.lentDirect,
+      }.contains(entries.first.kind);
+    }
+    if (entries.length != 2 || !startedThroughMe) return false;
+    return entries.any(
+      (e) =>
+          e.kind == PassEntryKind.givenOut &&
+          e.amount == amount &&
+          e.date == pass.startDate &&
+          e.note == null,
+    );
+  }
 
   bool get isOpen => toHandOver > 0 || toCollect > 0 || toPayBack > 0;
 

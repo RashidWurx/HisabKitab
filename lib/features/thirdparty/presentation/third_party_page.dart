@@ -62,11 +62,11 @@ class ThirdPartyPage extends ConsumerWidget {
                 ),
                 if (open.isNotEmpty) ...[
                   const SectionTitle('Open'),
-                  for (final v in open) _PassTile(v, PassNames.of(v, people)),
+                  for (final v in open) PassTile(v, PassNames.of(v, people)),
                 ],
                 if (done.isNotEmpty) ...[
                   const SectionTitle('Completed'),
-                  for (final v in done) _PassTile(v, PassNames.of(v, people)),
+                  for (final v in done) PassTile(v, PassNames.of(v, people)),
                 ],
               ],
             ),
@@ -76,8 +76,9 @@ class ThirdPartyPage extends ConsumerWidget {
 
 const _big = TextStyle(fontSize: 18, fontWeight: FontWeight.w800);
 
-class _PassTile extends StatelessWidget {
-  const _PassTile(this.view, this.names);
+/// One record in a list.
+class PassTile extends StatelessWidget {
+  const PassTile(this.view, this.names, {super.key});
 
   final PassView view;
   final PassNames names;
