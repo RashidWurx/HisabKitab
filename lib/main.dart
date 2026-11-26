@@ -85,7 +85,14 @@ class _HisaabAppState extends ConsumerState<HisaabApp>
       },
       routerConfig: ref.watch(routerProvider),
       // App lock sits above the whole app (including dialogs' routes).
-      builder: (context, child) => AppLockGate(child: child ?? const SizedBox.shrink()),
+      // Tapping any empty space closes the keyboard (iOS has no back button
+      // and its number pad has no "done" key). Buttons and fields still win
+      // the tap, so this only fires on blank areas.
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: AppLockGate(child: child ?? const SizedBox.shrink()),
+      ),
     );
   }
 }

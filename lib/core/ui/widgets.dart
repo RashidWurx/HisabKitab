@@ -655,10 +655,45 @@ class SaveBar extends StatelessWidget {
   final VoidCallback? onPressed;
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: FilledButton(onPressed: onPressed, child: Text(label)),
-    ),
-  );
+  Widget build(BuildContext context) {
+    // A Scaffold does not lift its bottom bar over the keyboard by itself.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final save = onPressed;
+    return Padding(
+      padding: EdgeInsets.only(bottom: keyboard),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Row(
+            children: [
+              // The iOS number pad has no "done" key.
+              if (keyboard > 0) ...[
+                IconButton.outlined(
+                  tooltip: 'Hide keyboard',
+                  onPressed: dismissKeyboard,
+                  icon: const Icon(Icons.keyboard_hide_outlined),
+                ),
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: save == null
+                      ? null
+                      : () {
+                          dismissKeyboard();
+                          save();
+                        },
+                  child: Text(label),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+/// Closes the on-screen keyboard.
+void dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();

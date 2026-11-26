@@ -173,6 +173,7 @@ class _SourceFormPageState extends ConsumerState<SourceFormPage> {
     return Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'Edit source' : 'New source')),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(16),
         children: [
           if (_builtIn)

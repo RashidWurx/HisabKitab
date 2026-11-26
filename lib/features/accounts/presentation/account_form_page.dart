@@ -185,6 +185,7 @@ class _AccountFormPageState extends ConsumerState<AccountFormPage> {
     return Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'Edit account' : 'New account')),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(16),
         children: [
           TextField(

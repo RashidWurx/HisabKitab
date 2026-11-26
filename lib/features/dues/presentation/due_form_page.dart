@@ -268,6 +268,7 @@ class _DueFormPageState extends ConsumerState<DueFormPage> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           AmountField(

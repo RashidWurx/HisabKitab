@@ -435,6 +435,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         ],
       ),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           AmountField(
@@ -542,18 +543,13 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
         ],
       ),
       // Always reachable, however long the form is.
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: FilledButton(
-            onPressed: _saving || _splitStale ? null : _save,
-            child: Text(switch (_type) {
-              TransactionType.expense => _isEdit ? 'Save changes' : 'Save expense',
-              TransactionType.income => _isEdit ? 'Save changes' : 'Save income',
-              _ => _isEdit ? 'Save changes' : 'Save transfer',
-            }),
-          ),
-        ),
+      bottomNavigationBar: SaveBar(
+        onPressed: _saving || _splitStale ? null : _save,
+        label: switch (_type) {
+          TransactionType.expense => _isEdit ? 'Save changes' : 'Save expense',
+          TransactionType.income => _isEdit ? 'Save changes' : 'Save income',
+          _ => _isEdit ? 'Save changes' : 'Save transfer',
+        },
       ),
     );
   }

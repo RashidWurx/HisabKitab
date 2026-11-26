@@ -152,6 +152,7 @@ class _SubscriptionFormPageState extends ConsumerState<SubscriptionFormPage> {
     return Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'Edit subscription' : 'New subscription')),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           TextField(

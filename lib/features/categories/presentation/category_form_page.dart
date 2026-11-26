@@ -119,6 +119,7 @@ class _CategoryFormPageState extends ConsumerState<CategoryFormPage> {
         title: Text(_isEdit ? 'Edit category' : 'New category'),
       ),
       body: ListView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
