@@ -150,7 +150,14 @@ class _StatCard extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: sub),
               const SizedBox(width: 6),
-              Text(label, style: TextStyle(fontSize: 13, color: sub)),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: sub),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -174,10 +181,10 @@ class _StatCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1D4068), AppTheme.navy],
+          colors: context.heroGradient,
         ),
       ),
       child: child,

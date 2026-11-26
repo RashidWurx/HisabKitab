@@ -64,10 +64,10 @@ class SavingsPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF1D4068), AppTheme.navy],
+                      colors: context.heroGradient,
                     ),
                   ),
                   child: Column(
@@ -196,7 +196,7 @@ class _GoalCard extends StatelessWidget {
             const SizedBox(height: 14),
             SoftProgress(
               value: progress,
-              color: progress >= 1 ? colors.positive : tint,
+              color: progress >= 1 ? colors.positive : context.tone(tint),
               height: 10,
             ),
             const SizedBox(height: 8),

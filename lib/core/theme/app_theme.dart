@@ -112,21 +112,36 @@ abstract final class AppTheme {
 
   static ThemeData dark() => _dark ??= _build(
     AppColors.dark,
+    // Pure black and white. Only money and status colours carry hue.
     const ColorScheme.dark(
-      primary: Color(0xFF8FB0D6),
-      onPrimary: Color(0xFF0B1F3A),
-      secondary: navySoft,
-      onSecondary: Colors.white,
-      surface: Color(0xFF0B1B2E),
-      onSurface: Color(0xFFF1EBDD),
-      onSurfaceVariant: Color(0xFFB4BDC9),
-      surfaceContainerLowest: Color(0xFF0E2238),
-      surfaceContainerLow: Color(0xFF12283F),
-      surfaceContainer: Color(0xFF163049),
-      surfaceContainerHigh: Color(0xFF1B3856),
-      outline: Color(0xFF6F8099),
-      outlineVariant: Color(0xFF28415E),
+      primary: Colors.white,
+      onPrimary: Colors.black,
+      primaryContainer: Color(0xFF2E2E2E),
+      onPrimaryContainer: Colors.white,
+      secondary: Color(0xFFCCCCCC),
+      onSecondary: Colors.black,
+      secondaryContainer: Color(0xFF333333),
+      onSecondaryContainer: Colors.white,
+      tertiary: Color(0xFFCCCCCC),
+      onTertiary: Colors.black,
+      tertiaryContainer: Color(0xFF333333),
+      onTertiaryContainer: Colors.white,
+      surface: Colors.black,
+      onSurface: Colors.white,
+      onSurfaceVariant: Color(0xFFB3B3B3),
+      surfaceContainerLowest: Color(0xFF0D0D0D),
+      surfaceContainerLow: Color(0xFF121212),
+      surfaceContainer: Color(0xFF181818),
+      surfaceContainerHigh: Color(0xFF202020),
+      surfaceContainerHighest: Color(0xFF2A2A2A),
+      surfaceTint: Colors.transparent,
+      inverseSurface: Colors.white,
+      onInverseSurface: Colors.black,
+      inversePrimary: Colors.black,
+      outline: Color(0xFF7A7A7A),
+      outlineVariant: Color(0xFF2C2C2C),
       error: Color(0xFFFF7B72),
+      onError: Colors.black,
     ),
   );
 
@@ -239,4 +254,50 @@ abstract final class AppTheme {
       ),
     );
   }
+}
+
+/// Brand colours that differ between the two themes. Light mode is navy on
+/// cream; dark mode is strictly black, white and grey. Widgets must use these
+/// instead of the navy constants.
+extension BrandContext on BuildContext {
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  /// Solid emphasis fill (selected chips, primary actions) and its text.
+  Color get accentFill => isDark ? Colors.white : AppTheme.navy;
+  Color get onAccent => isDark ? Colors.black : Colors.white;
+
+  /// Hero cards. Their text is white in both themes.
+  List<Color> get heroGradient => isDark
+      ? const [Color(0xFF1F1F1F), Color(0xFF101010)]
+      : const [Color(0xFF1D4068), AppTheme.navy];
+
+  /// Full-screen brand background (lock screen).
+  Color get brandBackground => isDark ? Colors.black : AppTheme.navy;
+
+  /// A colour picked for an account, source or category: kept in light mode,
+  /// shown white in dark mode.
+  Color tone(Color c) => isDark ? Colors.white : c;
+
+  /// Chart series [i] and the text drawn on top of it.
+  Color series(int i) {
+    const light = [
+      AppTheme.navy,
+      AppTheme.navyMid,
+      AppTheme.navySoft,
+      Color(0xFF8FA6BF),
+      Color(0xFFB7C5D6),
+      Color(0xFF607D8B),
+    ];
+    const dark = [
+      Color(0xFFFFFFFF),
+      Color(0xFFC4C4C4),
+      Color(0xFF949494),
+      Color(0xFF6B6B6B),
+      Color(0xFF4A4A4A),
+      Color(0xFF333333),
+    ];
+    return (isDark ? dark : light)[i % 6];
+  }
+
+  Color onSeries(int i) => isDark && i % 6 < 3 ? Colors.black : Colors.white;
 }

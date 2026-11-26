@@ -47,14 +47,6 @@ class ShareBar extends StatelessWidget {
   /// Positive amounts only; others are ignored.
   final List<int> amounts;
 
-  static const shades = [
-    AppTheme.navy,
-    AppTheme.navyMid,
-    AppTheme.navySoft,
-    Color(0xFF8FA6BF),
-    Color(0xFFB7C5D6),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final positive = amounts.where((a) => a > 0).toList();
@@ -70,12 +62,12 @@ class ShareBar extends StatelessWidget {
               Expanded(
                 flex: positive[i],
                 child: Container(
-                  color: shades[i % shades.length],
+                  color: context.series(i),
                   alignment: Alignment.center,
                   child: Text(
                     '${(positive[i] * 100 / total).round()}%',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.onSeries(i),
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
                     ),
@@ -133,7 +125,7 @@ class CategoryBars extends StatelessWidget {
                       backgroundColor: Theme.of(
                         context,
                       ).colorScheme.surfaceContainerHigh,
-                      color: AppTheme.navyMid,
+                      color: context.isDark ? Colors.white : AppTheme.navyMid,
                     ),
                   ),
                 ),

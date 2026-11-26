@@ -31,8 +31,8 @@ class SpendingDonut extends StatelessWidget {
     }
     Color colorOf(CategorySpend s, int i) {
       final c = categories[s.categoryId];
-      if (c != null) return Color(c.colorValue);
-      return ShareShades.at(i);
+      if (c != null && !context.isDark) return Color(c.colorValue);
+      return context.series(i);
     }
 
     String nameOf(CategorySpend s) {
@@ -97,17 +97,6 @@ class SpendingDonut extends StatelessWidget {
       ],
     );
   }
-}
-
-class ShareShades {
-  static Color at(int i) => const [
-    AppTheme.navy,
-    AppTheme.navyMid,
-    AppTheme.navySoft,
-    Color(0xFF8FA6BF),
-    Color(0xFFB7C5D6),
-    Color(0xFF607D8B),
-  ][i % 6];
 }
 
 /// Income vs expense for the last months (grouped bars).

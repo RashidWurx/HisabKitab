@@ -180,8 +180,8 @@ class _BackupPageState extends ConsumerState<BackupPage> {
               const SizedBox(height: 14),
               FilledButton.icon(
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.navy,
-                  foregroundColor: Colors.white,
+                  backgroundColor: context.accentFill,
+                  foregroundColor: context.onAccent,
                 ),
                 onPressed: _working ? null : _backUpNow,
                 icon: const Icon(Icons.cloud_upload_outlined),

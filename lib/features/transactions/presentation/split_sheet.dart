@@ -93,12 +93,6 @@ class _SplitSheetState extends ConsumerState<_SplitSheet> {
     final allocations = _allocations;
     final valid =
         left == 0 && allocations.every((a) => a.amount > 0) && _rows.isNotEmpty;
-    final shades = [
-      AppTheme.navy,
-      AppTheme.navyMid,
-      AppTheme.navySoft,
-      const Color(0xFF8FA6BF),
-    ];
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -142,12 +136,12 @@ class _SplitSheetState extends ConsumerState<_SplitSheet> {
                         Expanded(
                           flex: allocations[i].amount,
                           child: Container(
-                            color: shades[i % shades.length],
+                            color: context.series(i),
                             alignment: Alignment.center,
                             child: Text(
                               '${(allocations[i].amount * 100 / widget.amount).round()}%',
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: context.onSeries(i),
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

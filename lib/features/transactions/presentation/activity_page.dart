@@ -232,7 +232,10 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                 color: Theme.of(context).colorScheme.error,
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
-                child: const Icon(Icons.delete_outline, color: Colors.white),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.onError,
+                ),
               ),
               confirmDismiss: (_) async {
                 if (t.dueId != null) {

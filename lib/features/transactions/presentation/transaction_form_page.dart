@@ -585,7 +585,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
                       color: _categoryId == c.id
-                          ? AppTheme.navy
+                          ? context.accentFill
                           : scheme.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: scheme.outlineVariant),
@@ -594,7 +594,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                       children: [
                         Icon(
                           iconFor(c.iconKey),
-                          color: _categoryId == c.id ? Colors.white : null,
+                          color: _categoryId == c.id ? context.onAccent : null,
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -604,7 +604,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: _categoryId == c.id ? Colors.white : null,
+                            color: _categoryId == c.id ? context.onAccent : null,
                           ),
                         ),
                       ],

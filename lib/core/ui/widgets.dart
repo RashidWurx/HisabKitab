@@ -137,19 +137,18 @@ class IconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final dark = scheme.brightness == Brightness.dark;
-    final c = color ?? scheme.primary;
+    final c = context.tone(color ?? scheme.primary);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: filled ? c : c.withValues(alpha: dark ? 0.22 : 0.12),
+        color: filled ? c : c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(size * 0.32),
       ),
       child: Icon(
         iconFor(iconKey),
         size: size * 0.5,
-        color: filled ? Colors.white : (dark ? Color.lerp(c, Colors.white, 0.35) : c),
+        color: filled ? context.onAccent : c,
       ),
     );
   }
@@ -166,9 +165,7 @@ class InitialsAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final dark = scheme.brightness == Brightness.dark;
-    final base = color ?? scheme.primary;
-    final c = dark ? Color.lerp(base, Colors.white, 0.45)! : base;
+    final c = context.tone(color ?? scheme.primary);
     final parts = name.trim().split(RegExp(r'\s+'));
     final initials = parts.isEmpty || parts.first.isEmpty
         ? '?'
@@ -452,9 +449,7 @@ class PickerField extends StatelessWidget {
                     iconFor(iconKey!),
                     color: iconColor == null
                         ? null
-                        : (scheme.brightness == Brightness.dark
-                              ? Color.lerp(iconColor, Colors.white, 0.5)
-                              : iconColor),
+                        : context.tone(iconColor!),
                     size: 22,
                   ),
                   const SizedBox(width: 12),

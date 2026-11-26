@@ -116,8 +116,8 @@ class _DuesPageState extends ConsumerState<DuesPage> {
             showSelectedIcon: false,
             style: SegmentedButton.styleFrom(
               minimumSize: const Size.fromHeight(46),
-              selectedBackgroundColor: AppTheme.navy,
-              selectedForegroundColor: Colors.white,
+              selectedBackgroundColor: context.accentFill,
+              selectedForegroundColor: context.onAccent,
             ),
             segments: const [
               ButtonSegment(value: 0, label: Text('To receive')),
@@ -163,10 +163,10 @@ class _DuesPageState extends ConsumerState<DuesPage> {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF1D4068), AppTheme.navy],
+                colors: context.heroGradient,
               ),
             ),
             child: Row(

@@ -118,7 +118,7 @@ class HomePage extends ConsumerWidget {
           ),
           if (visibleAccounts.isEmpty)
             SizedBox(
-              height: 240,
+              height: 280,
               child: EmptyState(
                 icon: Icons.account_balance_wallet_outlined,
                 title: 'No accounts yet',
@@ -287,12 +287,14 @@ class _Hero extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1D4068), AppTheme.navy],
+            colors: context.heroGradient,
           ),
-          boxShadow: const [
+          boxShadow: context.isDark
+            ? null
+            : const [
             BoxShadow(
               color: Color(0x33112E4E),
               blurRadius: 24,
@@ -597,7 +599,7 @@ class _AccountCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              tint.withValues(alpha: dark ? 0.30 : 0.16),
+              context.tone(tint).withValues(alpha: dark ? 0.05 : 0.16),
               scheme.surfaceContainerLow,
             ],
           ),
@@ -744,7 +746,7 @@ class _SourceCard extends StatelessWidget {
           if (!source.isBuiltIn) ...[
             SoftProgress(
               value: ratio,
-              color: ratio > 1 ? colors.negative : tint,
+              color: ratio > 1 ? colors.negative : context.tone(tint),
             ),
             const SizedBox(height: 8),
           ],

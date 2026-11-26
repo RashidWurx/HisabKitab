@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../features/ledger/data/ledger_service.dart';
 import '../database/app_database.dart';
 import '../database/enums.dart';
+import '../theme/app_theme.dart';
 import '../providers.dart';
 import '../utils/money.dart';
 import 'icon_registry.dart';
@@ -334,7 +335,9 @@ class _IconColorSheetState extends State<_IconColorSheet> {
                     height: 48,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: icon == entry.key ? Color(color) : null,
+                      color: icon == entry.key
+                          ? context.tone(Color(color))
+                          : null,
                       border: Border.all(
                         color: Theme.of(context).colorScheme.outlineVariant,
                       ),
@@ -342,8 +345,8 @@ class _IconColorSheetState extends State<_IconColorSheet> {
                     child: Icon(
                       entry.value,
                       color: icon == entry.key
-                          ? Colors.white
-                          : Color(color),
+                          ? context.onAccent
+                          : context.tone(Color(color)),
                     ),
                   ),
                 ),

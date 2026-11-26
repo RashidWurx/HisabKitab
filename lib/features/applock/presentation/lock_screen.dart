@@ -24,7 +24,7 @@ class AppLockGate extends ConsumerWidget {
       fit: StackFit.expand,
       children: [
         // While the lock is still loading, show nothing of the app.
-        if (lock.ready) child else const ColoredBox(color: AppTheme.navy),
+        if (lock.ready) child else ColoredBox(color: context.brandBackground),
         if (lock.ready && lock.locked) const LockScreen(),
         if (lock.covered && lock.config.enabled && !lock.locked)
           const _PrivacyCover(),
@@ -38,9 +38,9 @@ class _PrivacyCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: AppTheme.navy,
-      child: Center(
+    return ColoredBox(
+      color: context.brandBackground,
+      child: const Center(
         child: Icon(Icons.lock_outline, color: Colors.white54, size: 56),
       ),
     );
@@ -155,7 +155,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     final length = lock.config.pinLength;
     final locked = _lockedSeconds > 0;
     return Material(
-      color: AppTheme.navy,
+      color: context.brandBackground,
       child: SafeArea(
         child: Column(
           children: [
