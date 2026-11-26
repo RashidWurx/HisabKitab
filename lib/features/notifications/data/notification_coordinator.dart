@@ -6,6 +6,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/database_provider.dart';
 import '../../../core/providers.dart';
 import '../../../core/router/app_router.dart';
+import '../../reminders/data/reminder_repository.dart';
 import '../../settings/data/settings_repository.dart';
 import '../domain/notification_models.dart';
 import 'notification_log_repository.dart';
@@ -37,6 +38,7 @@ String routeForPayload(String payload, String? action) {
     case 'sub':
       return '/subscriptions/$id';
     case 'reminder':
+    case 'pay':
       return '/reminders/$id/edit';
     case 'backup':
       return '/backup';
@@ -94,28 +96,30 @@ class NotificationCoordinator {
     });
   }
 
-  /// The screen a notification leads to. A reminder with an amount, category
-  /// or account opens Add expense pre-filled; otherwise its edit screen.
+  /// The screen a notification leads to. A planned payment, or a reminder with
+  /// a category or account, opens Add expense pre-filled; otherwise its edit
+  /// screen.
   Future<String> resolveRoute(String payload, String? action) async {
     var route = routeForPayload(payload, action);
-    if (payload.startsWith('reminder:')) {
+    final isPay = payload.startsWith('pay:');
+    if (isPay || payload.startsWith('reminder:')) {
       final r = await _ref
           .read(reminderRepositoryProvider)
-          .get(payload.substring('reminder:'.length));
-      if (r != null &&
-          (r.amount != null || r.categoryId != null || r.accountId != null)) {
-        route = Uri(
-          path: '/transaction/new/expense',
-          queryParameters: {
-            if (r.amount != null) 'amount': '${r.amount}',
-            if (r.categoryId != null) 'category': r.categoryId!,
-            if (r.accountId != null) 'account': r.accountId!,
-          },
-        ).toString();
+          .get(payload.substring(payload.indexOf(':') + 1));
+      if (isPay) {
+        // Gone, switched off, or already moved on to a later date: it has
+        // been dealt with, so show the list instead of a second payment.
+        return r != null && r.isUnpaid(DateTime.now())
+            ? expenseRouteFor(r)
+            : '/reminders';
+      }
+      if (r != null && (r.categoryId != null || r.accountId != null)) {
+        route = expenseRouteFor(r);
       }
     }
     return route;
   }
+
   /// The settings page's test: goes through the real plan + inbox path.
   Future<void> scheduleTest() async {
     await _ref.read(notificationLogRepositoryProvider).addOneOff(

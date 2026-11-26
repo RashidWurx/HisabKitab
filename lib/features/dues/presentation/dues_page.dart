@@ -7,6 +7,8 @@ import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/ui/widgets.dart';
 import '../../../core/utils/money.dart';
+import '../../reminders/data/reminder_repository.dart';
+import '../../reminders/presentation/reminders_page.dart';
 import '../domain/due_models.dart';
 import 'due_widgets.dart';
 import 'payment_sheet.dart';
@@ -94,6 +96,15 @@ class _DuesPageState extends ConsumerState<DuesPage> {
         .fold<int>(0, (s, v) => s + v.remaining);
     final overdueCount = inTab.where((v) => v.status == DueStatus.overdue).length;
     final shown = sortDues(inTab.where((v) => _filter.contains(v.status)));
+    // Planned payments live here too, but count only once they are paid.
+    final planned = receivable
+        ? const <CustomReminder>[]
+        : [
+            for (final r
+                in ref.watch(remindersProvider).value ??
+                    const <CustomReminder>[])
+              if (r.isPayment && r.isActive) r,
+          ];
 
     return Scaffold(
       appBar: AppBar(
@@ -226,7 +237,7 @@ class _DuesPageState extends ConsumerState<DuesPage> {
             ),
           ),
           const SizedBox(height: 12),
-          if (shown.isEmpty)
+          if (shown.isEmpty && (inTab.isNotEmpty || planned.isEmpty))
             SizedBox(
               height: 300,
               child: EmptyState(
@@ -260,6 +271,22 @@ class _DuesPageState extends ConsumerState<DuesPage> {
                       : null,
                 ),
               ),
+          if (!receivable) ...[
+            SectionTitle(
+              'Planned payments',
+              trailing: TextButton(
+                onPressed: () => context.push('/reminders/new?kind=payment'),
+                child: const Text('Plan'),
+              ),
+            ),
+            if (planned.isEmpty)
+              const InlineEmpty(
+                Icons.schedule_send_outlined,
+                'Plan a payment for a later date. You will be asked on that day whether you paid.',
+              )
+            else
+              for (final r in planned) ReminderTile(r),
+          ],
         ],
       ),
     );

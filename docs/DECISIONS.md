@@ -60,3 +60,7 @@
 49. **Hidden in recents**: Android `FLAG_SECURE` through the `hisaab/privacy` channel while the lock is on (this also blocks screenshots and `adb screencap`), plus a navy cover whenever the app is inactive.
 50. **Forgot PIN** = erase all data and the PIN (double confirm) and then restore a backup. "Delete all data" in Settings also removes the PIN.
 51. `MainActivity` is a `FlutterFragmentActivity` (needed by local_auth) and the launch themes use AppCompat.
+## 2026-11-26: period, borrowed money, planned payments
+52. **Home period is saved** (`home_period` setting: a `PeriodKind` name or `custom:<start>:<end>`). Account and source detail pages keep their own temporary period.
+53. **Home total = money in accounts minus open borrowed dues** (`LedgerService.netBalance`), so it can be negative. Account balances, allocations and the `borrow_in` transaction are unchanged. A line under the total shows both numbers while something is owed.
+54. **A custom reminder with an amount is a planned payment.** No expense exists until the user records it ("Paid" opens Add expense pre-filled; `ReminderRepository.recordPaid` saves the expense and closes that occurrence in one DB transaction). It never rolls forward by itself, stays in Upcoming while unpaid, and is nudged using the overdue settings. Notification payload `pay:<id>`. Planned payments are not part of the Home total or the "To pay" amount.

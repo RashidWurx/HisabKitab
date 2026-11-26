@@ -403,6 +403,7 @@ List<PlannedReminder> planReminders(PlanInput input) {
   if (input.prefs.of(NotificationType.custom).enabled) {
     for (final r in input.reminders) {
       if (!r.isActive) continue;
+      final payload = r.isPayment ? 'pay:${r.id}' : 'reminder:${r.id}';
       var at = r.remindAt;
       for (var i = 0; i < 3; i++) {
         add(
@@ -410,10 +411,10 @@ List<PlannedReminder> planReminders(PlanInput input) {
             at: at,
             type: NotificationType.custom,
             title: r.title,
-            body: r.amount == null
-                ? 'Reminder'
-                : 'Reminder · ${Money.format(r.amount!)}',
-            payload: 'reminder:${r.id}',
+            body: r.isPayment
+                ? 'You had to pay ${Money.format(r.amount!)} today. Have you paid?'
+                : 'Reminder',
+            payload: payload,
           ),
         );
         final next = nextReminderTime(
@@ -424,6 +425,45 @@ List<PlannedReminder> planReminders(PlanInput input) {
         );
         if (next == null) break;
         at = next;
+      }
+
+      // An unpaid planned payment keeps asking, from the day after its date.
+      final nudge = input.prefs.of(NotificationType.overdue);
+      if (!r.isPayment || !nudge.enabled) continue;
+      final every = nudge.days < 1 ? 1 : nudge.days;
+      final due = _day(r.remindAt);
+      final following = nextReminderTime(
+        at: r.remindAt,
+        repeat: r.repeat,
+        everyDays: r.repeatEveryDays,
+      );
+      var day = DateTime(due.year, due.month, due.day + 1);
+      var guard = 0;
+      while (!_atMinutes(day, nudge.minutes).isAfter(now) && guard++ < 4000) {
+        day = DateTime(day.year, day.month, day.day + every);
+      }
+      for (var i = 0; i < 3; i++) {
+        final nudgeAt = _atMinutes(
+          DateTime(day.year, day.month, day.day + i * every),
+          nudge.minutes,
+        );
+        // A next occurrence still ahead asks for itself. Once that has passed
+        // too, the payment is still unpaid and the nudges carry on.
+        if (following != null &&
+            following.isAfter(now) &&
+            !nudgeAt.isBefore(following)) {
+          break;
+        }
+        add(
+          PlannedReminder(
+            at: nudgeAt,
+            type: NotificationType.overdue,
+            title: r.title,
+            body:
+                '${Money.format(r.amount!)} was due on ${_shortDate(due)}. Have you paid?',
+            payload: payload,
+          ),
+        );
       }
     }
   }

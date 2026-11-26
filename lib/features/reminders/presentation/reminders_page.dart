@@ -27,14 +27,15 @@ class RemindersPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final all = ref.watch(remindersProvider).value ?? const <CustomReminder>[];
     final now = DateTime.now();
-    final upcoming = all
-        .where((r) => r.repeat != ReminderRepeat.none || !r.remindAt.isBefore(now))
-        .toList();
-    final past = all
-        .where((r) => r.repeat == ReminderRepeat.none && r.remindAt.isBefore(now))
-        .toList();
+    final unpaid = all.where((r) => r.isUnpaid(now)).toList();
+    // A payment that is switched off (paid, even early) is finished.
+    bool isDone(CustomReminder r) =>
+        (r.isPayment && !r.isActive) ||
+        (r.repeat == ReminderRepeat.none && r.remindAt.isBefore(now));
+    final upcoming = all.where((r) => !r.isUnpaid(now) && !isDone(r)).toList();
+    final past = all.where((r) => !r.isUnpaid(now) && isDone(r)).toList();
     return Scaffold(
-      appBar: AppBar(title: const Text('Custom reminders')),
+      appBar: AppBar(title: const Text('Reminders & payments')),
       floatingActionButton: FloatingActionButton.extended(
         shape: const StadiumBorder(),
         heroTag: 'add-reminder',
@@ -54,22 +55,39 @@ class RemindersPage extends ConsumerWidget {
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
               children: [
+                if (unpaid.isNotEmpty) ...[
+                  const SectionTitle('Unpaid'),
+                  for (final r in unpaid) ReminderTile(r),
+                ],
                 if (upcoming.isNotEmpty) ...[
                   const SectionTitle('Upcoming'),
-                  for (final r in upcoming) _tile(context, ref, r, false),
+                  for (final r in upcoming) ReminderTile(r),
                 ],
                 if (past.isNotEmpty) ...[
                   const SectionTitle('Done'),
-                  for (final r in past) _tile(context, ref, r, true),
+                  for (final r in past) ReminderTile(r, done: true),
                 ],
               ],
             ),
     );
   }
 
-  Widget _tile(BuildContext context, WidgetRef ref, CustomReminder r, bool done) {
+}
+
+/// One reminder or planned payment, with its Paid / Pay button and switch.
+class ReminderTile extends ConsumerWidget {
+  const ReminderTile(this.reminder, {super.key, this.done = false});
+
+  final CustomReminder reminder;
+  final bool done;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final r = reminder;
     final scheme = Theme.of(context).colorScheme;
-    final canPay = r.amount != null || r.categoryId != null || r.accountId != null;
+    final canPay = r.isPayment
+        ? r.isActive
+        : r.categoryId != null || r.accountId != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Opacity(
@@ -116,8 +134,8 @@ class RemindersPage extends ConsumerWidget {
               ),
               if (canPay)
                 TextButton(
-                  onPressed: () => openExpenseFor(context, r),
-                  child: const Text('Pay'),
+                  onPressed: () => context.push(expenseRouteFor(r)),
+                  child: Text(r.isPayment ? 'Paid' : 'Pay'),
                 ),
               Switch(
                 value: r.isActive,
@@ -132,20 +150,13 @@ class RemindersPage extends ConsumerWidget {
   }
 }
 
-/// Opens "Add expense" pre-filled from a reminder.
-void openExpenseFor(BuildContext context, CustomReminder r) {
-  final q = <String, String>{
-    if (r.amount != null) 'amount': '${r.amount}',
-    if (r.categoryId != null) 'category': r.categoryId!,
-    if (r.accountId != null) 'account': r.accountId!,
-  };
-  context.push(Uri(path: '/transaction/new/expense', queryParameters: q.isEmpty ? null : q).toString());
-}
-
 class ReminderFormPage extends ConsumerStatefulWidget {
-  const ReminderFormPage({super.key, this.reminderId});
+  const ReminderFormPage({super.key, this.reminderId, this.payment = false});
 
   final String? reminderId;
+
+  /// Opened as "Plan a payment": the amount is required.
+  final bool payment;
 
   @override
   ConsumerState<ReminderFormPage> createState() => _ReminderFormPageState();
@@ -169,6 +180,7 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
   bool _active = true;
   bool _loaded = false;
   bool _saving = false;
+  late bool _payment = widget.payment;
 
   bool get _isEdit => widget.reminderId != null;
 
@@ -196,6 +208,7 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
       _categoryId = r.categoryId;
       _accountId = r.accountId;
       _active = r.isActive;
+      _payment = r.isPayment;
       _loaded = true;
     });
   }
@@ -228,6 +241,14 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
 
   Future<void> _save() async {
     final amount = _amount.text.trim().isEmpty ? null : parseAmount(_amount.text);
+    if (_payment && (amount == null || amount <= 0)) {
+      showMessage(context, 'Enter the amount to pay.');
+      return;
+    }
+    if (_payment && _categoryId == null) {
+      showMessage(context, 'Choose a category.');
+      return;
+    }
     setState(() => _saving = true);
     try {
       await ref
@@ -267,7 +288,11 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Edit reminder' : 'New reminder'),
+        title: Text(
+          _payment
+              ? (_isEdit ? 'Edit planned payment' : 'Plan a payment')
+              : (_isEdit ? 'Edit reminder' : 'New reminder'),
+        ),
         actions: [
           if (_isEdit)
             IconButton(
@@ -290,19 +315,33 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
+          if (_payment) ...[
+            Text(
+              'Nothing leaves your account until you mark it as paid. '
+              'You will be asked on the date.',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           TextField(
             controller: _title,
             autofocus: !_isEdit,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Title',
-              hintText: 'Pay rent, Send money home',
+            decoration: InputDecoration(
+              labelText: _payment ? 'What is it for?' : 'Title',
+              hintText: _payment
+                  ? 'Siblings, Rent, School fee'
+                  : 'Pay rent, Send money home',
             ),
           ),
+          if (_payment) ...[const SizedBox(height: 16), _amountField()],
           const SizedBox(height: 16),
           PickerField(
-            label: 'Date and time',
+            label: _payment ? 'Pay on' : 'Date and time',
             leading: const Icon(Icons.notifications_none),
             value: DateFormat('d MMM y, h:mm a').format(_at),
             onTap: _pickDateTime,
@@ -339,30 +378,21 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
               decoration: const InputDecoration(labelText: 'Every how many days'),
             ),
           ],
-          const SizedBox(height: 16),
-          TextField(
-            controller: _amount,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: amountFormatters,
-            decoration: const InputDecoration(
-              labelText: 'Amount (optional)',
-              prefixText: 'Rs ',
-            ),
-          ),
+          if (!_payment) ...[const SizedBox(height: 16), _amountField()],
           const SizedBox(height: 16),
           PickerField(
-            label: 'Category (optional)',
+            label: _payment ? 'Category' : 'Category (optional)',
             iconKey: category?.iconKey,
             iconColor: category == null ? null : Color(category.colorValue),
             value: category?.name,
-            placeholder: 'None',
+            placeholder: _payment ? 'Choose' : 'None',
             onTap: () async {
               final r = await pickCategory(
                 context,
                 ref,
                 kind: CategoryKind.expense,
                 selectedId: _categoryId,
-                allowNone: true,
+                allowNone: !_payment,
               );
               if (r != null) setState(() => _categoryId = r.value);
             },
@@ -391,13 +421,24 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
             value: _active,
             onChanged: (v) => setState(() => _active = v),
           ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _saving ? null : _save,
-            child: Text(_isEdit ? 'Save changes' : 'Add reminder'),
-          ),
         ],
+      ),
+      bottomNavigationBar: SaveBar(
+        onPressed: _saving ? null : _save,
+        label: _isEdit
+            ? 'Save changes'
+            : (_payment ? 'Plan payment' : 'Add reminder'),
       ),
     );
   }
+
+  Widget _amountField() => TextField(
+    controller: _amount,
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    inputFormatters: amountFormatters,
+    decoration: InputDecoration(
+      labelText: _payment ? 'Amount' : 'Amount (optional, makes it a payment)',
+      prefixText: 'Rs ',
+    ),
+  );
 }

@@ -5,6 +5,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/enums.dart';
 import '../../subscriptions/domain/subscription_logic.dart';
 import '../../transactions/data/transaction_repository.dart';
+import '../../transactions/domain/transaction_models.dart';
 
 class ReminderDraft {
   const ReminderDraft({
@@ -52,6 +53,35 @@ DateTime? nextReminderTime({
       final d = addMonths(at, 1, day: anchorDay ?? at.day);
       return DateTime(d.year, d.month, d.day, at.hour, at.minute);
   }
+}
+
+/// A reminder with an amount is a planned payment: nothing leaves an account
+/// until the user says it was paid. It stays on its date until then.
+extension PlannedPayment on CustomReminder {
+  bool get isPayment => amount != null;
+
+  /// Its time has come and the user has not recorded it yet.
+  bool isUnpaid(DateTime now) =>
+      isPayment && isActive && !remindAt.isAfter(now);
+}
+
+/// "Add expense" pre-filled from a reminder. For a planned payment, saving
+/// that expense also marks this occurrence as paid.
+String expenseRouteFor(CustomReminder r) {
+  final q = <String, String>{
+    if (r.amount != null) 'amount': '${r.amount}',
+    if (r.categoryId != null) 'category': r.categoryId!,
+    if (r.accountId != null) 'account': r.accountId!,
+    if (r.isPayment) ...{
+      'reminder': r.id,
+      'occurrence': '${r.remindAt.millisecondsSinceEpoch}',
+      'note': r.title,
+    },
+  };
+  return Uri(
+    path: '/transaction/new/expense',
+    queryParameters: q.isEmpty ? null : q,
+  ).toString();
 }
 
 class ReminderRepository {
@@ -108,14 +138,65 @@ class ReminderRepository {
   Future<void> delete(String id) =>
       (_db.delete(_db.customReminders)..where((r) => r.id.equals(id))).go();
 
+  /// Saves the expense for a planned payment and closes that occurrence, in
+  /// one database transaction: a one-off payment is switched off, a repeating
+  /// one moves to its next date. [occurrence] is the date the user was paying,
+  /// so the same payment cannot be recorded twice.
+  Future<String> recordPaid(
+    String id, {
+    required DateTime occurrence,
+    required TransactionInput expense,
+    DateTime? now,
+  }) => _db.transaction(() async {
+    final r = await get(id);
+    if (r == null) throw LedgerException('This planned payment was deleted.');
+    if (!r.isActive ||
+        r.remindAt.millisecondsSinceEpoch !=
+            occurrence.millisecondsSinceEpoch) {
+      throw LedgerException('This payment is already recorded.');
+    }
+    final txId = await TransactionRepository(_db).save(expense);
+    final next = nextReminderTime(
+      at: r.remindAt,
+      repeat: r.repeat,
+      everyDays: r.repeatEveryDays,
+    );
+    await (_db.update(_db.customReminders)..where((x) => x.id.equals(id)))
+        .write(
+          next == null
+              ? const CustomRemindersCompanion(isActive: Value(false))
+              : CustomRemindersCompanion(remindAt: Value(next)),
+        );
+    // Close its missed reminders and drop any "remind me later" copy.
+    final current = now ?? DateTime.now();
+    final payload = 'pay:$id';
+    await (_db.delete(_db.notificationLog)..where(
+          (l) =>
+              l.payload.equals(payload) &
+              l.isSnooze.equals(true) &
+              l.fireAt.isBiggerThanValue(current),
+        ))
+        .go();
+    await (_db.update(_db.notificationLog)..where(
+          (l) =>
+              l.payload.equals(payload) &
+              l.handledAt.isNull() &
+              l.fireAt.isSmallerOrEqualValue(current),
+        ))
+        .write(NotificationLogCompanion(handledAt: Value(current)));
+    return txId;
+  });
+
   /// Repeating reminders whose time has passed move to their next time.
   /// One-off reminders stay as they are (they show as "done" once past).
+  /// Planned payments never move by themselves, only when paid.
   Future<int> rollForward({DateTime? now}) async {
     final current = now ?? DateTime.now();
     final past =
         await (_db.select(_db.customReminders)..where(
               (r) =>
                   r.isActive.equals(true) &
+                  r.amount.isNull() &
                   r.repeat.equals(ReminderRepeat.none.name).not() &
                   r.remindAt.isSmallerThanValue(current),
             ))

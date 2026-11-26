@@ -7,6 +7,7 @@ import '../../../core/ui/widgets.dart';
 Future<void> showQuickAddSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
+    isScrollControlled: true,
     builder: (ctx) {
       void go(String path) {
         Navigator.pop(ctx);
@@ -70,6 +71,12 @@ Future<void> showQuickAddSheet(BuildContext context) {
                     Icons.event_available_outlined,
                     'Expected\ncash in',
                     () => go('/dues/new/expected'),
+                  ),
+                  _tile(
+                    ctx,
+                    Icons.schedule_send_outlined,
+                    'Plan a\npayment',
+                    () => go('/reminders/new?kind=payment'),
                   ),
                 ],
               ),

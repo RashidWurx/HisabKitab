@@ -30,6 +30,9 @@ class TransactionFormPage extends ConsumerStatefulWidget {
     this.prefillAccountId,
     this.fromAccountId,
     this.toAccountId,
+    this.prefillNote,
+    this.reminderId,
+    this.occurrence,
   });
 
   final TransactionType? type;
@@ -41,6 +44,11 @@ class TransactionFormPage extends ConsumerStatefulWidget {
   final String? prefillAccountId;
   final String? fromAccountId;
   final String? toAccountId;
+  final String? prefillNote;
+
+  /// Set when paying a planned payment: saving also closes [occurrence].
+  final String? reminderId;
+  final DateTime? occurrence;
 
   @override
   ConsumerState<TransactionFormPage> createState() =>
@@ -99,6 +107,7 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
       _accountTouched = true;
     }
     if (w.toAccountId != null) _toAccountId = w.toAccountId;
+    if (w.prefillNote != null) _note.text = w.prefillNote!;
   }
 
   Future<void> _load() async {
@@ -335,7 +344,15 @@ class _TransactionFormPageState extends ConsumerState<TransactionFormPage> {
     );
     setState(() => _saving = true);
     try {
-      await ref.read(transactionRepositoryProvider).save(input);
+      final reminderId = widget.reminderId;
+      final occurrence = widget.occurrence;
+      if (reminderId != null && occurrence != null && _isExpense) {
+        await ref
+            .read(reminderRepositoryProvider)
+            .recordPaid(reminderId, occurrence: occurrence, expense: input);
+      } else {
+        await ref.read(transactionRepositoryProvider).save(input);
+      }
       if (mounted) context.pop();
     } on LedgerException catch (e) {
       if (mounted) showMessage(context, e.message);

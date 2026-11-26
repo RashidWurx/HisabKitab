@@ -29,7 +29,7 @@ const _groups = <(String, List<_Item>)>[
     'Reminders',
     [
       _Item(Icons.notifications_active_outlined, 'Missed reminders', 'Everything you have not dealt with', '/notifications', badge: true),
-      _Item(Icons.notifications_none, 'Custom reminders', 'Your own repeating reminders', '/reminders'),
+      _Item(Icons.notifications_none, 'Reminders & payments', 'Planned payments and your own reminders', '/reminders'),
     ],
   ),
   (

@@ -19,6 +19,8 @@ import 'package:hisaab/features/dues/data/due_repository.dart';
 import 'package:hisaab/features/dues/presentation/dues_page.dart';
 import 'package:hisaab/features/home/presentation/home_page.dart';
 import 'package:hisaab/features/more/presentation/more_page.dart';
+import 'package:hisaab/features/reminders/data/reminder_repository.dart';
+import 'package:hisaab/features/reminders/presentation/reminders_page.dart';
 import 'package:hisaab/features/savings/presentation/savings_page.dart';
 import 'package:hisaab/features/settings/presentation/settings_page.dart';
 import 'package:hisaab/features/sources/data/source_repository.dart';
@@ -87,6 +89,9 @@ void main() {
     'settings': (_) => const SettingsPage(),
     'accounts': (_) => const AccountsPage(),
     'savings': (_) => const SavingsPage(),
+    'reminders': (_) => const RemindersPage(),
+    'plan_payment': (_) => const ReminderFormPage(payment: true),
+    'to_pay': (_) => const DuesPage(initialTab: 1),
     'add_expense': (_) =>
         const TransactionFormPage(type: TransactionType.expense),
   };
@@ -208,6 +213,14 @@ Future<String> _seed(AppDatabase db) async {
       totalAmount: 30000 * rs,
       accountId: bank,
       dueDate: now.add(const Duration(days: 3)),
+    ),
+  );
+  await ReminderRepository(db).save(
+    ReminderDraft(
+      title: 'Siblings',
+      amount: 5000 * rs,
+      accountId: bank,
+      remindAt: now.subtract(const Duration(days: 1)),
     ),
   );
   return bank;

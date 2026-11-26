@@ -11,6 +11,7 @@ import '../../../core/ui/widgets.dart';
 import '../../../core/utils/money.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
+import '../../reminders/data/reminder_repository.dart';
 import '../data/dashboard_service.dart';
 import '../../notifications/presentation/missed_page.dart';
 import 'dashboard_charts.dart';
@@ -70,7 +71,12 @@ class HomePage extends ConsumerWidget {
         children: [
           // ---- Hero ----
           _Hero(
-            total: headline.total,
+            total: LedgerService.netBalance(
+              inAccounts: headline.total,
+              borrowedOwed: dues.toPay,
+            ),
+            inAccounts: headline.total,
+            owed: dues.toPay,
             savings: headline.savings,
             income: totals?.moneyIn ?? 0,
             expense: totals?.moneyOut ?? 0,
@@ -173,7 +179,13 @@ class HomePage extends ConsumerWidget {
                 children: [
                   for (var i = 0; i < upcoming.length; i++) ...[
                     if (i > 0) const Divider(indent: 76),
-                    _UpcomingRow(item: upcoming[i]),
+                    if (upcoming[i].kind == UpcomingKind.payment)
+                      InkWell(
+                        onTap: () => _payPlanned(context, ref, upcoming[i].id),
+                        child: _UpcomingRow(item: upcoming[i]),
+                      )
+                    else
+                      _UpcomingRow(item: upcoming[i]),
                   ],
                 ],
               ),
@@ -199,6 +211,15 @@ class HomePage extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _payPlanned(
+    BuildContext context,
+    WidgetRef ref,
+    String id,
+  ) async {
+    final r = await ref.read(reminderRepositoryProvider).get(id);
+    if (r != null && context.mounted) context.push(expenseRouteFor(r));
   }
 
   Widget _moneyBySource(
@@ -266,6 +287,8 @@ class HomePage extends ConsumerWidget {
 class _Hero extends StatelessWidget {
   const _Hero({
     required this.total,
+    required this.inAccounts,
+    required this.owed,
     required this.savings,
     required this.income,
     required this.expense,
@@ -273,7 +296,10 @@ class _Hero extends StatelessWidget {
     required this.rangeLabel,
   });
 
+  /// Own money: [inAccounts] minus [owed].
   final int total;
+  final int inAccounts;
+  final int owed;
   final int savings;
   final int income;
   final int expense;
@@ -336,8 +362,8 @@ class _Hero extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 Money.format(total),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: total < 0 ? _heroRed : Colors.white,
                   fontSize: 42,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -1,
@@ -346,6 +372,11 @@ class _Hero extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
+            if (owed > 0)
+              Text(
+                '${Money.format(inAccounts)} in accounts, minus ${Money.format(owed)} you owe',
+                style: const TextStyle(color: Color(0xCCFFFFFF), fontSize: 13),
+              ),
             Text(
               'Includes ${Money.format(savings)} in savings',
               style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 13),
@@ -418,9 +449,16 @@ class _HeroStat extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: const Color(0xB3FFFFFF)),
               const SizedBox(width: 4),
-              Text(
-                label,
-                style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 12),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xB3FFFFFF),
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -836,6 +874,10 @@ class _UpcomingRow extends StatelessWidget {
       UpcomingKind.due => item.isMoneyIn ? 'Expected' : 'To pay',
       UpcomingKind.subscription => 'Subscription',
       UpcomingKind.reminder => 'Reminder',
+      UpcomingKind.payment =>
+        item.date.isAfter(DateTime.now())
+            ? 'Planned · tap when paid'
+            : 'Unpaid · tap when paid',
     };
     final color = item.isMoneyIn ? colors.positive : colors.negative;
     return Padding(

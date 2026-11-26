@@ -10,6 +10,7 @@ abstract final class SettingKeys {
   static const onboardingDone = 'onboarding_done';
   static const monthStartDay = 'month_start_day';
   static const themeMode = 'theme_mode'; // system | light | dark
+  static const homePeriod = 'home_period'; // see PeriodSelection.encode
   static const backupAnchor = 'notif.backup.anchor'; // epoch millis
   static const notificationsAsked = 'notif.permission_asked';
 }

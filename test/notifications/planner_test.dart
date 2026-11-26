@@ -302,7 +302,11 @@ void main() {
         createdAt: DateTime(2026, 1, 1),
       );
       final plan = planReminders(input(const [], reminders: [once, weekly]));
-      expect(plan.where((r) => r.payload == 'reminder:r1').length, 1);
+      // With an amount it is a planned payment: asked on the date, then
+      // nudged while unpaid.
+      final payment = plan.where((r) => r.payload == 'pay:r1').toList();
+      expect(payment.where((r) => r.type == NotificationType.custom).length, 1);
+      expect(payment.where((r) => r.type == NotificationType.overdue).length, 3);
       expect(plan.where((r) => r.payload == 'reminder:r2').length, 3);
       expect(plan.first.title, 'Send money home');
     });

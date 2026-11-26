@@ -212,7 +212,8 @@ class NotificationLogRepository {
           (p.startsWith('due:') && !openDueIds.contains(p.substring(4))) ||
           (p.startsWith('sub:') && !subscriptionIds.contains(p.substring(4))) ||
           (p.startsWith('reminder:') &&
-              !reminderIds.contains(p.substring(9)));
+              !reminderIds.contains(p.substring(9))) ||
+          (p.startsWith('pay:') && !reminderIds.contains(p.substring(4)));
       if (gone) await handleByKey(r.key, now: current);
     }
   }

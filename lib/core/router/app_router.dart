@@ -172,6 +172,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           prefillAccountId: s.uri.queryParameters['account'],
           fromAccountId: s.uri.queryParameters['from'],
           toAccountId: s.uri.queryParameters['to'],
+          prefillNote: s.uri.queryParameters['note'],
+          reminderId: s.uri.queryParameters['reminder'],
+          occurrence: switch (int.tryParse(
+            s.uri.queryParameters['occurrence'] ?? '',
+          )) {
+            final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+            null => null,
+          },
           type: switch (s.pathParameters['type']) {
             'income' => TransactionType.income,
             'transfer' => TransactionType.transfer,
@@ -206,7 +214,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       _full('/savings', (_) => const SavingsPage()),
       _full('/reminders', (_) => const RemindersPage()),
-      _full('/reminders/new', (_) => const ReminderFormPage()),
+      _full(
+        '/reminders/new',
+        (s) => ReminderFormPage(
+          payment: s.uri.queryParameters['kind'] == 'payment',
+        ),
+      ),
       _full(
         '/reminders/:id/edit',
         (s) => ReminderFormPage(reminderId: s.pathParameters['id']),

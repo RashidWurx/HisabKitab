@@ -4,6 +4,7 @@ import '../../../core/database/database_provider.dart';
 import '../../../core/providers.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
+import '../../settings/data/settings_repository.dart';
 import '../data/dashboard_service.dart';
 
 /// What the Home period switcher is set to. [kind] is null for a custom range.
@@ -13,22 +14,65 @@ class PeriodSelection {
 
   final PeriodKind? kind;
   final DateRange? custom;
+
+  static const fallback = PeriodSelection.preset(PeriodKind.thisMonth);
+
+  /// How the choice is stored: a [PeriodKind] name, or
+  /// `custom:<start millis>:<end millis>`.
+  String encode() => custom == null
+      ? kind!.name
+      : 'custom:${custom!.start!.millisecondsSinceEpoch}'
+            ':${custom!.end!.millisecondsSinceEpoch}';
+
+  /// Anything unknown or damaged reads as "This month".
+  static PeriodSelection decode(String? raw) {
+    if (raw == null) return fallback;
+    final parts = raw.split(':');
+    if (parts.length == 3 && parts.first == 'custom') {
+      final start = int.tryParse(parts[1]);
+      final end = int.tryParse(parts[2]);
+      if (start == null || end == null) return fallback;
+      return PeriodSelection.custom(
+        DateRange(
+          start: DateTime.fromMillisecondsSinceEpoch(start),
+          end: DateTime.fromMillisecondsSinceEpoch(end),
+        ),
+      );
+    }
+    for (final k in PeriodKind.values) {
+      if (k.name == raw) return PeriodSelection.preset(k);
+    }
+    return fallback;
+  }
 }
 
 class PeriodNotifier extends Notifier<PeriodSelection> {
+  /// The choice is saved, so it stays until the user changes it.
   @override
-  PeriodSelection build() => const PeriodSelection.preset(PeriodKind.thisMonth);
+  PeriodSelection build() => PeriodSelection.decode(
+    ref.watch(
+      settingsProvider.select((s) => s.value?.raw(SettingKeys.homePeriod)),
+    ),
+  );
 
-  void selectPreset(PeriodKind kind) => state = PeriodSelection.preset(kind);
+  void selectPreset(PeriodKind kind) => _choose(PeriodSelection.preset(kind));
 
   /// [end] is inclusive here (what the date picker returns).
-  void selectCustom(DateTime start, DateTime end) =>
-      state = PeriodSelection.custom(
-        DateRange(
-          start: DateTime(start.year, start.month, start.day),
-          end: DateTime(end.year, end.month, end.day + 1),
-        ),
-      );
+  void selectCustom(DateTime start, DateTime end) => _choose(
+    PeriodSelection.custom(
+      DateRange(
+        start: DateTime(start.year, start.month, start.day),
+        end: DateTime(end.year, end.month, end.day + 1),
+      ),
+    ),
+  );
+
+  void _choose(PeriodSelection selection) {
+    state = selection;
+    ref
+        .read(settingsRepositoryProvider)
+        .set(SettingKeys.homePeriod, selection.encode());
+  }
 }
 
 final periodSelectionProvider =

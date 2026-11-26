@@ -154,6 +154,11 @@ SELECT account_id, source_id, SUM(amt) AS bal FROM (
     return (total: total, savings: savings);
   }
 
+  /// The money that is really yours: what the accounts hold minus what is
+  /// still owed on borrowed money. Negative when you owe more than you have.
+  static int netBalance({required int inAccounts, required int borrowedOwed}) =>
+      inAccounts - borrowedOwed;
+
   /// Net cash movement of a day's transactions: money in minus money out.
   /// Transfers are neutral.
   static int dayNet(Iterable<Transaction> transactions) {

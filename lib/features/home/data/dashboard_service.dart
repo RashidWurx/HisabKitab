@@ -60,7 +60,7 @@ class AccountDashRow {
   final int expected;
 }
 
-enum UpcomingKind { due, subscription, reminder }
+enum UpcomingKind { due, subscription, reminder, payment }
 
 class UpcomingItem {
   const UpcomingItem({
@@ -249,8 +249,9 @@ SELECT account_id, SUM(rem) AS expected FROM (
     });
   }
 
-  /// Items due in the next [days] days (including overdue dues and anything
-  /// today): open dues, active subscriptions and active custom reminders.
+  /// Items due in the next [days] days (including overdue dues, unpaid planned
+  /// payments and anything today): open dues, active subscriptions and active
+  /// custom reminders.
   Stream<List<UpcomingItem>> watchUpcoming({int days = 7, DateTime? now}) {
     final start = DateUtils0.startOfDay(now ?? DateTime.now());
     final end = start.add(Duration(days: days + 1)); // exclusive
@@ -269,17 +270,19 @@ SELECT * FROM (
     FROM subscriptions s
    WHERE s.status = 'active' AND s.next_due_date < ?
   UNION ALL
-  SELECT 'reminder', r.id, r.title, r.remind_at, COALESCE(r.amount, 0), 0
+  SELECT CASE WHEN r.amount IS NULL THEN 'reminder' ELSE 'payment' END,
+         r.id, r.title, r.remind_at, COALESCE(r.amount, 0), 0
     FROM custom_reminders r
-   WHERE r.is_active = 1 AND r.remind_at >= ? AND r.remind_at < ?
+   WHERE r.is_active = 1 AND r.remind_at < ?
+     AND (r.amount IS NOT NULL OR r.remind_at >= ?)
 ) WHERE kind <> 'due' OR amount > 0
  ORDER BY at ASC
 ''',
           variables: [
             Variable.withDateTime(end),
             Variable.withDateTime(end),
-            Variable.withDateTime(start),
             Variable.withDateTime(end),
+            Variable.withDateTime(start),
           ],
           readsFrom: {
             _db.dues,
@@ -296,6 +299,7 @@ SELECT * FROM (
                 kind: switch (r.read<String>('kind')) {
                   'due' => UpcomingKind.due,
                   'subscription' => UpcomingKind.subscription,
+                  'payment' => UpcomingKind.payment,
                   _ => UpcomingKind.reminder,
                 },
                 id: r.read<String>('id'),
