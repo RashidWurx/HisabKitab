@@ -127,4 +127,33 @@ void main() {
       isEmpty,
     );
   });
+
+  test('paying from an empty account still works and goes below zero', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final cash = await AccountRepository(db).save(
+      const AccountDraft(
+        name: 'Cash',
+        type: AccountType.cash,
+        openingBalance: 0,
+        colorValue: 1,
+        iconKey: 'cash',
+      ),
+    );
+    final reminders = ReminderRepository(db);
+    final now = DateTime.now();
+    final id = await reminders.save(
+      ReminderDraft(title: 'Siblings', amount: 5000 * rs, remindAt: now),
+    );
+    await reminders.payNow(
+      id,
+      occurrence: (await reminders.get(id))!.remindAt,
+      amount: 5000 * rs,
+      accountId: cash,
+      categoryId: 'cat_exp_rent',
+      date: now,
+    );
+    final balances = await LedgerService(db).sourceBalances();
+    expect(LedgerService.accountTotals(balances)[cash], -5000 * rs);
+  });
 }
