@@ -3,8 +3,11 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/enums.dart';
+import '../../../core/database/seed.dart';
+import '../../ledger/data/ledger_service.dart';
 import '../../subscriptions/domain/subscription_logic.dart';
 import '../../transactions/data/transaction_repository.dart';
+import '../../transactions/domain/allocation_logic.dart';
 import '../../transactions/domain/transaction_models.dart';
 
 class ReminderDraft {
@@ -185,6 +188,53 @@ class ReminderRepository {
         ))
         .write(NotificationLogCompanion(handledAt: Value(current)));
     return txId;
+  });
+
+  /// "Mark paid" without the expense form: builds the expense (tagging it with
+  /// the sources the account would normally spend from) and records it.
+  Future<String> payNow(
+    String id, {
+    required DateTime occurrence,
+    required int amount,
+    required String accountId,
+    required String categoryId,
+    required DateTime date,
+  }) => _db.transaction(() async {
+    final r = await get(id);
+    if (r == null) throw LedgerException('This planned payment was deleted.');
+    final balances = LedgerService.sourcesInAccount(
+      await LedgerService(_db).sourceBalances(),
+      accountId,
+    );
+    final account = await (_db.select(
+      _db.accounts,
+    )..where((a) => a.id.equals(accountId))).getSingle();
+    final category = await (_db.select(
+      _db.categories,
+    )..where((c) => c.id.equals(categoryId))).getSingle();
+    final source = autoPickSource(
+      balancesInAccount: balances,
+      categoryDefaultSourceId: category.defaultSourceId,
+      accountDefaultSourceId: account.defaultSpendingSourceId,
+      fallbackSourceId: otherMoneySourceId,
+    );
+    return recordPaid(
+      id,
+      occurrence: occurrence,
+      expense: TransactionInput(
+        type: TransactionType.expense,
+        amount: amount,
+        accountId: accountId,
+        categoryId: categoryId,
+        date: date,
+        note: r.title,
+        allocations: splitWithOtherSources(
+          primary: source,
+          amount: amount,
+          balancesInAccount: balances,
+        ),
+      ),
+    );
   });
 
   /// Repeating reminders whose time has passed move to their next time.

@@ -70,3 +70,7 @@
 56. Account movements are transactions of type `passIn` / `passOut` (never income, expense or dues). Their money is tagged "Other money"; when the user's own money covers a payment it comes from real sources and returns to them when collected.
 57. **Home total also subtracts 3rd party money being held** (per record, only accounts included in the total). Money the user covered is not added back until collected.
 58. Mistakes are fixed by removing a history step or deleting the record. The first step and (after any return) the amount cannot be edited. Reminders use the "owed to you" / "you owe" and overdue settings; payload `pass:<id>`.
+
+## 2026-11-28: planned payment and Activity fixes
+59. **Planned payments have no on/off switch** (it was mistaken for "paid" and hid the item). "Mark paid" opens a confirm sheet; `ReminderRepository.payNow` records the expense in one step. A switched-off payment can be restored from Reminders & payments.
+60. **Activity lists every movement of money**, including 3rd party money passed directly between two people (shown neutral; it does not change the day's net). Opening balances are not movements and are not listed.

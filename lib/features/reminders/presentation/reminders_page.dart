@@ -11,6 +11,7 @@ import '../../../core/ui/widgets.dart';
 import '../../../core/utils/money.dart';
 import '../../transactions/data/transaction_repository.dart';
 import '../data/reminder_repository.dart';
+import 'planned_pay_sheet.dart';
 
 String repeatLabel(ReminderRepeat r, int? every) => switch (r) {
   ReminderRepeat.none => 'Does not repeat',
@@ -64,7 +65,7 @@ class RemindersPage extends ConsumerWidget {
                   for (final r in upcoming) ReminderTile(r),
                 ],
                 if (past.isNotEmpty) ...[
-                  const SectionTitle('Done'),
+                  const SectionTitle('Paid or finished'),
                   for (final r in past) ReminderTile(r, done: true),
                 ],
               ],
@@ -74,7 +75,7 @@ class RemindersPage extends ConsumerWidget {
 
 }
 
-/// One reminder or planned payment, with its Paid / Pay button and switch.
+/// One reminder (with its switch) or planned payment (with "Mark paid").
 class ReminderTile extends ConsumerWidget {
   const ReminderTile(this.reminder, {super.key, this.done = false});
 
@@ -85,9 +86,8 @@ class ReminderTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final r = reminder;
     final scheme = Theme.of(context).colorScheme;
-    final canPay = r.isPayment
-        ? r.isActive
-        : r.categoryId != null || r.accountId != null;
+    if (r.isPayment) return _PaymentCard(r);
+    final canPay = r.categoryId != null || r.accountId != null;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Opacity(
@@ -135,7 +135,7 @@ class ReminderTile extends ConsumerWidget {
               if (canPay)
                 TextButton(
                   onPressed: () => context.push(expenseRouteFor(r)),
-                  child: Text(r.isPayment ? 'Paid' : 'Pay'),
+                  child: const Text('Pay'),
                 ),
               Switch(
                 value: r.isActive,
@@ -144,6 +144,92 @@ class ReminderTile extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A planned payment. No switch: the only action is "Mark paid", so it cannot
+/// be hidden by mistake.
+class _PaymentCard extends ConsumerWidget {
+  const _PaymentCard(this.payment);
+
+  final CustomReminder payment;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final r = payment;
+    final scheme = Theme.of(context).colorScheme;
+    final unpaid = r.isUnpaid(DateTime.now());
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: AppCard(
+        padding: const EdgeInsets.all(14),
+        onTap: () => context.push('/reminders/${r.id}/edit'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    r.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                MoneyText(
+                  -r.amount!,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              !r.isActive
+                  ? 'Paid or switched off'
+                  : '${unpaid ? 'Unpaid, was due' : 'Pay on'} ${DateFormat('d MMM y, h:mm a').format(r.remindAt)}'
+                        '${r.repeat == ReminderRepeat.none ? '' : ' · ${repeatLabel(r.repeat, r.repeatEveryDays)}'}',
+              style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 10),
+            if (r.isActive)
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => showPlannedPaySheet(context, ref, r),
+                  icon: const Icon(Icons.check),
+                  label: const Text('Mark paid'),
+                ),
+              )
+            else
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () async {
+                    final ok = await confirmDialog(
+                      context,
+                      title: 'Plan it again?',
+                      message:
+                          'Do this only if "${r.title}" was not paid. Check Activity first.',
+                      confirmLabel: 'Not paid yet',
+                    );
+                    if (ok) {
+                      await ref
+                          .read(reminderRepositoryProvider)
+                          .setActive(r.id, true);
+                    }
+                  },
+                  child: const Text('Not paid? Restore'),
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -414,13 +500,15 @@ class _ReminderFormPageState extends ConsumerState<ReminderFormPage> {
               if (r != null) setState(() => _accountId = r.value);
             },
           ),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Active'),
-            value: _active,
-            onChanged: (v) => setState(() => _active = v),
-          ),
+          if (!_payment) ...[
+            const SizedBox(height: 8),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Active'),
+              value: _active,
+              onChanged: (v) => setState(() => _active = v),
+            ),
+          ],
         ],
       ),
       bottomNavigationBar: SaveBar(

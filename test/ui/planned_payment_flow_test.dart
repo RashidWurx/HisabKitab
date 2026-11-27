@@ -12,7 +12,7 @@ import 'package:hisaab/features/settings/data/settings_repository.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
-  testWidgets('Paid opens the filled expense and saving it takes the money', (
+  testWidgets('Mark paid takes the money and shows it in Activity', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(780, 1700);
@@ -71,11 +71,13 @@ void main() {
     await settle();
 
     expect(find.text('Unpaid'), findsOneWidget);
-    await tester.tap(find.text('Paid'));
+    // Nothing on a planned payment can hide it by accident.
+    expect(find.byType(Switch), findsNothing);
+    await tester.tap(find.text('Mark paid'));
     await settle();
-    expect(find.text('Add expense'), findsOneWidget);
+    expect(find.text('Balance after: Rs 15,000'), findsOneWidget);
 
-    await tester.tap(find.text('Save expense'));
+    await tester.tap(find.text('Confirm payment of Rs 5,000'));
     await settle();
 
     await tester.runAsync(() async {
@@ -85,7 +87,12 @@ void main() {
       expect(tx.note, 'Siblings');
       expect((await ReminderRepository(db).get(id))!.isActive, isFalse);
     });
-    expect(find.text('Done'), findsOneWidget);
+    expect(find.text('Paid or finished'), findsOneWidget);
+
+    container.read(routerProvider).go('/activity');
+    await settle();
+    expect(find.textContaining('Siblings'), findsOneWidget);
+    expect(find.text('-Rs 5,000'), findsWidgets);
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();

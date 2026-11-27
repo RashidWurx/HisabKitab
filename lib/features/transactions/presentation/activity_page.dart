@@ -9,6 +9,7 @@ import '../../../core/providers.dart';
 import '../../../core/ui/pickers.dart';
 import '../../../core/ui/widgets.dart';
 import '../../ledger/data/ledger_service.dart';
+import '../../thirdparty/domain/pass_activity.dart';
 import '../data/transaction_repository.dart';
 import 'open_transaction.dart';
 import 'transaction_tile.dart';
@@ -83,6 +84,11 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
       for (final c in ref.watch(categoriesProvider).value ?? const <Category>[])
         c.id: c,
     };
+    final direct = directMoves(
+      ref.watch(passViewsProvider).value ?? const [],
+      ref.watch(peopleProvider).value ?? const <PeopleData>[],
+      _filter,
+    );
     final activeFilters = _filter.copyWith(search: '');
     return Scaffold(
       appBar: AppBar(title: const Text('Activity')),
@@ -136,7 +142,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Something went wrong: $e')),
               data: (list) {
-                if (list.isEmpty) {
+                if (list.isEmpty && direct.isEmpty) {
                   return EmptyState(
                     icon: Icons.receipt_long_outlined,
                     title: _filter.isEmpty
@@ -154,7 +160,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
                           }),
                   );
                 }
-                return _grouped(list, accounts, categories);
+                return _grouped(list, direct, accounts, categories);
               },
             ),
           ),
@@ -165,25 +171,36 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
 
   Widget _grouped(
     List<Transaction> list,
+    List<DirectMove> direct,
     Map<String, Account> accounts,
     Map<String, Category> categories,
   ) {
     // Flat list (day headers + transactions) so only visible rows are built.
     final items = <Object>[];
     DateTime? currentDay;
-    var group = <Transaction>[];
+    var group = <Object>[];
     void flush() {
       if (currentDay == null) return;
-      items.add((currentDay, LedgerService.dayNet(group)));
+      // Direct moves touch no account, so they do not change the day's net.
+      items.add((
+        currentDay,
+        LedgerService.dayNet(group.whereType<Transaction>()),
+      ));
       items.addAll(group);
       group = [];
     }
 
-    for (final t in list) {
-      final day = DateUtils.dateOnly(t.date);
+    DateTime dateOf(Object o) =>
+        o is Transaction ? o.date : (o as DirectMove).entry.date;
+    final all = <Object>[...list, ...direct];
+    if (direct.isNotEmpty) {
+      all.sort((a, b) => dateOf(b).compareTo(dateOf(a)));
+    }
+    for (final item in all) {
+      final day = DateUtils.dateOnly(dateOf(item));
       if (currentDay != null && day != currentDay) flush();
       currentDay = day;
-      group.add(t);
+      group.add(item);
     }
     flush();
 
@@ -218,6 +235,7 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
             ),
           );
         }
+        if (item is DirectMove) return _DirectRow(item);
         final t = item as Transaction;
         return Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -284,6 +302,61 @@ class _ActivityPageState extends ConsumerState<ActivityPage> {
     );
     if (result != null) setState(() => _filter = result);
   }
+}
+
+/// 3rd party money that went straight between two people.
+class _DirectRow extends StatelessWidget {
+  const _DirectRow(this.move);
+
+  final DirectMove move;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: AppCard(
+      radius: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      onTap: () => context.push('/third-party/${move.passId}'),
+      child: Row(
+        children: [
+          const IconBox(iconKey: 'people'),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${move.from} → ${move.to}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '3rd party, directly · no account used',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          MoneyText(
+            move.entry.amount,
+            neutral: true,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _FilterSheet extends ConsumerStatefulWidget {

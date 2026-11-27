@@ -11,7 +11,7 @@ import '../../../core/ui/widgets.dart';
 import '../../../core/utils/money.dart';
 import '../../../core/utils/period.dart';
 import '../../ledger/data/ledger_service.dart';
-import '../../reminders/data/reminder_repository.dart';
+import '../../reminders/presentation/planned_pay_sheet.dart';
 import '../../thirdparty/domain/pass_models.dart';
 import '../data/dashboard_service.dart';
 import '../../notifications/presentation/missed_page.dart';
@@ -235,7 +235,9 @@ class HomePage extends ConsumerWidget {
     String id,
   ) async {
     final r = await ref.read(reminderRepositoryProvider).get(id);
-    if (r != null && context.mounted) context.push(expenseRouteFor(r));
+    if (r != null && context.mounted) {
+      await showPlannedPaySheet(context, ref, r);
+    }
   }
 
   Widget _moneyBySource(
